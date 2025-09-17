@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Abstractions
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<T> GetRepository<T>() where T : class;
-        void Save();
+        IGenericRepository<T> GetRepository<T>() where T : class;        
         Task SaveChangeAsync();
         void BeginTransaction();
         void CommitTransaction();
