@@ -10,6 +10,10 @@ namespace MuseumSystem.Infrastructure
 {
     public static class DependencyInjection
     {
-       
+       public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddLogging();
+
+        }
     }
 }
