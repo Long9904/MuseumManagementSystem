@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DatabaseSetting\" />
     <Folder Include="Implementation\" />
   </ItemGroup>
 
@@ -22,8 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MuseumSystem.Application\MuseumSystem.Application.csproj" />
-    <ProjectReference Include="..\MuseumSystem.Domain\MuseumSystem.Domain.csproj" />
+    <ProjectReference Include="..\MuseumSystem.Application\MuseumSystem.Application.csproj">
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MuseumSystem.Domain\MuseumSystem.Domain.csproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
