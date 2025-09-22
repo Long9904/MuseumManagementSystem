@@ -20,7 +20,11 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
-
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+    options.ListenAnyIP(Int32.Parse(port));
+});
 builder.Services.AddSwaggerGen(option =>
 {
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -76,6 +80,7 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseAuthentication();
+app.MapGet("/", () => "Hello Render with Docker + ASP.NET!");
 app.MapControllers();
 
 app.Run();
