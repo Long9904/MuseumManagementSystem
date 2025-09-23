@@ -19,10 +19,10 @@ namespace MuseumSystem.Api.Controllers
         {
             if (await _context.Database.CanConnectAsync())
             {
-                return Ok("✅ Connected to MySQL successfully!");
+                return Ok("✅ Connected to PostgreSQL successfully!");
             }
 
-            return StatusCode(500, "❌ Failed to connect to MySQL!");
+            return StatusCode(500, "❌ Failed to connect to PostgreSQL!");
         }
     }
 }
