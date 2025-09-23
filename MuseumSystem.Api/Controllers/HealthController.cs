@@ -17,12 +17,16 @@ namespace MuseumSystem.Api.Controllers
         [HttpGet("check-db")]
         public async Task<IActionResult> CheckDb()
         {
-            if (await _context.Database.CanConnectAsync())
+            try
             {
-                return Ok("✅ Connected to PostgreSQL successfully!");
+                var canConnect = await _context.Database.CanConnectAsync();
+                return Ok(canConnect ? "Database OK" : "Database NOT OK");
             }
-
-            return StatusCode(500, "❌ Failed to connect to PostgreSQL!");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CheckDb Error] {ex}");
+                return StatusCode(500, ex.Message); // giúp thấy lỗi thật trong Render Logs
+            }
         }
     }
 }
