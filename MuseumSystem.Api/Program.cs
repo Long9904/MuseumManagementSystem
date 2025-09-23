@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(option =>
             Array.Empty<string>()
         }
     });
-    
+
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -61,11 +61,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
