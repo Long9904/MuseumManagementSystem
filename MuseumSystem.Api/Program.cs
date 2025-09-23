@@ -54,19 +54,9 @@ builder.Services.AddSwaggerGen(option =>
     
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var mysqlVersion = builder.Configuration["DatabaseSettings:MySqlVersion"];
-
-// Check null connection string & version
-
-if (string.IsNullOrEmpty(mysqlVersion) || !Version.TryParse(mysqlVersion, out _))
-{
-    throw new InvalidOperationException("MySQL version is not specified or invalid in configuration. Please check appsetting or appsetting dev");
-}
-
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(mysqlVersion))));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
