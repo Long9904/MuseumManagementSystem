@@ -66,8 +66,9 @@ app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapGet("/", () => "Hello Render with Docker + ASP.NET!");
 app.MapControllers();
 
