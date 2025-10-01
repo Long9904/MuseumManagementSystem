@@ -4,10 +4,11 @@ WORKDIR /src
 
 # Copy solution file nếu có, hoặc từng csproj
 # Giả sử bạn có file MuseumSystem.sln
-COPY MuseumSystem.sln ./
+COPY MuseumManagementSystem.sln ./
 COPY MuseumSystem.Api/*.csproj ./MuseumSystem.Api/
 COPY MuseumSystem.Domain/*.csproj ./MuseumSystem.Domain/
 COPY MuseumSystem.Application/*.csproj ./MuseumSystem.Application/
+COPY MuseumSystem.Infrastructure/*.csproj ./MuseumSystem.Infrastructure/
 
 # Restore dependencies (cache tốt)
 RUN dotnet restore MuseumSystem.Api/MuseumSystem.Api.csproj
