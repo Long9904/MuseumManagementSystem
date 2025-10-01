@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
 namespace MuseumSystem.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/health")]
     [ApiController]
     public class HealthController : ControllerBase
     {
@@ -14,13 +15,13 @@ namespace MuseumSystem.Api.Controllers
             _context = context;
         }
 
-        [HttpGet("check-db")]
+        [HttpGet("check-connection")]
         public async Task<IActionResult> CheckDb()
         {
             try
             {
-                var canConnect = await _context.Database.CanConnectAsync();
-                return Ok(canConnect ? "Database OK" : "Database NOT OK");
+                await _context.Database.ExecuteSqlRawAsync("SELECT 1");
+                return Ok("Database OK (Execution Successful)");
             }
             catch (Exception ex)
             {
