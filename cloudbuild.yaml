@@ -27,3 +27,6 @@ substitutions:
 
 images:
   - 'gcr.io/$PROJECT_ID/museum-system-api:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
