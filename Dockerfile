@@ -1,31 +1,27 @@
-# -------------------
-# 1. Build stage
-# -------------------
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy csproj và restore
-COPY *.csproj ./
-RUN dotnet restore
+# Copy solution file nếu có, hoặc từng csproj
+# Giả sử bạn có file MuseumSystem.sln
+COPY MuseumSystem.sln ./
+COPY MuseumSystem.Api/*.csproj ./MuseumSystem.Api/
+COPY MuseumSystem.Domain/*.csproj ./MuseumSystem.Domain/
+COPY MuseumSystem.Application/*.csproj ./MuseumSystem.Application/
+
+# Restore dependencies (cache tốt)
+RUN dotnet restore MuseumSystem.Api/MuseumSystem.Api.csproj
 
 # Copy toàn bộ source code
-COPY . ./
+COPY . .
 
 # Publish release
-RUN dotnet publish -c Release -o out
+WORKDIR /src/MuseumSystem.Api
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
-# -------------------
-# 2. Runtime stage
-# -------------------
+# Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+COPY --from=build /app/publish ./
 
-# Copy kết quả publish từ build stage
-COPY --from=build /app/out .
-
-# Cloud Run yêu cầu listen port 8080
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
-
-# Chạy app: tên DLL chính = project
 ENTRYPOINT ["dotnet", "MuseumSystem.Api.dll"]
