@@ -4,13 +4,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -21,8 +16,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Swagger public cho Cloud Run
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "MuseumSystem API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -31,7 +29,6 @@ builder.Services.AddSwaggerGen(option =>
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme."
-
     });
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -47,25 +44,19 @@ builder.Services.AddSwaggerGen(option =>
             Array.Empty<string>()
         }
     });
-    
 });
 
+// EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Middleware
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();  
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
