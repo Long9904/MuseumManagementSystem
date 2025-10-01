@@ -1,15 +1,29 @@
 steps:
-  - name: 'gcr.io/cloud-builders/dotnet'
-    args: ['publish', '-c', 'Release', '-o', 'out']
-
+  # 1. Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$swd-deploy-be/$swd-deploy-be', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/museum-system-api:$COMMIT_SHA', '.']
 
+  # 2. Push Docker image lên Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$swd-deploy-be/$swd-deploy-be']
+    args: ['push', 'gcr.io/$PROJECT_ID/museum-system-api:$COMMIT_SHA']
 
+  # 3. Deploy Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
-    args: ['run', 'deploy', '$swd-deploy-be', '--image', 'gcr.io/$swd-deploy-be/$swd-deploy-be', '--platform', 'managed', '--region', 'asia-southeast1', '--allow-unauthenticated']
+    args:
+      [
+        'run', 'deploy', 'museum-system-api',
+        '--image', 'gcr.io/$PROJECT_ID/museum-system-api:$COMMIT_SHA',
+        '--platform', 'managed',
+        '--region', 'asia-southeast1',
+        '--allow-unauthenticated',
+        '--port', '8080',
+        '--add-cloudsql-instances', 'swd-deploy-be:asia-southeast1:museum-sqlserver'
+      ]
+
+# Sử dụng substitutions để auto tag image theo commit
+substitutions:
+  _COMMIT_SHA: $COMMIT_SHA
+
 images:
-  - 'gcr.io/$swd-deploy-be/$swd-deploy-be'
+  - 'gcr.io/$PROJECT_ID/museum-system-api:$COMMIT_SHA'
