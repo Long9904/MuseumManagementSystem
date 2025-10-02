@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MuseumSystem.Api;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+builder.Services.AddConfig(builder.Configuration);
 // EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

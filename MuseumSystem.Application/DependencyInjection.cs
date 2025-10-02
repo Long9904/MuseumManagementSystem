@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Application.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,7 @@ namespace MuseumSystem.Application
         {
           
             // services.AddScoped<IYourService, YourServiceImplementation>();
+            services.AddScoped<IRoleService, RoleService>();
         }
     }
 }
