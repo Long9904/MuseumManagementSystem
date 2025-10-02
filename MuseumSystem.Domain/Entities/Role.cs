@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Entities
 {
-    public class Account
+    public class Role
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         [Required]
-        public string Username { get; set; } = string.Empty;
-        [Required]
-        public string Password { get; set; } = string.Empty;
-
+        public string Name { get; set; } = string.Empty;
+        
 
     }
 }

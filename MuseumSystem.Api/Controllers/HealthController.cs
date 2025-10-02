@@ -4,7 +4,7 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 
 namespace MuseumSystem.Api.Controllers
 {
-    [Route("api/health")]
+    [Route("api/v1/health")]
     [ApiController]
     public class HealthController : ControllerBase
     {
