@@ -10,7 +10,7 @@ namespace MuseumSystem.Domain.Abstractions
     public interface IGenericRepository<T> where T : class
     {
         IQueryable<T> Entity { get; }
-        Task<T?> FindByConditionAsync(Func<T, bool> expression);
+        Task<T?> FindByConditionAsync(Expression<Func<T, bool>> predicate);
         Task<IList<T>> GetAllAsync();
         Task<T?> GetByIdAsync(Object id);
         Task InsertAsync(T entity);

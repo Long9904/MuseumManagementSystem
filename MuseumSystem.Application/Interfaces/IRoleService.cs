@@ -1,4 +1,5 @@
-﻿using MuseumSystem.Domain.Entities;
+﻿using MuseumSystem.Application.Dtos.RoleDtos;
+using MuseumSystem.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace MuseumSystem.Application.Interfaces
     {
         Task<List<Role>> GetAllRolesAsync();
         Task<Role?> GetRoleByIdAsync(string id);
-        Task<Role> AddRoleAsync(string roleName);
-        Task<Role> UpdateRoleAsync(string id, string newRoleName);
+        Task<Role> AddRoleAsync(RoleRequest request);
+        Task<Role> UpdateRoleAsync(string id, RoleRequest roleRequest);
         Task DeleteRoleAsync(string id);
     }
 }
