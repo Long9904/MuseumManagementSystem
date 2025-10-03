@@ -46,8 +46,9 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
-
+//Add Dependency Injection
 builder.Services.AddConfig(builder.Configuration);
+
 // EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

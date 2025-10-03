@@ -39,7 +39,7 @@ namespace MuseumSystem.Api.Controllers
         {
             try
             {
-                var role = await _roleService.AddRoleAsync(roleRequest.Name);
+                var role = await _roleService.AddRoleAsync(roleRequest);
                 return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace MuseumSystem.Api.Controllers
         {
             try
             {
-                var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest.Name);
+                var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);
                 return Ok(ApiResponse<Role>.OkResponse(roleUpdate ,"Role updated successfully", "200"));
             }
             catch (Exception ex)
