@@ -30,7 +30,7 @@ namespace MuseumSystem.Application.Services
                 _logger.LogError("Role name cannot be null or empty.");
                 throw new ArgumentException("Role name cannot be null or empty.", nameof(roleRequest.Name));
             }
-            if(!Regex.IsMatch(roleRequest.Name,@"^[a-zA-Z0-9 ]+$"))
+            if (!Regex.IsMatch(roleRequest.Name, @"^[a-zA-Z0-9 ]+$"))
             {
                 _logger.LogError("Role name contains invalid characters.");
                 throw new ArgumentException("Role name contains invalid characters.", nameof(roleRequest.Name));
@@ -63,15 +63,10 @@ namespace MuseumSystem.Application.Services
             await _unitOfWork.GetRepository<Role>().DeleteAsync(id);
         }
 
-        public async Task<List<Role>> GetAllRolesAsync()
+        public async Task<BasePaginatedList<Role>> GetAllRolesAsync(int pageIndex , int pageSize )
         {
-            var roles = await _unitOfWork.GetRepository<Role>().GetAllAsync();
-            if (!roles.Any())
-            {
-                _logger.LogInformation("No roles found in the system.");
-                throw new InvalidOperationException("No roles found in the system.");
-            }
-            return roles.ToList();
+            var query = _unitOfWork.GetRepository<Role>().Entity;
+            return await _unitOfWork.GetRepository<Role>().GetPagging(query, pageIndex, pageSize);
         }
 
         public async Task<Role?> GetRoleByIdAsync(string id)

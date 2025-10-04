@@ -18,6 +18,7 @@ namespace MuseumSystem.Domain.Abstractions
         Task DeleteAsync(Object id);
         Task<T?> FindAsync(Expression<Func<T, bool>> predicate, string? includeProperties = null);
         Task<IList<T>> FilterByAsync(Expression<Func<T, bool>> predicate);
+        Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
 
 
     }

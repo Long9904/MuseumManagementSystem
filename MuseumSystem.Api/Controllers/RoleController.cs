@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.RoleDtos;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 
 namespace MuseumSystem.Api.Controllers
@@ -21,12 +22,12 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
             try
             {
-                var roles = await _roleService.GetAllRolesAsync();
-                return Ok(ApiResponse<List<Role>>.OkResponse(roles, "Get all roles successfully", "200"));
+                var roles = await _roleService.GetAllRolesAsync(pageIndex,pageSize);
+                return Ok(ApiResponse<BasePaginatedList<Role>>.OkResponse(roles, "Get all roles successfully", "200"));
             }
             catch (Exception ex)
             {
