@@ -20,9 +20,43 @@ namespace MuseumSystem.Application.Services
             _unit = unit;
             _logger = logger;
         }
-        public Task<Account> CreateAccountAsync(AccountRequest account)
+        public async Task<Account> CreateAccountAsync(string roleId,AccountRequest account)
         {
-            throw new NotImplementedException();
+            if(account == null)
+            {
+                _logger.LogError("Account request cannot be null.");
+                throw new ArgumentNullException(nameof(account), "Account request cannot be null.");
+            }
+            if(string.IsNullOrWhiteSpace(account.Email))
+            {
+                _logger.LogError("Email cannot be null or empty.");
+                throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
+            }
+            if(string.IsNullOrWhiteSpace(account.Password))
+            {
+                _logger.LogError("Password cannot be null or empty.");
+                throw new ArgumentException("Password cannot be null or empty.", nameof(account.Password));
+            }
+            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId);
+            if(role == null)
+            {
+                _logger.LogError("Role with ID {RoleId} not found.", roleId);
+                throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+            }
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
+            var newAccount = new Account
+            {
+                Email = account.Email,
+                Password = hashedPassword,
+                FullName = account.FullName,
+                IsActive = Domain.Enums.EnumActive.Active,
+                CreateAt = DateTime.UtcNow,
+                RoleId = role.Id
+            };
+            await _unit.GetRepository<Account>().InsertAsync(newAccount);
+            await _unit.SaveChangeAsync();
+            _logger.LogInformation("Account with email {AccountEmail} created successfully.", account.Email);
+            return newAccount;
         }
 
         public async Task DeleteAccountAsync(string id)
@@ -59,9 +93,65 @@ namespace MuseumSystem.Application.Services
             return account;
         }
 
-        public Task<Account> UpdateAccountAsync(AccountRequest account)
+        public async Task<Account> UpdateAccountAsync(string accountId, AccountRequest account)
         {
-            throw new NotImplementedException();
+            bool isUpdate = false;
+            if(account == null)
+            {
+                _logger.LogError("Account request cannot be null.");
+                throw new ArgumentNullException(nameof(account), "Account request cannot be null.");
+            }
+            if(string.IsNullOrWhiteSpace(account.Email))
+            {
+                _logger.LogError("Email cannot be null or empty.");
+                throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
+            }
+            if(string.IsNullOrWhiteSpace(account.Password))
+            {
+                _logger.LogError("Password cannot be null or empty.");
+                throw new ArgumentException("Password cannot be null or empty.", nameof(account.Password));
+            }
+            if(string.IsNullOrWhiteSpace(accountId))
+            {
+                _logger.LogError("Account ID cannot be null or empty.");
+                throw new ArgumentException("Account ID cannot be null or empty.", nameof(accountId));
+            }
+            var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.Id == accountId);
+            if(existingAccount == null)
+            {
+                _logger.LogError("Account with ID {AccountId} not found.", accountId);
+                throw new KeyNotFoundException($"Account with ID {accountId} not found.");
+            }
+            if(existingAccount.Email != account.Email)
+            {
+                existingAccount.Email = account.Email;
+                isUpdate = true;
+            }
+            if(existingAccount.Password != account.Password)
+            {
+                existingAccount.Password = account.Password;
+                isUpdate = true;
+            }
+            if(existingAccount.FullName != account.FullName)
+            {
+                existingAccount.FullName = account.FullName;
+                isUpdate = true;
+            }
+            if(isUpdate)
+            {
+                existingAccount.UpdateAt = DateTime.UtcNow;
+                await _unit.GetRepository<Account>().UpdateAsync(existingAccount);
+                await _unit.SaveChangeAsync();
+                _logger.LogInformation("Account with ID {AccountId} updated successfully.", accountId);
+                return existingAccount;
+            }
+            else
+            {
+                _logger.LogInformation("No changes detected for account with ID {AccountId}.", accountId);
+                throw new InvalidOperationException($"No changes detected for account with ID {accountId}.");
+            }
+
+
         }
 
         

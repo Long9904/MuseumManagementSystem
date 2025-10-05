@@ -15,8 +15,8 @@ namespace MuseumSystem.Application.Interfaces
         Task<BasePaginatedList<Account>> GetAllAccountsAsync(int pageIndex, int pageSize);
         Task<Account?> GetAccountByIdAsync(string id);
         Task<Account?> GetAccountByEmailAsync(string email);
-        Task<Account> CreateAccountAsync(AccountRequest account);
-        Task<Account> UpdateAccountAsync(AccountRequest account);
+        Task<Account> CreateAccountAsync(string roleId, AccountRequest account);
+        Task<Account> UpdateAccountAsync(string accountId, AccountRequest account);
         Task DeleteAccountAsync(string id);
       
 

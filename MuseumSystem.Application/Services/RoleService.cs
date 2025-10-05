@@ -101,8 +101,6 @@ namespace MuseumSystem.Application.Services
                 roleExisting.Name = roleRequest.Name;
                 isUpdate = true;
             }
-
-            roleExisting.Name = roleRequest.Name;
             if (!isUpdate)
             {
                 _logger.LogInformation("No changes detected for Role with ID {RoleId}. Update operation skipped.", id);
