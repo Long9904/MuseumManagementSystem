@@ -88,5 +88,12 @@ namespace MuseumSystem.Infrastructure.Implementation
             // Warning: this method does not call SaveChanges or SaveChangesAsync.
             // Caller (UnitOfWork) call SaveChangesAsync after all operations complete.
         }
+
+        public async Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize)
+        {
+            var count = await query.CountAsync();
+            var items = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new BasePaginatedList<T>(items, count, index, pageSize);
+        }
     }
 }

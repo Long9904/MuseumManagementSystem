@@ -46,6 +46,25 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
+// Authentication JWT
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(option =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+    });
+builder.Services.AddAuthorization();
+
 //Add Dependency Injection
 builder.Services.AddConfig(builder.Configuration);
 
