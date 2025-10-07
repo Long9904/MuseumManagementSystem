@@ -3,6 +3,7 @@ using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using MuseumSystem.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace MuseumSystem.Application.Services
             _unit = unit;
             _logger = logger;
         }
-        public async Task<Account> CreateAccountAsync(string roleId,AccountRequest account)
+        public async Task<Account> CreateAccountAsync(string roleId,string museumId ,AccountRequest account)
         {
             if(account == null)
             {
@@ -43,13 +44,14 @@ namespace MuseumSystem.Application.Services
                 _logger.LogError("Role with ID {RoleId} not found.", roleId);
                 throw new KeyNotFoundException($"Role with ID {roleId} not found.");
             }
+           
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
             var newAccount = new Account
             {
                 Email = account.Email,
                 Password = hashedPassword,
                 FullName = account.FullName,
-                IsActive = Domain.Enums.EnumActive.Active,
+                Status = EnumStatus.Active ,
                 CreateAt = DateTime.UtcNow,
                 RoleId = role.Id
             };

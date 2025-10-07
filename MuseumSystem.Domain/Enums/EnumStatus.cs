@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Enums
 {
-    public enum EnumActive
+    public enum EnumStatus  
     {
         Active,
         Inactive

@@ -22,10 +22,11 @@ namespace MuseumSystem.Application.Services
         private readonly IUnitOfWork _unit;
         private readonly ILogger<AuthService> _logger;
         private readonly IConfiguration _configuration;
-        public AuthService(IUnitOfWork unit, ILogger<AuthService> logger)
+        public AuthService(IUnitOfWork unit, ILogger<AuthService> logger, IConfiguration configuration)
         {
             _unit = unit;
             _logger = logger;
+            _configuration = configuration;
         }
         public async Task<AuthResponse> LoginAsync(AuthRequest request)
         {
@@ -45,7 +46,7 @@ namespace MuseumSystem.Application.Services
                 _logger.LogWarning("Invalid password for email {Email}.", request.Email);
                 throw new UnauthorizedAccessException("Invalid password.");
             }
-            if (accountExisting.IsActive != EnumActive.Active)
+            if (accountExisting.Status != EnumStatus.Active)
             {
                 _logger.LogWarning("Account with email {Email} is not active.", request.Email);
                 throw new UnauthorizedAccessException("Account is not active.");
