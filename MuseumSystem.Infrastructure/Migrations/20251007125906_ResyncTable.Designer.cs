@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251007042723_AddMuseumTable")]
-    partial class AddMuseumTable
+    [Migration("20251007125906_ResyncTable")]
+    partial class ResyncTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
