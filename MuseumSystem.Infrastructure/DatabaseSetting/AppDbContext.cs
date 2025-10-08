@@ -10,6 +10,7 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
         {
         }
         // Example DbSet, replace with actual entities
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Account> Accounts { get; set; }
         // Configure DbSets
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -17,6 +18,7 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
             base.OnModelCreating(modelBuilder);
 
             // Example entity configuration
+            modelBuilder.Entity<Role>();
             modelBuilder.Entity<Account>();
 
 

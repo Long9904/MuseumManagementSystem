@@ -4,28 +4,29 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Entities
 {
-    public class Account
+    public class Museum
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         [Required]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         [Required]
-        public string Password { get; set; } = string.Empty;
-        public string? FullName { get; set; }
+        public string Location { get; set; } = string.Empty;
+        [Required]
+        public string Description { get; set; } = string.Empty;
         public EnumStatus Status { get; set; } = EnumStatus.Active;
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdateAt { get; set; }
-        // Foreign key to Role
-        public string RoleId { get; set; }
-        public Role Role { get; set; } = null!;
 
-        // Foreign key to Museum 
-        public string MuseumId { get; set; } 
-        public Museum? Museum { get; set; } 
-        }
+        // Navigation property for related accounts
+        [JsonIgnore]
+        public ICollection<Account> Accounts { get; set; } = new List<Account>();
+
+        [JsonIgnore]
+        public ICollection<Area> Areas { get; set; } = new List<Area>();
+    }
 }

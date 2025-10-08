@@ -4,6 +4,7 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,17 +22,16 @@ namespace MuseumSystem.Infrastructure.Implementation
 
         public IQueryable<T> Entity => _dbSet;
 
-        public Task DeleteAsync(object id)
+        public async Task DeleteAsync(object id)
         {
-           var entity =  _dbSet.Find(id);
-            if(entity != null)
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
             {
-                _dbSet.Remove(entity);              
+                _dbSet.Remove(entity);
             }
-            return Task.CompletedTask;
         }
 
-        public async Task<IList<T>> FilterByAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+        public async Task<IList<T>> FilterByAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
@@ -41,14 +41,24 @@ namespace MuseumSystem.Infrastructure.Implementation
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, string? includeProperties = null)
+        public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate, string? includeProperties = null)
         {
-            return await _dbSet.FirstOrDefaultAsync(predicate);
+            IQueryable<T> query = _dbSet;
+
+            if (!string.IsNullOrWhiteSpace(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp.Trim());
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<T?> FindByConditionAsync(Func<T, bool> expression)
+        public async Task<T?> FindByConditionAsync(Expression<Func<T, bool>> predicate)
         {
-            return await Task.FromResult(_dbSet.FirstOrDefault(x => expression(x)));
+            return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
         public Task<T?> GetByIdAsync(object id)
@@ -60,20 +70,30 @@ namespace MuseumSystem.Infrastructure.Implementation
         public async Task InsertAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            
-
+            // Warning: this method does not call SaveChanges or SaveChangesAsync.
+            // Caller (UnitOfWork) call SaveChangesAsync after all operations complete.
         }
 
-        public Task<T> UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             var id = _context.Entry(entity).Property("Id").CurrentValue;
-            var exist = _dbSet.Find(id);
-            if (exist != null)
+            var exist = await _dbSet.FindAsync(id);
+
+            if (exist == null)
             {
-                _context.Entry(exist).CurrentValues.SetValues(entity);
-                _context.SaveChanges();
+                throw new KeyNotFoundException($"Entity with Id {id} not found.");
             }
-            return Task.FromResult(entity);
+            _context.Entry(exist).CurrentValues.SetValues(entity);
+            return exist;
+            // Warning: this method does not call SaveChanges or SaveChangesAsync.
+            // Caller (UnitOfWork) call SaveChangesAsync after all operations complete.
+        }
+
+        public async Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize)
+        {
+            var count = await query.CountAsync();
+            var items = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new BasePaginatedList<T>(items, count, index, pageSize);
         }
     }
 }

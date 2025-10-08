@@ -1,11 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MuseumSystem.Api;
+using MuseumSystem.Api.Middleware;
+using MuseumSystem.Application.Validation;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Services
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+}); ;
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -46,17 +53,40 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// Authentication JWT
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(option =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+    });
+builder.Services.AddAuthorization();
+
+//Add Dependency Injection
+builder.Services.AddConfig(builder.Configuration);
+
 // EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowAll");
 app.UseSwagger();
-app.UseSwaggerUI();  
+app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
+

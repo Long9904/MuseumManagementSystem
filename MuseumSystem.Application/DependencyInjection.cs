@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Application.Services;
 
 namespace MuseumSystem.Application
 {
@@ -13,6 +12,14 @@ namespace MuseumSystem.Application
         {
           
             // services.AddScoped<IYourService, YourServiceImplementation>();
+            services.AddScoped<IRoleService, RoleService>();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+            services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         }
     }
 }
