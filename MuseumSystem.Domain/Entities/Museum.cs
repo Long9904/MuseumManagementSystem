@@ -25,5 +25,8 @@ namespace MuseumSystem.Domain.Entities
         // Navigation property for related accounts
         [JsonIgnore]
         public ICollection<Account> Accounts { get; set; } = new List<Account>();
+
+        [JsonIgnore]
+        public ICollection<Area> Areas { get; set; } = new List<Area>();
     }
 }
