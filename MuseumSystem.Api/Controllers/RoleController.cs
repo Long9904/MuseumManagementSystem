@@ -37,17 +37,11 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AddRole([FromBody] RoleRequest roleRequest)
-        {
-            try
-            {
+        {         
                 var role = await _roleService.AddRoleAsync(roleRequest);
-                return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<Role>.InternalErrorResponse(ex.Message));
-            }
+                return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));     
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoleById(string id)
         {

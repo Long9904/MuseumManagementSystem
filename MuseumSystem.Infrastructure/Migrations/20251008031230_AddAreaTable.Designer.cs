@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251007125906_ResyncTable")]
-    partial class ResyncTable
+    [Migration("20251008031230_AddAreaTable")]
+    partial class AddAreaTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,36 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Area", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MuseumId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MuseumId");
+
+                    b.ToTable("Area");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
@@ -134,9 +164,22 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Area", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
+                        .WithMany("Areas")
+                        .HasForeignKey("MuseumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Museum");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
                 {
                     b.Navigation("Accounts");
+
+                    b.Navigation("Areas");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Role", b =>
