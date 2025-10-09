@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Entities
@@ -22,10 +23,12 @@ namespace MuseumSystem.Domain.Entities
         public DateTime? UpdateAt { get; set; }
         // Foreign key to Role
         public string RoleId { get; set; }
+        [JsonIgnore]
         public Role Role { get; set; } = null!;
 
         // Foreign key to Museum 
-        public string MuseumId { get; set; } 
+        public string MuseumId { get; set; }
+        [JsonIgnore]
         public Museum? Museum { get; set; } 
         }
 }

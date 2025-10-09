@@ -21,39 +21,45 @@ namespace MuseumSystem.Application.Services
             _unit = unit;
             _logger = logger;
         }
-        public async Task<Account> CreateAccountAsync(string roleId,string museumId ,AccountRequest account)
+        public async Task<Account> CreateAccountAsync(string roleId, string museumId, AccountRequest account)
         {
-            if(account == null)
+            if (account == null)
             {
                 _logger.LogError("Account request cannot be null.");
                 throw new ArgumentNullException(nameof(account), "Account request cannot be null.");
             }
-            if(string.IsNullOrWhiteSpace(account.Email))
+            if (string.IsNullOrWhiteSpace(account.Email))
             {
                 _logger.LogError("Email cannot be null or empty.");
                 throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
             }
-            if(string.IsNullOrWhiteSpace(account.Password))
+            if (string.IsNullOrWhiteSpace(account.Password))
             {
                 _logger.LogError("Password cannot be null or empty.");
                 throw new ArgumentException("Password cannot be null or empty.", nameof(account.Password));
             }
             var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId);
-            if(role == null)
+            if (role == null)
             {
                 _logger.LogError("Role with ID {RoleId} not found.", roleId);
                 throw new KeyNotFoundException($"Role with ID {roleId} not found.");
             }
-           
+            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId);
+            if (museum == null)
+            {
+                _logger.LogError("Museum with ID {MuseumId} not found.", museumId);
+                throw new KeyNotFoundException($"Museum with ID {museumId} not found.");
+            }
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
             var newAccount = new Account
             {
                 Email = account.Email,
                 Password = hashedPassword,
                 FullName = account.FullName,
-                Status = EnumStatus.Active ,
+                Status = EnumStatus.Active,
                 CreateAt = DateTime.UtcNow,
-                RoleId = role.Id
+                RoleId = role.Id,
+                MuseumId = museum.Id
             };
             await _unit.GetRepository<Account>().InsertAsync(newAccount);
             await _unit.SaveChangeAsync();
@@ -75,8 +81,8 @@ namespace MuseumSystem.Application.Services
 
         public async Task<Account?> GetAccountByIdAsync(string id)
         {
-            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Id == id);
-            if(account == null)
+            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
+            if (account == null)
             {
                 _logger.LogWarning("Account with ID {AccountId} not found.", id);
                 throw new KeyNotFoundException($"Account with ID {id} not found.");
@@ -98,48 +104,48 @@ namespace MuseumSystem.Application.Services
         public async Task<Account> UpdateAccountAsync(string accountId, AccountRequest account)
         {
             bool isUpdate = false;
-            if(account == null)
+            if (account == null)
             {
                 _logger.LogError("Account request cannot be null.");
                 throw new ArgumentNullException(nameof(account), "Account request cannot be null.");
             }
-            if(string.IsNullOrWhiteSpace(account.Email))
+            if (string.IsNullOrWhiteSpace(account.Email))
             {
                 _logger.LogError("Email cannot be null or empty.");
                 throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
             }
-            if(string.IsNullOrWhiteSpace(account.Password))
+            if (string.IsNullOrWhiteSpace(account.Password))
             {
                 _logger.LogError("Password cannot be null or empty.");
                 throw new ArgumentException("Password cannot be null or empty.", nameof(account.Password));
             }
-            if(string.IsNullOrWhiteSpace(accountId))
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 _logger.LogError("Account ID cannot be null or empty.");
                 throw new ArgumentException("Account ID cannot be null or empty.", nameof(accountId));
             }
             var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.Id == accountId);
-            if(existingAccount == null)
+            if (existingAccount == null)
             {
                 _logger.LogError("Account with ID {AccountId} not found.", accountId);
                 throw new KeyNotFoundException($"Account with ID {accountId} not found.");
             }
-            if(existingAccount.Email != account.Email)
+            if (existingAccount.Email != account.Email)
             {
                 existingAccount.Email = account.Email;
                 isUpdate = true;
             }
-            if(existingAccount.Password != account.Password)
+            if (existingAccount.Password != account.Password)
             {
                 existingAccount.Password = account.Password;
                 isUpdate = true;
             }
-            if(existingAccount.FullName != account.FullName)
+            if (existingAccount.FullName != account.FullName)
             {
                 existingAccount.FullName = account.FullName;
                 isUpdate = true;
             }
-            if(isUpdate)
+            if (isUpdate)
             {
                 existingAccount.UpdateAt = DateTime.UtcNow;
                 await _unit.GetRepository<Account>().UpdateAsync(existingAccount);
@@ -156,6 +162,6 @@ namespace MuseumSystem.Application.Services
 
         }
 
-        
+
     }
 }

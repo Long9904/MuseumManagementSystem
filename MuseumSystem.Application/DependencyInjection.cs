@@ -13,6 +13,12 @@ namespace MuseumSystem.Application
           
             // services.AddScoped<IYourService, YourServiceImplementation>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IGenerateTokenService, GenerateTokenService>();
+            services.AddScoped<IMuseumService, MuseumService>();
+
+
 
             services.Configure<ApiBehaviorOptions>(options =>
             {

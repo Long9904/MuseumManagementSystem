@@ -29,7 +29,7 @@ namespace MuseumSystem.Api.Middleware
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = ex switch
                 {
-                    AuthenticationException => (int)HttpStatusCode.Unauthorized,
+                    AuthenticationException => 401,
                     UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
                     ValidationException => (int)HttpStatusCode.BadRequest,
                     ArgumentException => (int)HttpStatusCode.BadRequest,
