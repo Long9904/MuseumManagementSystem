@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
@@ -52,10 +55,26 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+// Login Google 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        IConfigurationSection googleAuthNSection =
+            builder.Configuration.GetSection("Authentication:Google");
+        options.ClientId = googleAuthNSection["ClientId"];
+        options.ClientSecret = googleAuthNSection["ClientSecret"];
+
+        options.CallbackPath = "/auth/google/callback";
+    })
 
 // Authentication JWT
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer(option =>
+    .AddJwtBearer("Bearer",option =>
     {
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

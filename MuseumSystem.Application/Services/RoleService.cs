@@ -26,19 +26,16 @@ namespace MuseumSystem.Application.Services
         public async Task<Role> AddRoleAsync(RoleRequest roleRequest)
         {
             if (string.IsNullOrWhiteSpace(roleRequest.Name))
-            {
-                _logger.LogError("Role name cannot be null or empty.");
+            {              
                 throw new ArgumentException("Role name cannot be null or empty.", nameof(roleRequest.Name));
             }
             if (!Regex.IsMatch(roleRequest.Name, @"^[a-zA-Z0-9 ]+$"))
-            {
-                _logger.LogError("Role name contains invalid characters.");
+            {               
                 throw new ArgumentException("Role name contains invalid characters.", nameof(roleRequest.Name));
             }
             var existingRole = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name);
             if (existingRole != null)
-            {
-                _logger.LogWarning("Role with name {RoleName} already exists.", roleRequest.Name);
+            {     
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
             var role = new Role
@@ -56,14 +53,13 @@ namespace MuseumSystem.Application.Services
         {
             var role = await GetRoleByIdAsync(id);
             if (role == null)
-            {
-                _logger.LogWarning("Role with ID {RoleId} not found.", id);
+            {   
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
             await _unitOfWork.GetRepository<Role>().DeleteAsync(id);
         }
 
-        public async Task<BasePaginatedList<Role>> GetAllRolesAsync(int pageIndex , int pageSize )
+        public async Task<BasePaginatedList<Role>> GetAllRolesAsync(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Role>().Entity;
             return await _unitOfWork.GetRepository<Role>().GetPagging(query, pageIndex, pageSize);
@@ -73,8 +69,7 @@ namespace MuseumSystem.Application.Services
         {
             var role = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Id == id);
             if (role == null)
-            {
-                _logger.LogWarning("Role with ID {RoleId} not found.", id);
+            {            
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
             return role;
@@ -86,13 +81,11 @@ namespace MuseumSystem.Application.Services
             var roleExisting = await GetRoleByIdAsync(id);
             if (roleExisting == null)
             {
-                _logger.LogWarning("Role with ID {RoleId} not found.", id);
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
             var roleWithSameName = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name);
             if (roleWithSameName != null)
             {
-                _logger.LogWarning("Role with name {RoleName} already exists.", roleRequest.Name);
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
             bool isUpdate = false;
@@ -103,7 +96,6 @@ namespace MuseumSystem.Application.Services
             }
             if (!isUpdate)
             {
-                _logger.LogInformation("No changes detected for Role with ID {RoleId}. Update operation skipped.", id);
                 return roleExisting;
             }
             await _unitOfWork.GetRepository<Role>().UpdateAsync(roleExisting);

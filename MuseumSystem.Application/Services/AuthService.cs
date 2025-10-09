@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MuseumSystem.Application.Dtos.AuthDtos;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,12 +24,16 @@ namespace MuseumSystem.Application.Services
         private readonly IUnitOfWork _unit;
         private readonly ILogger<AuthService> _logger;
         private readonly IConfiguration _configuration;
-        public AuthService(IUnitOfWork unit, ILogger<AuthService> logger, IConfiguration configuration)
+        private readonly IGenerateTokenService _generateTokenService;
+
+        public AuthService(IUnitOfWork unit, ILogger<AuthService> logger, IConfiguration configuration, IGenerateTokenService generateTokenService)
         {
             _unit = unit;
             _logger = logger;
             _configuration = configuration;
+            _generateTokenService = generateTokenService;
         }
+
         public async Task<AuthResponse> LoginAsync(AuthRequest request)
         {
             if (request.Email == null || request.Password == null)
@@ -54,37 +60,36 @@ namespace MuseumSystem.Application.Services
             _logger.LogInformation("User with email {Email} logged in successfully.", request.Email);
             return new AuthResponse
             {
-                Token = GenerateJwtToken(accountExisting)
+                Token = await _generateTokenService.GenerateToken(accountExisting)
             };
         }
 
-        private string GenerateJwtToken(Account accountExisting)
+        public async Task<AuthResponse> LoginGoogleAsync(LoginGGRequest loginGGRequest)
         {
-            try
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(loginGGRequest.IdToken);
+            var email = payload.Email;
+            var fullName = payload.Name;
+            var accountExisting = await _unit.GetRepository<Account>().FindByConditionAsync(x => x.Email == email);
+            if (accountExisting != null)
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
-                var tokenDescription = new SecurityTokenDescriptor
+                return new AuthResponse
                 {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, accountExisting.Id.ToString()),
-                        new Claim(ClaimTypes.Email, accountExisting.Email.ToString()),
-                        new Claim(ClaimTypes.Name, accountExisting.FullName ?? string.Empty),
-                        new Claim(ClaimTypes.Role, accountExisting.Role.Name.ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(2),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    Token = await _generateTokenService.GenerateToken(accountExisting)
                 };
-                var token = tokenHandler.CreateToken(tokenDescription);
-                return tokenHandler.WriteToken(token);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating JWT token: {Message}", ex.Message);
-                throw new InvalidOperationException("Error generating JWT token.", ex);
-            }
+            throw new AuthenticationException("Google account not registered in the system.");
+
+            //catch (AuthenticationException ex)
+            //{
+            //    _logger.LogError(ex, "Error during Google login: {Message}", ex.Message);
+            //    throw new AuthenticationException("Error during Google login.", ex);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Error during Google login: {Message}", ex.Message);
+            //    throw new InvalidOperationException("Error during Google login.", ex);
+            //}
         }
     }
 }
