@@ -7,6 +7,7 @@ using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
-});
+})
+    .AddJsonOptions(option =>
+    {
+        option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 
 //CORS
 builder.Services.AddCors(options =>
@@ -92,7 +98,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-//EF Core + DI
+//Add Dependency Injection
+builder.Services.AddConfig(builder.Configuration);
+
+// EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

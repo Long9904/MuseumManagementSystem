@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AuthDtos;
 using MuseumSystem.Application.Interfaces;
 
@@ -20,13 +21,13 @@ namespace MuseumSystem.Api.Controllers
         public async Task<IActionResult> LoginWithGoogle([FromBody] LoginGGRequest request)
         {
             var result = await _authService.LoginGoogleAsync(request);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponse>.OkResponse(result,"Get token successful!","200"));
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest request)
         {
             var result = await _authService.LoginAsync(request);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponse>.OkResponse(result, "Get token successful!", "200"));
         }
     }
 }
