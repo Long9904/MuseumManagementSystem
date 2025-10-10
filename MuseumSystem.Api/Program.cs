@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
-}); ;
+})
+    .AddJsonOptions(option =>
+    {
+        option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 
 builder.Services.AddCors(options =>
 {
@@ -77,7 +84,7 @@ builder.Services.AddAuthentication(options =>
     .AddJwtBearer("Bearer",option =>
     {
         var jwtSettings = builder.Configuration.GetSection("Jwt");
-        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        option.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -85,7 +92,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"]))
         };
     });
 builder.Services.AddAuthorization();
