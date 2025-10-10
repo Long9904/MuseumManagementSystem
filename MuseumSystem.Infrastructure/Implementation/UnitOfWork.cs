@@ -1,5 +1,7 @@
 ﻿using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using MuseumSystem.Infrastructure.Interface;
+using MuseumSystem.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +15,14 @@ namespace MuseumSystem.Infrastructure.Implementation
         private readonly AppDbContext _context;
         private bool disposed = false;
         private Dictionary<Type, object> repositories;
-        
+
+        public IAreaRepository AreaRepository { get; private set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
             repositories = new Dictionary<Type, object>();
+            AreaRepository = new AreaRepository(_context);
         }
 
 

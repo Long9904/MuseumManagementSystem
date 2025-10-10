@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251008102832_ArtifactManageTable")]
-    partial class ArtifactManageTable
+    [Migration("20251010014718_FixTable")]
+    partial class FixTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -125,7 +125,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasIndex("MuseumId");
 
-                    b.ToTable("Area");
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
@@ -332,7 +332,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Museum");
+                    b.ToTable("Museums");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Role", b =>
