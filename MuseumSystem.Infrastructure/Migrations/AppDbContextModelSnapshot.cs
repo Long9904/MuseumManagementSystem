@@ -122,7 +122,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasIndex("MuseumId");
 
-                    b.ToTable("Area");
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
@@ -329,7 +329,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Museum");
+                    b.ToTable("Museums");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Role", b =>

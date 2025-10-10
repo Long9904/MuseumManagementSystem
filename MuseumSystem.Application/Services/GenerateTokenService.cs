@@ -32,7 +32,7 @@ namespace MuseumSystem.Application.Services
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
                 var role = await _roleService.GetRoleByIdAsync(accountExisting.RoleId);
                 var tokenDescription = new SecurityTokenDescriptor
                 {
@@ -42,9 +42,12 @@ namespace MuseumSystem.Application.Services
                         new Claim(ClaimTypes.Email, accountExisting.Email.ToString()),
                         new Claim(ClaimTypes.Name, accountExisting.FullName ?? string.Empty),
                         new Claim(ClaimTypes.Role, role.Name.ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
+                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Sub, accountExisting.Id.ToString()),
                     }),
                     Expires = DateTime.UtcNow.AddHours(12),
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescription);

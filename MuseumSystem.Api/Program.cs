@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
@@ -10,27 +10,29 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Services
+//Controllers + Validation
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
-}); ;
+});
 
+//CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
-// Swagger public cho Cloud Run
+//Swagger + JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "MuseumSystem API", Version = "v1" });
+
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -40,6 +42,7 @@ builder.Services.AddSwaggerGen(option =>
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme."
     });
+
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -55,57 +58,61 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
-// Login Google 
+
+//Authentication: Google login , JWT
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddCookie()
-    .AddGoogle(options =>
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+{
+    var googleSection = builder.Configuration.GetSection("Authentication:Google");
+    options.ClientId = googleSection["ClientId"];
+    options.ClientSecret = googleSection["ClientSecret"];
+    options.CallbackPath = "/auth/google/callback";
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        IConfigurationSection googleAuthNSection =
-            builder.Configuration.GetSection("Authentication:Google");
-        options.ClientId = googleAuthNSection["ClientId"];
-        options.ClientSecret = googleAuthNSection["ClientSecret"];
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "")
+        ),
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = ClaimTypes.Role
+    };
+});
 
-        options.CallbackPath = "/auth/google/callback";
-    })
-
-// Authentication JWT
-    .AddJwtBearer("Bearer",option =>
-    {
-        var jwtSettings = builder.Configuration.GetSection("Jwt");
-        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings["Key"]))
-        };
-    });
-builder.Services.AddAuthorization();
-
-//Add Dependency Injection
-builder.Services.AddConfig(builder.Configuration);
-
-// EF Core SQL Server
+//EF Core + DI
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddConfig(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
+//Middleware pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseRouting();
 app.UseCors("AllowAll");
-app.UseSwagger();
-app.UseSwaggerUI();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.MapControllers();
 
 app.Run();
-

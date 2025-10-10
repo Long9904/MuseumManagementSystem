@@ -12,6 +12,9 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
         // Example DbSet, replace with actual entities
         public DbSet<Role> Roles { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Museum> Museums { get; set; }
+
+        public DbSet<Area> Areas { get; set; }
         // Configure DbSets
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,7 +23,8 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
             // Example entity configuration
             modelBuilder.Entity<Role>();
             modelBuilder.Entity<Account>();
-
+            modelBuilder.Entity<Museum>();
+            modelBuilder.Entity<Area>();
 
             // Auto apply configurations from the assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

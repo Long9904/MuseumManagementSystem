@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Application.Services;
+using MuseumSystem.Application.Utils;
 
 namespace MuseumSystem.Application
 {
@@ -17,8 +18,10 @@ namespace MuseumSystem.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IGenerateTokenService, GenerateTokenService>();
             services.AddScoped<IMuseumService, MuseumService>();
+            services.AddScoped<IAreaService, AreaService>();
 
-
+            // utils
+            services.AddScoped<GetCurrentUserLogin>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
