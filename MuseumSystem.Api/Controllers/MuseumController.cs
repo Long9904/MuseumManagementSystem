@@ -37,7 +37,7 @@ namespace MuseumSystem.Api.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllMuseums(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10)
         {
             try
             {

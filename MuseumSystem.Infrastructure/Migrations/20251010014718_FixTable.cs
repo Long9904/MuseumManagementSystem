@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class ArtifactManageTable : Migration
+    public partial class FixTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,7 +35,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Museum",
+                name: "Museums",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -48,7 +48,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Museum", x => x.Id);
+                    table.PrimaryKey("PK_Museums", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,7 +90,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Area",
+                name: "Areas",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -103,11 +103,11 @@ namespace MuseumSystem.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Area", x => x.Id);
+                    table.PrimaryKey("PK_Areas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Area_Museum_MuseumId",
+                        name: "FK_Areas_Museums_MuseumId",
                         column: x => x.MuseumId,
-                        principalTable: "Museum",
+                        principalTable: "Museums",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -130,9 +130,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_Museum_MuseumId",
+                        name: "FK_Accounts_Museums_MuseumId",
                         column: x => x.MuseumId,
-                        principalTable: "Museum",
+                        principalTable: "Museums",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -202,9 +202,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_DisplayPosition", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DisplayPosition_Area_AreaId",
+                        name: "FK_DisplayPosition_Areas_AreaId",
                         column: x => x.AreaId,
-                        principalTable: "Area",
+                        principalTable: "Areas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -247,8 +247,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Area_MuseumId",
-                table: "Area",
+                name: "IX_Areas_MuseumId",
+                table: "Areas",
                 column: "MuseumId");
 
             migrationBuilder.CreateIndex(
@@ -309,13 +309,13 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "ArtifactMedia");
 
             migrationBuilder.DropTable(
-                name: "Area");
+                name: "Areas");
 
             migrationBuilder.DropTable(
                 name: "Artifact");
 
             migrationBuilder.DropTable(
-                name: "Museum");
+                name: "Museums");
         }
     }
 }
