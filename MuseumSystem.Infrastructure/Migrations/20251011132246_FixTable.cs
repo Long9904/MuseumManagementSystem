@@ -12,7 +12,7 @@ namespace MuseumSystem.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Artifact",
+                name: "Artifacts",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -31,7 +31,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Artifact", x => x.Id);
+                    table.PrimaryKey("PK_Artifacts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,7 +57,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,9 +83,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_ArtifactMedia", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ArtifactMedia_Artifact_ArtifactId",
+                        name: "FK_ArtifactMedia_Artifacts_ArtifactId",
                         column: x => x.ArtifactId,
-                        principalTable: "Artifact",
+                        principalTable: "Artifacts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -187,7 +188,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DisplayPosition",
+                name: "DisplayPositions",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -196,42 +197,22 @@ namespace MuseumSystem.Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     AreaId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DisplayPosition", x => x.Id);
+                    table.PrimaryKey("PK_DisplayPositions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DisplayPosition_Areas_AreaId",
+                        name: "FK_DisplayPositions_Areas_AreaId",
                         column: x => x.AreaId,
                         principalTable: "Areas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ArtifactDisplay",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DisplayPositionId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ArtifactDisplay", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ArtifactDisplay_Artifact_ArtifactId",
+                        name: "FK_DisplayPositions_Artifacts_ArtifactId",
                         column: x => x.ArtifactId,
-                        principalTable: "Artifact",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ArtifactDisplay_DisplayPosition_DisplayPositionId",
-                        column: x => x.DisplayPositionId,
-                        principalTable: "DisplayPosition",
+                        principalTable: "Artifacts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -252,24 +233,20 @@ namespace MuseumSystem.Infrastructure.Migrations
                 column: "MuseumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArtifactDisplay_ArtifactId",
-                table: "ArtifactDisplay",
-                column: "ArtifactId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ArtifactDisplay_DisplayPositionId",
-                table: "ArtifactDisplay",
-                column: "DisplayPositionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ArtifactMedia_ArtifactId",
                 table: "ArtifactMedia",
                 column: "ArtifactId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DisplayPosition_AreaId",
-                table: "DisplayPosition",
+                name: "IX_DisplayPositions_AreaId",
+                table: "DisplayPositions",
                 column: "AreaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DisplayPositions_ArtifactId",
+                table: "DisplayPositions",
+                column: "ArtifactId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Image_ArtifactMediaId",
@@ -291,7 +268,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "Accounts");
 
             migrationBuilder.DropTable(
-                name: "ArtifactDisplay");
+                name: "DisplayPositions");
 
             migrationBuilder.DropTable(
                 name: "Image");
@@ -303,19 +280,16 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "DisplayPosition");
+                name: "Areas");
 
             migrationBuilder.DropTable(
                 name: "ArtifactMedia");
 
             migrationBuilder.DropTable(
-                name: "Areas");
-
-            migrationBuilder.DropTable(
-                name: "Artifact");
-
-            migrationBuilder.DropTable(
                 name: "Museums");
+
+            migrationBuilder.DropTable(
+                name: "Artifacts");
         }
     }
 }

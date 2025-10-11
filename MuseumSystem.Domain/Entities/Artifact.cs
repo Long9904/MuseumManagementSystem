@@ -34,8 +34,8 @@ namespace MuseumSystem.Domain.Entities
         // Foreign key to media
         public ICollection<ArtifactMedia> ArtifactMedias { get; set; } = new List<ArtifactMedia>();
 
-        // Foreign key to ArtifactDisplay (many-to-many relationship)
-        public ICollection<ArtifactDisplay> DisplayHistory { get; set; } = new List<ArtifactDisplay>();
+        // elationship to DisplayPosition 1-1
+        public DisplayPosition? DisplayPosition { get; set; }
 
     }
 }

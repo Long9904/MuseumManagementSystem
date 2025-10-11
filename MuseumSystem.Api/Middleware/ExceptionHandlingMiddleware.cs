@@ -38,6 +38,21 @@ namespace MuseumSystem.Api.Middleware
                     TimeoutException => (int)HttpStatusCode.RequestTimeout,
                     NotImplementedException => (int)HttpStatusCode.NotImplemented,
                     FormatException => (int)HttpStatusCode.BadRequest,
+                    OverflowException => (int)HttpStatusCode.BadRequest,
+                    DivideByZeroException => (int)HttpStatusCode.BadRequest,
+                    IndexOutOfRangeException => (int)HttpStatusCode.BadRequest,
+                    NullReferenceException => (int)HttpStatusCode.BadRequest,
+                    InvalidCastException => (int)HttpStatusCode.BadRequest,
+                    StackOverflowException => (int)HttpStatusCode.InternalServerError,
+                    OutOfMemoryException => (int)HttpStatusCode.InternalServerError,
+                    NotSupportedException => (int)HttpStatusCode.BadRequest,
+                    OperationCanceledException => (int)HttpStatusCode.RequestTimeout,
+                    JsonException => (int)HttpStatusCode.BadRequest,
+                    FileNotFoundException => (int)HttpStatusCode.NotFound,
+                    DirectoryNotFoundException => (int)HttpStatusCode.NotFound,
+                    PathTooLongException => (int)HttpStatusCode.BadRequest,
+                    IOException => (int)HttpStatusCode.InternalServerError,
+
                     _ => (int)HttpStatusCode.InternalServerError
                 };
 
