@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Application.Services;
@@ -33,7 +34,7 @@ namespace MuseumSystem.Api.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error adding museum");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
         [HttpGet]
@@ -47,7 +48,7 @@ namespace MuseumSystem.Api.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error getting all museums");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
         [HttpDelete("{id}")]
@@ -61,7 +62,7 @@ namespace MuseumSystem.Api.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error deleting museum");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
         [HttpGet("{id}")]
@@ -75,7 +76,7 @@ namespace MuseumSystem.Api.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error getting museum by id");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
         [HttpPut("{id}")]
@@ -89,7 +90,7 @@ namespace MuseumSystem.Api.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error updating museum");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
 

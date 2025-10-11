@@ -12,11 +12,11 @@ namespace MuseumSystem.Application.Interfaces
 {
     public interface IAccountService
     {
-        Task<BasePaginatedList<Account>> GetAllAccountsAsync(int pageIndex, int pageSize);
-        Task<Account?> GetAccountByIdAsync(string id);
-        Task<Account?> GetAccountByEmailAsync(string email);
-        Task<Account> CreateAccountAsync(string roleId, string museumId,AccountRequest account);
-        Task<Account> UpdateAccountAsync(string accountId, AccountRequest account);
+        Task<BasePaginatedList<AccountRespone>> GetAllAccountsAsync(int pageIndex, int pageSize);
+        Task<AccountRespone?> GetAccountByIdAsync(string id);
+        Task<AccountRespone?> GetAccountByEmailAsync(string email);
+        Task<AccountRespone> CreateAccountAsync(string roleId, string museumId,AccountRequest account);
+        Task<AccountRespone> UpdateAccountAsync(string accountId, AccountRequest account);
         Task DeleteAccountAsync(string id);
       
 

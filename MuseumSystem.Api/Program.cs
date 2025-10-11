@@ -1,12 +1,15 @@
-using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
+using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Utils;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -100,6 +103,14 @@ builder.Services.AddAuthentication(options =>
 
 //Add Dependency Injection
 builder.Services.AddConfig(builder.Configuration);
+
+//Config AutoMapper
+var mapperConfig = new MapperConfiguration(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 // EF Core SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>

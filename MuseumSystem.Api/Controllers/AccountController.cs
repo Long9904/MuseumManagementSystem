@@ -30,11 +30,11 @@ namespace MuseumSystem.Api.Controllers
             try
             {
                 var account = await _accountService.CreateAccountAsync(roleId, museumId, accountRequest);
-                return Ok(ApiResponse<Account>.OkResponse(account, "Account created successfully", "200"));
+                return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Account created successfully", "200"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Account>.InternalErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
         [HttpGet("{id}")]
@@ -43,11 +43,11 @@ namespace MuseumSystem.Api.Controllers
             try
             {
                 var account = await _accountService.GetAccountByIdAsync(id);
-                return Ok(ApiResponse<Account>.OkResponse(account, "Get account by id successfully", "200"));
+                return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Get account by id successfully", "200"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Account>.InternalErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
 
         }
@@ -57,11 +57,11 @@ namespace MuseumSystem.Api.Controllers
             try
             {
                 var accounts = await _accountService.GetAllAccountsAsync(pageIndex, pageSize);
-                return Ok(ApiResponse<BasePaginatedList<Account>>.OkResponse(accounts, "Get all accounts successfully", "200"));
+                return Ok(ApiResponse<BasePaginatedList<AccountRespone>>.OkResponse(accounts, "Get all accounts successfully", "200"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Account>.InternalErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }   
         [HttpDelete("{id}")]
@@ -74,7 +74,7 @@ namespace MuseumSystem.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Account>.InternalErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
 
@@ -84,11 +84,11 @@ namespace MuseumSystem.Api.Controllers
             try
             {
                 var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
-                return Ok(ApiResponse<Account>.OkResponse(updatedAccount, "Account updated successfully", "200"));
+                return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account updated successfully", "200"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Account>.InternalErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
             }
         }
     }
