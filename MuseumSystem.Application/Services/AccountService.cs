@@ -74,7 +74,15 @@ namespace MuseumSystem.Application.Services
         public async Task DeleteAccountAsync(string id)
         {
             var account = await GetAccountByIdAsync(id);
-            await _unit.GetRepository<Account>().DeleteAsync(id);
+            if (account == null)
+            {
+                _logger.LogError("Account with ID {AccountId} not found.", id);
+                throw new KeyNotFoundException($"Account with ID {id} not found.");
+            }
+            account.Status = EnumStatus.Inactive;
+            await _unit.GetRepository<Account>().UpdateAsync(_mapping.Map<Account>(account));
+            await _unit.SaveChangeAsync();
+            _logger.LogInformation("Account with ID {AccountId} deleted successfully.", id);
         }
 
         public async Task<BasePaginatedList<AccountRespone>> GetAllAccountsAsync(int pageIndex, int pageSize)

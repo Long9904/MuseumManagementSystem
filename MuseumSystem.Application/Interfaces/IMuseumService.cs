@@ -15,7 +15,7 @@ namespace MuseumSystem.Application.Interfaces
         Task<Museum> UpdateMuseum(string id, MuseumRequest museumDto);
         Task<BasePaginatedList<Museum>> GetAll(int pageIndex, int pageSize);
         Task DeleteMuseum(string id);
-        Task<Museum?> GetMuseumById(string id);
+        Task<Museum> GetMuseumById(string id);
 
     }
 }

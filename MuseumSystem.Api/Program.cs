@@ -8,6 +8,7 @@ using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Utils;
 using MuseumSystem.Application.Validation;
+using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
@@ -21,7 +22,7 @@ builder.Services.AddControllers(options =>
 })
     .AddJsonOptions(option =>
     {
-        option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        option.JsonSerializerOptions.Converters.Add(new StatusEnumConverter());
     });
 
 

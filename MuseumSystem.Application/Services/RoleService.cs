@@ -3,6 +3,7 @@ using MuseumSystem.Application.Dtos.RoleDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using MuseumSystem.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +57,10 @@ namespace MuseumSystem.Application.Services
             {   
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
-            await _unitOfWork.GetRepository<Role>().DeleteAsync(id);
+            role.Status = EnumStatus.Inactive;
+            await _unitOfWork.GetRepository<Role>().UpdateAsync(role);
+            await _unitOfWork.SaveChangeAsync();
+            _logger.LogInformation("Role with ID {RoleId} deleted successfully.", id);
         }
 
         public async Task<BasePaginatedList<Role>> GetAllRolesAsync(int pageIndex, int pageSize)
@@ -67,7 +71,7 @@ namespace MuseumSystem.Application.Services
 
         public async Task<Role?> GetRoleByIdAsync(string id)
         {
-            var role = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Id == id);
+            var role = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
             if (role == null)
             {            
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
