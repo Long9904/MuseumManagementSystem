@@ -22,8 +22,10 @@ namespace MuseumSystem.Domain.Entities
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Foreign key to ArtifactDisplay (many-to-many relationship)
-        public ICollection<ArtifactDisplay> ArtifactDisplays { get; set; } = new List<ArtifactDisplay>();
+        // relationships to artifact 1-1
+        public Artifact? Artifact { get; set; }
+        public string ArtifactId { get; set;  } = string.Empty;
+
 
     }
 }

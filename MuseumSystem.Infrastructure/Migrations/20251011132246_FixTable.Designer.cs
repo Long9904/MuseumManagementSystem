@@ -12,7 +12,7 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251010014718_FixTable")]
+    [Migration("20251011132246_FixTable")]
     partial class FixTable
     {
         /// <inheritdoc />
@@ -24,34 +24,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("MuseumSystem.Domain.Abstractions.ArtifactDisplay", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ArtifactId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DisplayPositionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtifactId");
-
-                    b.HasIndex("DisplayPositionId");
-
-                    b.ToTable("ArtifactDisplay");
-                });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Account", b =>
                 {
@@ -175,7 +147,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Artifact");
+                    b.ToTable("Artifacts");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
@@ -225,6 +197,10 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ArtifactId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -246,7 +222,10 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasIndex("AreaId");
 
-                    b.ToTable("DisplayPosition");
+                    b.HasIndex("ArtifactId")
+                        .IsUnique();
+
+                    b.ToTable("DisplayPositions");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
@@ -347,28 +326,12 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Abstractions.ArtifactDisplay", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
-                        .WithMany("DisplayHistory")
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MuseumSystem.Domain.Entities.DisplayPosition", "DisplayPosition")
-                        .WithMany("ArtifactDisplays")
-                        .HasForeignKey("DisplayPositionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("DisplayPosition");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Account", b =>
@@ -420,7 +383,15 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
+                        .WithOne("DisplayPosition")
+                        .HasForeignKey("MuseumSystem.Domain.Entities.DisplayPosition", "ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Area");
+
+                    b.Navigation("Artifact");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
@@ -454,7 +425,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     b.Navigation("ArtifactMedias");
 
-                    b.Navigation("DisplayHistory");
+                    b.Navigation("DisplayPosition");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
@@ -462,11 +433,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Image");
 
                     b.Navigation("Model3D");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.DisplayPosition", b =>
-                {
-                    b.Navigation("ArtifactDisplays");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
