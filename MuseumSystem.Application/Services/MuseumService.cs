@@ -46,11 +46,7 @@ namespace MuseumSystem.Application.Services
             {
                 throw new ArgumentException("Museum ID cannot be null or empty.", nameof(id));
             }
-            var museum = await unit.GetRepository<Museum>().FindAsync(x => x.Id == id);
-            if (museum == null)
-            {
-                throw new KeyNotFoundException($"Museum with ID {id} not found.");
-            }
+            var museum = await GetMuseumById(id);
             museum.Status = EnumStatus.Inactive;
             await unit.GetRepository<Museum>().UpdateAsync(museum);
             await unit.SaveChangeAsync();
@@ -62,13 +58,18 @@ namespace MuseumSystem.Application.Services
             return await unit.GetRepository<Museum>().GetPagging(query, pageIndex, pageSize);
         }
 
-        public Task<Museum?> GetMuseumById(string id)
+        public async Task<Museum> GetMuseumById(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 throw new ArgumentException("Museum ID cannot be null or empty.", nameof(id));
             }
-            return unit.GetRepository<Museum>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
+            var museum = await unit.GetRepository<Museum>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
+            if (museum == null)
+            {
+                throw new KeyNotFoundException($"Museum with ID {id} not found.");
+            }
+            return museum;
         }
 
         public async Task<Museum> UpdateMuseum(string id, MuseumRequest museumDto)
@@ -82,11 +83,7 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentNullException(nameof(museumDto), "Museum request cannot be null.");
             }
             bool isUpdated = false;
-            var museum = await unit.GetRepository<Museum>().FindAsync(x => x.Id == id);
-            if (museum == null)
-            {
-                throw new KeyNotFoundException($"Museum with ID {id} not found.");
-            }
+            var museum = await GetMuseumById(id);
             if (museumDto.Name != null && museumDto.Name != museum.Name)
             {
                 museum.Name = museumDto.Name;

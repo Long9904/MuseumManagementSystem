@@ -26,7 +26,7 @@ namespace MuseumSystem.Api.Controllers
         {
             try
             {
-                var roles = await _roleService.GetAllRolesAsync(pageIndex,pageSize);
+                var roles = await _roleService.GetAllRolesAsync(pageIndex, pageSize);
                 return Ok(ApiResponse<BasePaginatedList<Role>>.OkResponse(roles, "Get all roles successfully", "200"));
             }
             catch (Exception ex)
@@ -37,9 +37,16 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AddRole([FromBody] RoleRequest roleRequest)
-        {         
+        {
+            try
+            {
                 var role = await _roleService.AddRoleAsync(roleRequest);
-                return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));     
+                return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<Role>.InternalErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("{id}")]
@@ -77,7 +84,7 @@ namespace MuseumSystem.Api.Controllers
             try
             {
                 var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);
-                return Ok(ApiResponse<Role>.OkResponse(roleUpdate ,"Role updated successfully", "200"));
+                return Ok(ApiResponse<Role>.OkResponse(roleUpdate, "Role updated successfully", "200"));
             }
             catch (Exception ex)
             {

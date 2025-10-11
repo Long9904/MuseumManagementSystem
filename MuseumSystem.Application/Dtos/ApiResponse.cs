@@ -1,4 +1,4 @@
-﻿using MuseumSystem.Domain.Enums;
+﻿using MuseumSystem.Domain.Enums.EnumConfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;

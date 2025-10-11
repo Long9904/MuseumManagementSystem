@@ -43,11 +43,11 @@ namespace MuseumSystem.Application.Services
             var accountExisting = await _unit.GetRepository<Account>().FindByConditionAsync(x => x.Email == request.Email);
             if (accountExisting == null)
             {
-                throw new KeyNotFoundException($"Account with email {request.Email} not found.");
+                throw new UnauthorizedAccessException($"Invalid email or password.");
             }
             if (!BCrypt.Net.BCrypt.Verify(request.Password, accountExisting.Password))
             {
-                throw new UnauthorizedAccessException("Invalid password.");
+                throw new UnauthorizedAccessException("Invalid email or password.");
             }
             if (accountExisting.Status != EnumStatus.Active)
             {

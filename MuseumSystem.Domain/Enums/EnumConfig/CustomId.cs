@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MuseumSystem.Domain.Enums
+namespace MuseumSystem.Domain.Enums.EnumConfig
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class CustomId : Attribute
     {
-        public String Type { get; set; }
-        public CustomId(String type)
+        public string Type { get; set; }
+        public CustomId(string type)
         {
             Type = type;
         }
