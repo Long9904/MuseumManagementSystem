@@ -38,23 +38,19 @@ namespace MuseumSystem.Application.Services
         {
             if (request.Email == null || request.Password == null)
             {
-                _logger.LogError("Email or Password cannot be null.");
                 throw new ArgumentNullException("Email or Password cannot be null.");
             }
             var accountExisting = await _unit.GetRepository<Account>().FindByConditionAsync(x => x.Email == request.Email);
             if (accountExisting == null)
             {
-                _logger.LogWarning("Account with email {Email} not found.", request.Email);
                 throw new KeyNotFoundException($"Account with email {request.Email} not found.");
             }
             if (!BCrypt.Net.BCrypt.Verify(request.Password, accountExisting.Password))
             {
-                _logger.LogWarning("Invalid password for email {Email}.", request.Email);
                 throw new UnauthorizedAccessException("Invalid password.");
             }
             if (accountExisting.Status != EnumStatus.Active)
             {
-                _logger.LogWarning("Account with email {Email} is not active.", request.Email);
                 throw new UnauthorizedAccessException("Account is not active.");
             }
             _logger.LogInformation("User with email {Email} logged in successfully.", request.Email);
@@ -66,30 +62,29 @@ namespace MuseumSystem.Application.Services
 
         public async Task<AuthResponse> LoginGoogleAsync(LoginGGRequest loginGGRequest)
         {
-
-            var payload = await GoogleJsonWebSignature.ValidateAsync(loginGGRequest.IdToken);
-            var email = payload.Email;
-            var fullName = payload.Name;
-            var accountExisting = await _unit.GetRepository<Account>().FindByConditionAsync(x => x.Email == email);
-            if (accountExisting != null)
+            try
             {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(loginGGRequest.IdToken);
+                var email = payload.Email;
+                var fullName = payload.Name;
+                var accountExisting = await _unit.GetRepository<Account>().FindByConditionAsync(x => x.Email == email);
+                if (accountExisting == null)
+                {
+                    throw new KeyNotFoundException($"Account with email {email} not found.");
+                }
                 return new AuthResponse
                 {
                     Token = await _generateTokenService.GenerateToken(accountExisting)
                 };
             }
-            throw new AuthenticationException("Google account not registered in the system.");
-
-            //catch (AuthenticationException ex)
-            //{
-            //    _logger.LogError(ex, "Error during Google login: {Message}", ex.Message);
-            //    throw new AuthenticationException("Error during Google login.", ex);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(ex, "Error during Google login: {Message}", ex.Message);
-            //    throw new InvalidOperationException("Error during Google login.", ex);
-            //}
+            catch (AuthenticationException ey)
+            {
+                throw new AuthenticationException($"Error during Google login : {ey.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error during Google login : {ex.Message}");
+            }
         }
     }
 }
