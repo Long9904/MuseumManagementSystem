@@ -5,7 +5,7 @@ using MuseumSystem.Application.Interfaces;
 
 namespace MuseumSystem.Application.Utils
 {
-    public class GetCurrentUserLogin : ICurrentUserLogin
+    public class GetCurrentUserLogin : ICurrentUser
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -21,6 +21,16 @@ namespace MuseumSystem.Application.Utils
                 return httpUser?.FindFirstValue(ClaimTypes.NameIdentifier)
                     ?? httpUser?.FindFirstValue(JwtRegisteredClaimNames.Sub)
                     ?? throw new UnauthorizedAccessException("User is not login");
+            }
+        }
+
+        public string? MuseumId
+        {
+            get 
+            {
+                var context = _httpContextAccessor.HttpContext;
+                return context?.Items["MuseumId"]?.ToString()
+                    ?? throw new UnauthorizedAccessException("MuseumId not found in HttpContext Items");
             }
         }
     }

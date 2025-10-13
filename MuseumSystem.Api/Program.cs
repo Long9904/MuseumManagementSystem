@@ -119,6 +119,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<GetCurrentUserLogin>();
 
 var app = builder.Build();
 

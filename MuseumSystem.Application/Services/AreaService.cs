@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Application.Utils;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
@@ -12,13 +13,13 @@ namespace MuseumSystem.Application.Services
     {
         private readonly ILogger<AreaService> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserLogin _getCurrentUserLogin;
+        private readonly GetCurrentUserLogin _getCurrentUserLogin;
         private readonly IMapper _mapping;
 
         public AreaService(
             ILogger<AreaService> logger, 
-            IUnitOfWork unitOfWork, 
-            ICurrentUserLogin getCurrentUserLogin, 
+            IUnitOfWork unitOfWork,
+            GetCurrentUserLogin getCurrentUserLogin, 
             IMapper mapping)
         {
             _logger = logger;
@@ -66,13 +67,7 @@ namespace MuseumSystem.Application.Services
 
         private async Task<string> ValidateAndGetMuseumIdAsync(string name)
         {
-            var userId = _getCurrentUserLogin.UserId
-                ?? throw new UnauthorizedAccessException("User is not logged in.");
-
-            var account = await _unitOfWork.AccountRepository.FindAsync(a => a.Id == userId)
-                ?? throw new KeyNotFoundException($"Account with ID {userId} not found.");
-
-            var museumId = account.MuseumId
+            var museumId = _getCurrentUserLogin.MuseumId
                 ?? throw new InvalidOperationException("The logged-in user is not associated with any museum.");
 
             var museum = await _unitOfWork.MuseumRepository.FindAsync(m => m.Id == museumId && m.Status == EnumStatus.Active)

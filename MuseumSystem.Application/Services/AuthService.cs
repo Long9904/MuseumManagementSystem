@@ -7,15 +7,7 @@ using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.WebSockets;
 using System.Security.Authentication;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Services
 {
@@ -23,14 +15,12 @@ namespace MuseumSystem.Application.Services
     {
         private readonly IUnitOfWork _unit;
         private readonly ILogger<AuthService> _logger;
-        private readonly IConfiguration _configuration;
         private readonly IGenerateTokenService _generateTokenService;
 
         public AuthService(IUnitOfWork unit, ILogger<AuthService> logger, IConfiguration configuration, IGenerateTokenService generateTokenService)
         {
             _unit = unit;
             _logger = logger;
-            _configuration = configuration;
             _generateTokenService = generateTokenService;
         }
 
@@ -56,6 +46,8 @@ namespace MuseumSystem.Application.Services
             _logger.LogInformation("User with email {Email} logged in successfully.", request.Email);
             return new AuthResponse
             {
+                UserId = accountExisting.Id,
+                MuseumId = accountExisting.MuseumId,
                 Token = await _generateTokenService.GenerateToken(accountExisting)
             };
         }

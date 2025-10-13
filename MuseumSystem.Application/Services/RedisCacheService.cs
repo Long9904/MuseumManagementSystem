@@ -3,39 +3,62 @@ using Microsoft.Extensions.Configuration;
 using MuseumSystem.Application.Interfaces;
 using StackExchange.Redis;
 
-namespace MuseumSystem.Application.Services
+public class RedisCacheService : IRedisCacheService, IDisposable
 {
-    public class RedisCacheService : IRedisCacheService
+    private readonly IConnectionMultiplexer _connection;
+    private readonly IDatabase _database;
+    private readonly TimeSpan _defaultExpiryMuseum;
+
+    public RedisCacheService(IConfiguration configuration)
     {
-        private readonly IDatabase _database;
+        var connectionString = 
+            configuration.GetSection("Redis:RedisConnection").Value;
 
-        public RedisCacheService(IConfiguration configuration)
+        _defaultExpiryMuseum = TimeSpan.FromHours(configuration.GetValue<double?>("Redis:ExpireTimeMuseum") ?? 3);
+
+        if (string.IsNullOrEmpty(connectionString))
         {
-            var connectionString = configuration.GetSection("Redis:RedisConnection").Value;
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new ArgumentNullException("Redis connection string is not configured.");
-            }
-            var connection = ConnectionMultiplexer.Connect(connectionString);
-            _database = connection.GetDatabase();
+            throw new ArgumentNullException(nameof(connectionString), "Redis connection string is not configured.");
         }
 
-        public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
+        try
         {
-            var json = JsonSerializer.Serialize(value);
-            await _database.StringSetAsync(key, json, expiry);
+            _connection = ConnectionMultiplexer.Connect(connectionString);
+            _database = _connection.GetDatabase();
         }
-
-        public async Task<T?> GetAsync<T>(string key)
+        catch (RedisConnectionException ex)
         {
-            var json = await _database.StringGetAsync(key);
-            if (json.IsNullOrEmpty) return default;
-            return JsonSerializer.Deserialize<T>(json!);
-        }
-
-        public async Task RemoveAsync(string key)
-        {
-            await _database.KeyDeleteAsync(key);
+            throw new InvalidOperationException("Failed to connect to Redis", ex);
         }
     }
+
+    public async Task SetAsync<T>(string key, T value)
+    {
+        var json = JsonSerializer.Serialize(value);
+        await _database.StringSetAsync(key, json, _defaultExpiryMuseum);
+    }
+
+    public async Task<T?> GetAsync<T>(string key)
+    {
+        var json = await _database.StringGetAsync(key);
+        return json.IsNullOrEmpty ? default : JsonSerializer.Deserialize<T>(json!);
+    }
+
+    public async Task RemoveAsync(string key)
+    {
+        await _database.KeyDeleteAsync(key);
+    }
+
+    public void Dispose()
+    {
+        _connection?.Dispose();
+    }
+
+    // Setting custom museumId with custom expiry time
+    public async Task SetMuseumIdAsync(string userId, string museumId)
+    {
+        var key = $"user:{userId}:museumId";
+        await _database.StringSetAsync(key, museumId, _defaultExpiryMuseum);
+    }
+
 }

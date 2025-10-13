@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Application.Utils;
 
@@ -7,34 +8,22 @@ namespace MuseumSystem.Api.Middleware
     public class MuseumContextMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly GetCurrentUserLogin _getCurrentUserLogin;
-        private readonly IRedisCacheService _cacheService;
-        private readonly ICurrentUserLogin _currentUserLogin;
 
-        public MuseumContextMiddleware(
-            RequestDelegate next, 
-            GetCurrentUserLogin getCurrentUserLogin, 
-            IRedisCacheService cacheService, 
-            ICurrentUserLogin currentUserLogin)
+        public MuseumContextMiddleware(RequestDelegate next)
         {
-            _next = next;
-            _getCurrentUserLogin = getCurrentUserLogin;
-            _cacheService = cacheService;
-            _currentUserLogin = currentUserLogin;
+            _next = next;      
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IRedisCacheService cacheService)
         {
-            var userId = _getCurrentUserLogin.UserId;
+            var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId))
             {
                 var cacheKey = $"user:{userId}:museumId";
-                var museumId = await _cacheService.GetAsync<string>(cacheKey);
+                var museumId = await cacheService.GetAsync<string>(cacheKey);
 
                 if (!string.IsNullOrEmpty(museumId))
-                {
                     context.Items["MuseumId"] = museumId;
-                }
             }
 
             await _next(context);
