@@ -1,7 +1,7 @@
 ﻿using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 
-namespace MuseumSystem.Infrastructure.Interface
+namespace MuseumSystem.Domain.Interface
 {
     public interface IAreaRepository : IGenericRepository<Area>
     {

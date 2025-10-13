@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MuseumSystem.Domain.Interface;
 
 namespace MuseumSystem.Domain.Abstractions
 {
@@ -14,5 +15,9 @@ namespace MuseumSystem.Domain.Abstractions
         void CommitTransaction();
         void RollBack();
         bool HasActiveTransaction();
+
+        public IAreaRepository AreaRepository { get; }
+        public IAccountRepository AccountRepository { get; }
+        public IMuseumRepository MuseumRepository { get; }
     }
 }
