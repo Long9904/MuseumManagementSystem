@@ -52,9 +52,41 @@ namespace MuseumSystem.Application.Services
             await unit.SaveChangeAsync();
         }
 
-        public async Task<BasePaginatedList<Museum>> GetAll(int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<Museum>> GetAll(int pageIndex, int pageSize, MuseumFilterDtos? dtos = null)
         {
             var query = unit.GetRepository<Museum>().Entity;
+
+            if (dtos != null)
+            {
+                if (!string.IsNullOrWhiteSpace(dtos.Name))
+                {
+                    query = query.Where(x => x.Name.Contains(dtos.Name));
+                }
+                if (!string.IsNullOrWhiteSpace(dtos.Location))
+                {
+                    query = query.Where(x => x.Location.Contains(dtos.Location));
+                }
+                if (!string.IsNullOrWhiteSpace(dtos.Description))
+                {
+                    query = query.Where(x => x.Description.Contains(dtos.Description));
+                }
+                if (dtos.Status != null)
+                {
+                    query = query.Where(x => x.Status == dtos.Status);
+                }
+                if (dtos.Orderby != null)
+                {
+                    if (dtos.Orderby == EnumOrderBy.Asc)
+                    {
+                        query = query.OrderBy(x => x.CreateAt);
+                    }
+                    else if (dtos.Orderby == EnumOrderBy.Desc)
+                    {
+                        query = query.OrderByDescending(x => x.CreateAt);
+                    }
+                }
+            }
+
             return await unit.GetRepository<Museum>().GetPagging(query, pageIndex, pageSize);
         }
 

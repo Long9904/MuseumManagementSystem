@@ -15,4 +15,11 @@ namespace MuseumSystem.Domain.Enums
         [Display(Name = "Inactive")]
         Inactive
     }
+    public enum EnumOrderBy
+    {
+        [Display(Name = "Ascending")]
+        Asc,
+        [Display(Name = "Descending")]
+        Desc
+    }
 }
