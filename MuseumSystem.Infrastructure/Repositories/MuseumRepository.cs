@@ -3,13 +3,13 @@ using MuseumSystem.Domain.Interface;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 using MuseumSystem.Infrastructure.Implementation;
 
-
 namespace MuseumSystem.Infrastructure.Repositories
 {
-    public class AreaRepository : GenericRepository<Area>, IAreaRepository
+    public class MuseumRepository : GenericRepository<Museum>, IMuseumRepository
     {
-        public AreaRepository(AppDbContext context) : base(context)
+        public MuseumRepository(AppDbContext appDb) : base(appDb)
         {
         }
+     
     }
 }

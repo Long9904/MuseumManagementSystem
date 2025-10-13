@@ -1,7 +1,8 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MuseumSystem.Application.Utils;
+using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Dtos.AreaDtos;
+using MuseumSystem.Application.Interfaces;
 
 namespace MuseumSystem.Api.Controllers
 {
@@ -10,25 +11,18 @@ namespace MuseumSystem.Api.Controllers
     [ApiController]
     public class AreaController : ControllerBase
     {
-        private readonly GetCurrentUserLogin _getCurrentUserLogin;
+        private readonly IAreaService _areaService;
 
-        public AreaController(GetCurrentUserLogin getCurrentUserLogin)
+        public AreaController(IAreaService areaService)
         {
-            _getCurrentUserLogin = getCurrentUserLogin;
+            _areaService = areaService;
         }
 
-        [HttpGet("current-user")]
-        public IActionResult GetCurrentUserId()
+        [HttpPost]
+        public async Task<IActionResult> CreateArea([FromBody] AreaRequest request)
         {
-            try
-            {
-                var userId = _getCurrentUserLogin.UserId;
-                return Ok(new { UserId = userId });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
+                var result = await _areaService.CreateArea(request);
+                return Ok(ApiResponse<AreaResponse>.OkResponse(result, $"Create Area: '{result.Name}' sucessfully" , "200"));   
         }
     }
 }

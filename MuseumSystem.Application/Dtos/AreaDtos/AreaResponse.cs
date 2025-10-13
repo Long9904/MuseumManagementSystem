@@ -7,11 +7,11 @@ namespace MuseumSystem.Application.Dtos.AreaDtos
     {
         public string? Id { get; set; } 
 
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
 
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } 
 
-        public AreaStatus Status { get; set; } = AreaStatus.Active;
+        public AreaStatus Status { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
