@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
+using AutoMapper;
 using FluentValidation;
 
 namespace MuseumSystem.Api.Middleware
@@ -52,6 +53,12 @@ namespace MuseumSystem.Api.Middleware
                     DirectoryNotFoundException => (int)HttpStatusCode.NotFound,
                     PathTooLongException => (int)HttpStatusCode.BadRequest,
                     IOException => (int)HttpStatusCode.InternalServerError,
+                    AutoMapperMappingException autoMapperMappingException => autoMapperMappingException.InnerException switch
+                    {
+                        ArgumentException => (int)HttpStatusCode.BadRequest,
+                        KeyNotFoundException => (int)HttpStatusCode.NotFound,
+                        _ => (int)HttpStatusCode.InternalServerError
+                    },
 
                     _ => (int)HttpStatusCode.InternalServerError
                 };

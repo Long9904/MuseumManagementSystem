@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MuseumSystem.Application.Dtos.AccountDtos;
+using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using System;
@@ -20,6 +21,8 @@ namespace MuseumSystem.Application.Dtos
 
             // Add other mappings as needed
             CreateMap<Account, AccountRespone>();
+            CreateMap<AreaRequest, Area>();
+            CreateMap<Area, AreaResponse>();
         }
 
         public class BasePaginatedListConverter<TSource, TDestination> : ITypeConverter<BasePaginatedList<TSource>,BasePaginatedList<TDestination>>

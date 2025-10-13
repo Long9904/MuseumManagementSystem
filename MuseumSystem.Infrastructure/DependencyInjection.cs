@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MuseumSystem.Domain.Abstractions;
+using MuseumSystem.Domain.Interface;
 using MuseumSystem.Infrastructure.Implementation;
-using MuseumSystem.Infrastructure.Interface;
 using MuseumSystem.Infrastructure.Repositories;
 
 
@@ -15,6 +15,8 @@ namespace MuseumSystem.Infrastructure
             services.AddLogging();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAreaRepository, AreaRepository>();
+            services.AddScoped<IMuseumRepository, MuseumRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
         }
     }
 }

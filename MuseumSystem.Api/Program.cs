@@ -131,6 +131,8 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<MuseumContextMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 

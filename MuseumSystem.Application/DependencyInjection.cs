@@ -20,6 +20,12 @@ namespace MuseumSystem.Application
             services.AddScoped<IMuseumService, MuseumService>();
             services.AddScoped<IAreaService, AreaService>();
 
+            // Redis caching service
+            services.AddScoped<IRedisCacheService, RedisCacheService>();
+
+            // Utils
+            services.AddScoped<ICurrentUserLogin, GetCurrentUserLogin>();
+
             // utils
             services.AddScoped<GetCurrentUserLogin>();
 
