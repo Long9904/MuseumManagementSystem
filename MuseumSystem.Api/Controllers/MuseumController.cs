@@ -38,11 +38,11 @@ namespace MuseumSystem.Api.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10, [FromQuery] MuseumFilterDtos? dtos = null)
         {
             try
             {
-                var museums = await service.GetAll(pageIndex, pageSize);
+                var museums = await service.GetAll(pageIndex, pageSize, dtos);
                 return Ok(ApiResponse<BasePaginatedList<Museum>>.OkResponse(museums, "Get all museums successful!", "200"));
             }
             catch (Exception ex)

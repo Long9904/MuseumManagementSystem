@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
@@ -20,10 +21,13 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
 })
-    .AddJsonOptions(option =>
-    {
-        option.JsonSerializerOptions.Converters.Add(new StatusEnumConverter());
-    });
+    .AddJsonOptions(options =>
+ {
+     options.JsonSerializerOptions.Converters.Add(
+            new ExclusiveEnumConverterFactory(
+                excludeFromString: new[] { typeof(StatusCodeHelper) }
+            ));
+ });
 
 
 //CORS
