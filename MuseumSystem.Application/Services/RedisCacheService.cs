@@ -1,29 +1,28 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Domain.Options;
 using StackExchange.Redis;
 
-public class RedisCacheService : IRedisCacheService, IDisposable
+public class RedisCacheService : IRedisCacheService
 {
     private readonly IConnectionMultiplexer _connection;
     private readonly IDatabase _database;
     private readonly TimeSpan _defaultExpiryMuseum;
 
-    public RedisCacheService(IConfiguration configuration)
+    public RedisCacheService(IOptions<RedisOptions> options)
     {
-        var connectionString = 
-            configuration.GetSection("Redis:RedisConnection").Value;
+        var redisOptions = options.Value;
 
-        _defaultExpiryMuseum = TimeSpan.FromHours(configuration.GetValue<double?>("Redis:ExpireTimeMuseum") ?? 3);
+        if (string.IsNullOrEmpty(redisOptions.RedisConnection))
+            throw new ArgumentNullException(nameof(redisOptions.RedisConnection), "Redis connection string is not configured.");
 
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new ArgumentNullException(nameof(connectionString), "Redis connection string is not configured.");
-        }
+        _defaultExpiryMuseum = TimeSpan.FromHours(redisOptions.ExpireTimeMuseum);
 
         try
         {
-            _connection = ConnectionMultiplexer.Connect(connectionString);
+            _connection = ConnectionMultiplexer.Connect(redisOptions.RedisConnection);
             _database = _connection.GetDatabase();
         }
         catch (RedisConnectionException ex)
@@ -32,10 +31,10 @@ public class RedisCacheService : IRedisCacheService, IDisposable
         }
     }
 
-    public async Task SetAsync<T>(string key, T value)
+    public async Task SetAsync<T>(string key, T value, TimeSpan expiryTime)
     {
         var json = JsonSerializer.Serialize(value);
-        await _database.StringSetAsync(key, json, _defaultExpiryMuseum);
+        await _database.StringSetAsync(key, json, expiryTime);
     }
 
     public async Task<T?> GetAsync<T>(string key)
@@ -49,16 +48,11 @@ public class RedisCacheService : IRedisCacheService, IDisposable
         await _database.KeyDeleteAsync(key);
     }
 
-    public void Dispose()
-    {
-        _connection?.Dispose();
-    }
-
     // Setting custom museumId with custom expiry time
     public async Task SetMuseumIdAsync(string userId, string museumId)
     {
         var key = $"user:{userId}:museumId";
-        await _database.StringSetAsync(key, museumId, _defaultExpiryMuseum);
+        await SetAsync(key, museumId, _defaultExpiryMuseum);
     }
 
 }

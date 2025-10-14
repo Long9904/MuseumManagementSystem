@@ -5,11 +5,11 @@ using MuseumSystem.Application.Interfaces;
 
 namespace MuseumSystem.Application.Utils
 {
-    public class GetCurrentUserLogin : ICurrentUser
+    public class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GetCurrentUserLogin(IHttpContextAccessor httpContextAccessor)
+        public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
@@ -29,8 +29,7 @@ namespace MuseumSystem.Application.Utils
             get 
             {
                 var context = _httpContextAccessor.HttpContext;
-                return context?.Items["MuseumId"]?.ToString()
-                    ?? throw new UnauthorizedAccessException("MuseumId not found in HttpContext Items");
+                return context?.Items["MuseumId"]?.ToString();
             }
         }
     }

@@ -1,7 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using MuseumSystem.Application.Interfaces;
-using MuseumSystem.Application.Utils;
 
 namespace MuseumSystem.Api.Middleware
 {

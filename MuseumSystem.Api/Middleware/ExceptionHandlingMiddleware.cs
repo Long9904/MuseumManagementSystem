@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
+using MuseumSystem.Application.Exceptions;
 
 namespace MuseumSystem.Api.Middleware
 {
@@ -59,6 +60,12 @@ namespace MuseumSystem.Api.Middleware
                         KeyNotFoundException => (int)HttpStatusCode.NotFound,
                         _ => (int)HttpStatusCode.InternalServerError
                     },
+
+                    //----- Custom application exceptions ------//
+                    ConflictException => (int)HttpStatusCode.Conflict,
+                    NotFoundException => (int)HttpStatusCode.NotFound,
+                    InvalidAccessException => (int)HttpStatusCode.Forbidden,
+                    ObjectDeletedException => (int)HttpStatusCode.BadRequest,
 
                     _ => (int)HttpStatusCode.InternalServerError
                 };

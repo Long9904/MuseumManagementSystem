@@ -5,6 +5,7 @@
         Active,
         Inactive,
         UnderMaintenance,
-        Closed
+        Closed,
+        Deleted
     }
 }

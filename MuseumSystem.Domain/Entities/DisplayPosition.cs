@@ -1,4 +1,5 @@
-﻿using MuseumSystem.Domain.Abstractions;
+﻿using System.Text.Json.Serialization;
+using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Domain.Entities
@@ -16,6 +17,7 @@ namespace MuseumSystem.Domain.Entities
         // Foreign key to Area
         public string AreaId { get; set; } = string.Empty;
 
+        [JsonIgnore]
         public Area Area { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
