@@ -12,22 +12,37 @@ namespace MuseumSystem.Api.Controllers
     {
         private readonly ILogger<AccountController> _logger;
         private readonly IAuthService _authService;
-        public AuthController(ILogger<AccountController> logger, IAuthService authService)
+        private readonly IRedisCacheService _redisCacheService;
+
+        public AuthController(
+            ILogger<AccountController> logger, 
+            IAuthService authService, 
+            IRedisCacheService redisCacheService)
         {
-            _logger = logger;           
+            _logger = logger;
             _authService = authService;
+            _redisCacheService = redisCacheService;
         }
+
         [HttpPost("login/google")]
         public async Task<IActionResult> LoginWithGoogle([FromBody] LoginGGRequest request)
         {
             var result = await _authService.LoginGoogleAsync(request);
-            return Ok(ApiResponse<AuthResponse>.OkResponse(result,"Get token successful!","200"));
+            await _redisCacheService.SetMuseumIdAsync(result.UserId, result.MuseumId);
+
+            var dummy = new {Token = result.Token};
+
+            return Ok(ApiResponse<Object>.OkResponse(dummy,"Get token successful!","200"));
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest request)
         {
             var result = await _authService.LoginAsync(request);
-            return Ok(ApiResponse<AuthResponse>.OkResponse(result, "Get token successful!", "200"));
+
+            await _redisCacheService.SetMuseumIdAsync(result.UserId, result.MuseumId);
+
+            var dummy = new { Token = result.Token };
+            return Ok(ApiResponse<Object>.OkResponse(dummy, "Get token successful!", "200"));
         }
     }
 }

@@ -23,11 +23,8 @@ namespace MuseumSystem.Application
             // Redis caching service
             services.AddScoped<IRedisCacheService, RedisCacheService>();
 
-            // Utils
-            services.AddScoped<ICurrentUserLogin, GetCurrentUserLogin>();
-
             // utils
-            services.AddScoped<GetCurrentUserLogin>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {

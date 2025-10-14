@@ -1,7 +1,8 @@
 ﻿namespace MuseumSystem.Application.Interfaces
 {
-    public interface ICurrentUserLogin
+    public interface ICurrentUserService
     {
         string? UserId { get; }
+        string? MuseumId { get; }
     }
 }

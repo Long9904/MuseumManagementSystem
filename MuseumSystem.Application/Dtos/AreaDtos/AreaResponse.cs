@@ -1,4 +1,4 @@
-﻿using MuseumSystem.Domain.Entities;
+﻿using MuseumSystem.Application.Dtos.DisplayPositionDtos;
 using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Application.Dtos.AreaDtos
@@ -16,5 +16,7 @@ namespace MuseumSystem.Application.Dtos.AreaDtos
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
+
+        public ICollection<DisplayPositionSummaryDto>? DisplayPositions { get; set; }
     }
 }

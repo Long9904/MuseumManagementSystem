@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,9 +12,9 @@ using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Utils;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
+using MuseumSystem.Domain.Options;
 using MuseumSystem.Infrastructure.DatabaseSetting;
-using System.Security.Claims;
-using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +106,72 @@ builder.Services.AddAuthentication(options =>
         NameClaimType = ClaimTypes.NameIdentifier,
         RoleClaimType = ClaimTypes.Role
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = async context =>
+        {
+            context.HandleResponse();
+
+            if (context.Response.HasStarted)
+                return;
+
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                IsSuccess = false,
+                Errors = "Unauthorized or missing token",
+                StatusCode = context.Response.StatusCode
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        },
+
+        OnAuthenticationFailed = async context =>
+        {
+            if (context.Response.HasStarted)
+                return;
+
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            var message = context.Exception?.GetType().Name switch
+            {
+                "SecurityTokenExpiredException" => "Token expired",
+                "SecurityTokenInvalidSignatureException" => "Invalid token signature",
+                _ => "Invalid token"
+            };
+
+            var response = new
+            {
+                IsSuccess = false,
+                Errors = message,
+                StatusCode = context.Response.StatusCode
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        },
+
+        OnForbidden = async context =>
+        {
+            if (context.Response.HasStarted)
+                return;
+
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                IsSuccess = false,
+                Errors = "You do not have permission to access this resource",
+                StatusCode = context.Response.StatusCode
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+    };
 });
 
 //Add Dependency Injection
@@ -121,8 +189,12 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Redis Cache
+builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
+
 builder.Services.AddConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 
