@@ -4,6 +4,7 @@ using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using MuseumSystem.Application.Exceptions;
+using StackExchange.Redis;
 
 namespace MuseumSystem.Api.Middleware
 {
@@ -54,10 +55,19 @@ namespace MuseumSystem.Api.Middleware
                     DirectoryNotFoundException => (int)HttpStatusCode.NotFound,
                     PathTooLongException => (int)HttpStatusCode.BadRequest,
                     IOException => (int)HttpStatusCode.InternalServerError,
+
+                    // AutoMapper specific exceptions
                     AutoMapperMappingException autoMapperMappingException => autoMapperMappingException.InnerException switch
                     {
                         ArgumentException => (int)HttpStatusCode.BadRequest,
                         KeyNotFoundException => (int)HttpStatusCode.NotFound,
+                        _ => (int)HttpStatusCode.InternalServerError
+                    },
+
+                    // Redis specific exceptions
+                    RedisConnectionException redisConnectionException => redisConnectionException.InnerException switch
+                    {
+                        TimeoutException => (int)HttpStatusCode.RequestTimeout,
                         _ => (int)HttpStatusCode.InternalServerError
                     },
 

@@ -59,7 +59,10 @@ namespace MuseumSystem.Application.Services
 
         public async Task<BasePaginatedList<AreaResponse>> GetAll(int pageIndex, int pageSize, bool includeDeleted, CancellationToken cancellationToken)
         {
-            var query = _unitOfWork.AreaRepository.Entity;
+            var museumId = await GetValidMuseumIdAsync();
+
+            var query = _unitOfWork.AreaRepository.Entity.Where(a => a.MuseumId == museumId);
+
             if (!includeDeleted)
             {
                 query = query.Where(a => a.Status != AreaStatus.Deleted);
@@ -79,8 +82,13 @@ namespace MuseumSystem.Application.Services
 
         public async Task<AreaResponse> GetAreaById(string id, bool includeDeleted, CancellationToken cancellationToken)
         {
+
+            var museumId = await GetValidMuseumIdAsync();
+
             Area area = await _unitOfWork.AreaRepository.FindAsync
-                 (a => id.Equals(a.Id) && (includeDeleted || a.Status != AreaStatus.Deleted))
+                 (a => id.Equals(a.Id)
+                 && museumId.Equals(a.MuseumId)
+                 && (includeDeleted || a.Status != AreaStatus.Deleted))
                  ?? throw new NotFoundException($"Area not found or status is deleted.");
             return _mapping.Map<AreaResponse>(area);
         }
@@ -117,7 +125,7 @@ namespace MuseumSystem.Application.Services
             return _mapping.Map<AreaResponse>(area);
         }
 
-        private async Task<string> GetValidMuseumIdAsync(CancellationToken cancellationToken = default)
+        private async Task<string> GetValidMuseumIdAsync()
         {
             var museumId = _currentUserService.MuseumId
                 ?? throw new InvalidAccessException("User is not associated with any museum.");
