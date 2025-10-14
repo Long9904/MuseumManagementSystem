@@ -204,10 +204,9 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseRouting();
 app.UseCors("AllowAll");
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<MuseumContextMiddleware>();
+app.UseAuthentication(); // JWT Authentication
+app.UseMiddleware<MuseumContextMiddleware>(); // Museum access for each request
+app.UseAuthorization(); // Role Authorization
 
 app.UseSwagger();
 app.UseSwaggerUI();

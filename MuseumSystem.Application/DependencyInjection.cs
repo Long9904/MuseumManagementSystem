@@ -21,7 +21,7 @@ namespace MuseumSystem.Application
             services.AddScoped<IAreaService, AreaService>();
 
             // Redis caching service
-            services.AddScoped<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
             // utils
             services.AddScoped<ICurrentUserService, CurrentUserService>();
