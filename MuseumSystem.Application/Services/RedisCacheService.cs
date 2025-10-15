@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MuseumSystem.Application.Interfaces;
@@ -14,7 +15,7 @@ public class RedisCacheService : IRedisCacheService
 
     // Fallback in-memory cache if Redis is not available
     private readonly bool _useMemoryFallback = false;
-    private readonly Dictionary<string, (string value, DateTime expireAt)> _memoryCache = new();
+    private readonly ConcurrentDictionary<string, (string value, DateTime expireAt)> _memoryCache = new();
 
     public RedisCacheService(IOptions<RedisOptions> options, ILogger<RedisCacheService> logger)
     {
@@ -90,11 +91,32 @@ public class RedisCacheService : IRedisCacheService
         }
     }
 
+    public void Dispose()
+    {
+        _connection?.Dispose();
+    }
+
+    private void CleanExpiredKeys()
+    {
+        var now = DateTime.UtcNow;
+        foreach (var key in _memoryCache.Keys)
+        {
+            if (_memoryCache.TryGetValue(key, out var entry) && entry.expireAt < now)
+            {
+                _memoryCache.TryRemove(key, out _);
+            }
+        }
+    }
+
+
+
     // Setting custom museumId with custom expiry time
     public async Task SetMuseumIdAsync(string userId, string museumId)
     {
         var key = $"user:{userId}:museumId";
         await SetAsync(key, museumId, _defaultExpiryMuseum);
     }
+
+
 
 }
