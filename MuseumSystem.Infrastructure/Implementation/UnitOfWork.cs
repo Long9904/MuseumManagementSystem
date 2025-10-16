@@ -13,9 +13,12 @@ namespace MuseumSystem.Infrastructure.Implementation
         private Dictionary<Type, object> repositories;
 
         public IAreaRepository AreaRepository { get; private set; }
+
         public IAccountRepository AccountRepository { get; private set; }
 
         public IMuseumRepository MuseumRepository { get; private set; }
+
+        public IDisplayPositionRepository DisplayPositionRepository { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -24,6 +27,7 @@ namespace MuseumSystem.Infrastructure.Implementation
             AreaRepository = new AreaRepository(_context);
             AccountRepository = new AccountRepository(_context);
             MuseumRepository = new MuseumRepository(_context);
+            DisplayPositionRepository = new DisplayPositionRepository(_context);
         }
 
 

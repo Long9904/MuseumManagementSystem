@@ -19,5 +19,6 @@ namespace MuseumSystem.Domain.Abstractions
         public IAreaRepository AreaRepository { get; }
         public IAccountRepository AccountRepository { get; }
         public IMuseumRepository MuseumRepository { get; }
+        public IDisplayPositionRepository DisplayPositionRepository { get; }
     }
 }

@@ -12,7 +12,7 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251011132246_FixTable")]
+    [Migration("20251016015058_FixTable")]
     partial class FixTable
     {
         /// <inheritdoc />
@@ -198,13 +198,16 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ArtifactId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayPositionName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -223,7 +226,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.HasIndex("AreaId");
 
                     b.HasIndex("ArtifactId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ArtifactId] IS NOT NULL");
 
                     b.ToTable("DisplayPositions");
                 });
@@ -385,9 +389,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
                         .WithOne("DisplayPosition")
-                        .HasForeignKey("MuseumSystem.Domain.Entities.DisplayPosition", "ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MuseumSystem.Domain.Entities.DisplayPosition", "ArtifactId");
 
                     b.Navigation("Area");
 

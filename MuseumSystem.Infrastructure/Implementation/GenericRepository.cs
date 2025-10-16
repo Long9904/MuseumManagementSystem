@@ -36,22 +36,23 @@ namespace MuseumSystem.Infrastructure.Implementation
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<IList<T>> GetAllAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
-
-        public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate, string? includeProperties = null)
+        public async Task<IList<T>> GetAllAsync(
+         Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
             IQueryable<T> query = _dbSet;
+            if (include != null)
+                query = include(query);
 
-            if (!string.IsNullOrWhiteSpace(includeProperties))
-            {
-                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp.Trim());
-                }
-            }
+            return await query.ToListAsync();
+        }
+
+        public async Task<T?> FindAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IQueryable<T>>? include = null)
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null)
+                query = include(query);
 
             return await query.FirstOrDefaultAsync(predicate);
         }

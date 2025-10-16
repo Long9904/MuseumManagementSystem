@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Application.Exceptions;
@@ -57,16 +58,27 @@ namespace MuseumSystem.Application.Services
             _logger.LogInformation("Deleted area {AreaName} for museum {MuseumId}", area.Name, area.MuseumId);
         }
 
-        public async Task<BasePaginatedList<AreaResponse>> GetAll(int pageIndex, int pageSize, bool includeDeleted, CancellationToken cancellationToken)
+        public async Task<BasePaginatedList<AreaResponse>> GetAll(
+            int pageIndex, 
+            int pageSize,
+            string? areaName,
+            bool includeDeleted, 
+            CancellationToken cancellationToken)
         {
             var museumId = await GetValidMuseumIdAsync();
 
-            var query = _unitOfWork.AreaRepository.Entity.Where(a => a.MuseumId == museumId);
+            var query = _unitOfWork.AreaRepository.Entity.Include(a => a.DisplayPositions).Where(a => a.MuseumId == museumId);
 
             if (!includeDeleted)
             {
                 query = query.Where(a => a.Status != AreaStatus.Deleted);
             }
+
+            if (!string.IsNullOrWhiteSpace(areaName))
+            {
+                query = query.Where(a => a.Name.ToLower().Contains(areaName.ToLower()));
+            }
+
             query = query
                 .OrderBy(a => a.Status)
                 .ThenByDescending(a => a.UpdatedAt)
@@ -86,9 +98,10 @@ namespace MuseumSystem.Application.Services
             var museumId = await GetValidMuseumIdAsync();
 
             Area area = await _unitOfWork.AreaRepository.FindAsync
-                 (a => id.Equals(a.Id)
+                 (a => id == a.Id
                  && museumId.Equals(a.MuseumId)
-                 && (includeDeleted || a.Status != AreaStatus.Deleted))
+                 && (includeDeleted || a.Status != AreaStatus.Deleted),
+                 include: source => source.Include(a => a.DisplayPositions))
                  ?? throw new NotFoundException($"Area not found or status is deleted.");
             return _mapping.Map<AreaResponse>(area);
         }

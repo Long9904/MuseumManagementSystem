@@ -27,8 +27,13 @@ namespace MuseumSystem.Application.Dtos
                 .ForMember(dest => dest.DisplayPositions,
                            opt => opt.MapFrom(src => src.DisplayPositions));
 
-            CreateMap<DisplayPosition, DisplayPositionSummaryDto>();
-            CreateMap<DisplayPosition, DisplayPositionDetailDto>();
+            CreateMap<DisplayPosition, DisplayPositionSummaryDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.DisplayPositionName, opt => opt.MapFrom(src => src.DisplayPositionName))
+                .ForMember(dest => dest.PositionCode, opt => opt.MapFrom(src => src.PositionCode));
+            CreateMap<DisplayPosition, DisplayPositionResponse>()
+                .ForMember(dest => dest.AreaName, opt => opt.MapFrom(src => src.Area != null ? src.Area.Name : null))
+                .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null));
             CreateMap<DisplayPositionRequest, DisplayPosition>();
         }
 

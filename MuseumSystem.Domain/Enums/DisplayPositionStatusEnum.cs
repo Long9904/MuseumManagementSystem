@@ -8,7 +8,9 @@ namespace MuseumSystem.Domain.Enums
 {
     public enum DisplayPositionStatusEnum
     {
-        Available,
-        UnderMaintenance,
+        Active,
+        Inactive,
+        Deleted,
+        UnderMaintenance
     }
 }

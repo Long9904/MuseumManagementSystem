@@ -33,7 +33,7 @@ namespace MuseumSystem.Api.Middleware
                     museumId = account?.MuseumId;
                     if (!string.IsNullOrEmpty(museumId))
                     {
-                        await cacheService.SetAsync(cacheKey, museumId, TimeSpan.FromMinutes(30));
+                        await cacheService.SetMuseumIdAsync(userId, museumId);
                     }
                 }
 
