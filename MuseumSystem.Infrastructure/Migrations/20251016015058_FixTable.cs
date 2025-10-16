@@ -192,13 +192,14 @@ namespace MuseumSystem.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DisplayPositionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PositionCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     AreaId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -213,8 +214,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                         name: "FK_DisplayPositions_Artifacts_ArtifactId",
                         column: x => x.ArtifactId,
                         principalTable: "Artifacts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -246,7 +246,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "IX_DisplayPositions_ArtifactId",
                 table: "DisplayPositions",
                 column: "ArtifactId",
-                unique: true);
+                unique: true,
+                filter: "[ArtifactId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Image_ArtifactMediaId",

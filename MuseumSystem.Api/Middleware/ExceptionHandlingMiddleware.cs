@@ -87,18 +87,18 @@ namespace MuseumSystem.Api.Middleware
                     var errors = ve.Errors.Select(e => e.ErrorMessage).ToArray();
                     response = new
                     {
+                        StatusCode = context.Response.StatusCode,
                         IsSuccess = false,
-                        Errors = errors,
-                        StatusCode = context.Response.StatusCode
+                        Message = errors
                     };
                 }
                 else
                 {
                     response = new
                     {
+                        StatusCode = context.Response.StatusCode,
                         IsSuccess = false,
-                        Errors = ex.Message,
-                        StatusCode = context.Response.StatusCode
+                        Message = ex.Message,
                     };
                 }
 

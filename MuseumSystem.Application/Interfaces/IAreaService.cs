@@ -14,6 +14,7 @@ namespace MuseumSystem.Application.Interfaces
             string id, 
             AreaRequest request, 
             CancellationToken cancellationToken = default);
+
         Task DeleteArea(
             string id, 
             CancellationToken cancellationToken = default);
@@ -25,7 +26,8 @@ namespace MuseumSystem.Application.Interfaces
 
         Task<BasePaginatedList<AreaResponse>> GetAll(
             int pageIndex, 
-            int pageSize, 
+            int pageSize,
+            string? areaName,
             bool includeDeleted, 
             CancellationToken cancellationToken = default);
     }

@@ -47,6 +47,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
+    option.EnableAnnotations();
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "MuseumSystem API", Version = "v1" });
 
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -121,9 +122,9 @@ builder.Services.AddAuthentication(options =>
 
             var response = new
             {
+                StatusCode = context.Response.StatusCode,
                 IsSuccess = false,
-                Errors = "Unauthorized or missing token",
-                StatusCode = context.Response.StatusCode
+                Message = "Unauthorized or missing token"
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
@@ -146,9 +147,9 @@ builder.Services.AddAuthentication(options =>
 
             var response = new
             {
+                StatusCode = context.Response.StatusCode,
                 IsSuccess = false,
-                Errors = message,
-                StatusCode = context.Response.StatusCode
+                Message = message
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
@@ -164,9 +165,9 @@ builder.Services.AddAuthentication(options =>
 
             var response = new
             {
+                StatusCode = context.Response.StatusCode,
                 IsSuccess = false,
-                Errors = "You do not have permission to access this resource",
-                StatusCode = context.Response.StatusCode
+                Message = "You do not have permission to access this resource"
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));

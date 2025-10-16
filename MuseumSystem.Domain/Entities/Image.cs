@@ -7,7 +7,7 @@
         public string? Caption { get; set; }
 
         // ArtifactMedia relationship
-        public string ArtifactMediaId { get; set; } = null!;
-        public ArtifactMedia ArtifactMedia { get; set; } = null!;
+        public required string ArtifactMediaId { get; set; }
+        public required ArtifactMedia ArtifactMedia { get; set; }
     }
 }
