@@ -195,9 +195,17 @@ builder.Services.AddConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 
-var app = builder.Build();
-
 var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
+if (isDeploy)
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(8080);
+    });
+}
+
+
+var app = builder.Build();
 
 if (isDeploy)
 {
