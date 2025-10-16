@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Services
@@ -36,6 +38,12 @@ namespace MuseumSystem.Application.Services
             {
                 _logger.LogError("Email cannot be null or empty.");
                 throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
+            }
+            var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            if (!Regex.IsMatch(account.Email, pattern))
+            {
+                _logger.LogError("Invalid email format: {Email}", account.Email);
+                throw new ArgumentException("Invalid email format.", nameof(account.Email));
             }
             if (string.IsNullOrWhiteSpace(account.Password))
             {
@@ -73,7 +81,8 @@ namespace MuseumSystem.Application.Services
 
         public async Task DeleteAccountAsync(string id)
         {
-            var account = await GetAccountByIdAsync(id);
+            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active,
+                include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
                 _logger.LogError("Account with ID {AccountId} not found.", id);
@@ -87,14 +96,15 @@ namespace MuseumSystem.Application.Services
 
         public async Task<BasePaginatedList<AccountRespone>> GetAllAccountsAsync(int pageIndex, int pageSize)
         {
-            var query = _unit.GetRepository<Account>().Entity;
+            var query = _unit.GetRepository<Account>().Entity.Include(x => x.Role).Include(x => x.Museum);
             var rs = await _unit.GetRepository<Account>().GetPagging(query, pageIndex, pageSize);
             return _mapping.Map<BasePaginatedList<AccountRespone>>(rs);
         }
 
         public async Task<AccountRespone?> GetAccountByIdAsync(string id)
         {
-            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
+            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active,
+                include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
                 _logger.LogWarning("Account with ID {AccountId} not found.", id);
@@ -105,7 +115,8 @@ namespace MuseumSystem.Application.Services
 
         public async Task<AccountRespone?> GetAccountByEmailAsync(string email)
         {
-            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Email == email);
+            var account = await _unit.GetRepository<Account>().FindAsync(x => x.Email == email,
+                include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
                 _logger.LogWarning("Account with email {AccountEmail} not found.", email);
@@ -137,7 +148,8 @@ namespace MuseumSystem.Application.Services
                 _logger.LogError("Account ID cannot be null or empty.");
                 throw new ArgumentException("Account ID cannot be null or empty.", nameof(accountId));
             }
-            var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.Id == accountId);
+            var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.Id == accountId,
+                include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (existingAccount == null)
             {
                 _logger.LogError("Account with ID {AccountId} not found.", accountId);
@@ -146,11 +158,6 @@ namespace MuseumSystem.Application.Services
             if (existingAccount.Email != account.Email)
             {
                 existingAccount.Email = account.Email;
-                isUpdate = true;
-            }
-            if (existingAccount.Password != account.Password)
-            {
-                existingAccount.Password = account.Password;
                 isUpdate = true;
             }
             if (existingAccount.FullName != account.FullName)

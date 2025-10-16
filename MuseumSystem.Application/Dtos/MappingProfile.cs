@@ -21,7 +21,9 @@ namespace MuseumSystem.Application.Dtos
                 .ConvertUsing(typeof(BasePaginatedListConverter<,>));
 
             // Add other mappings as needed
-            CreateMap<Account, AccountRespone>();
+            CreateMap<Account, AccountRespone>()
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role != null ? src.Role.Id : null))
+                .ForMember(dest => dest.MuseumId, opt => opt.MapFrom(src => src.Museum != null ? src.Museum.Id : null));
             CreateMap<AreaRequest, Area>();
             CreateMap<Area, AreaResponse>()
                 .ForMember(dest => dest.DisplayPositions,
