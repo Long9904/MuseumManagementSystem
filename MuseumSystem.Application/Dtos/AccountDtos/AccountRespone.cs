@@ -11,13 +11,15 @@ namespace MuseumSystem.Application.Dtos.AccountDtos
 {
     public class AccountRespone
     {
-        public string? Id { get; set; } 
-        public string? Email { get; set; } 
+        public string? Id { get; set; }
+        public string? Email { get; set; }
         public string? FullName { get; set; }
-        public EnumStatus Status { get; set; } 
-        public DateTime CreateAt { get; set; } 
+        public EnumStatus Status { get; set; }
+        public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
         public string? RoleId { get; set; }
+        public string? RoleName { get; set; }
         public string? MuseumId { get; set; }
+        public string? MuseumName { get; set; }
     }
 }

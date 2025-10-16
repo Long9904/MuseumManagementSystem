@@ -27,69 +27,43 @@ namespace MuseumSystem.Api.Controllers
         [HttpPost("{roleId}/{museumId}")]
         public async Task<IActionResult> CreateAccount(string roleId, string museumId, [FromBody] AccountRequest accountRequest)
         {
-            try
-            {
-                var account = await _accountService.CreateAccountAsync(roleId, museumId, accountRequest);
-                return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Account created successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
-            }
+
+            var account = await _accountService.CreateAccountAsync(roleId, museumId, accountRequest);
+            return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Account created successfully", "200"));
+
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(string id)
         {
-            try
-            {
-                var account = await _accountService.GetAccountByIdAsync(id);
-                return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Get account by id successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
-            }
+
+            var account = await _accountService.GetAccountByIdAsync(id);
+            return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Get account by id successfully", "200"));
+
 
         }
         [HttpGet]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
-            try
-            {
-                var accounts = await _accountService.GetAllAccountsAsync(pageIndex, pageSize);
-                return Ok(ApiResponse<BasePaginatedList<AccountRespone>>.OkResponse(accounts, "Get all accounts successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
-            }
-        }   
+
+            var accounts = await _accountService.GetAllAccountsAsync(pageIndex, pageSize);
+            return Ok(ApiResponse<BasePaginatedList<AccountRespone>>.OkResponse(accounts, "Get all accounts successfully", "200"));
+
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
-            try
-            {
-                await _accountService.DeleteAccountAsync(id);
-                return Ok(ApiResponse<string>.OkResponse(id, "Account deleted successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
-            }
+
+            await _accountService.DeleteAccountAsync(id);
+            return Ok(ApiResponse<string>.OkResponse(id, "Account deleted successfully", "200"));
+
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] AccountRequest accountRequest)
         {
-            try
-            {
-                var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
-                return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account updated successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<AccountRespone>.InternalErrorResponse(ex.Message));
-            }
+            var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
+            return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account updated successfully", "200"));
+
         }
     }
 }
