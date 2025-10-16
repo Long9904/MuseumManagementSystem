@@ -4,12 +4,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Utils;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Domain.Options;
@@ -198,6 +196,27 @@ builder.Services.AddHttpContextAccessor();
 
 
 var app = builder.Build();
+
+var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
+
+if (isDeploy)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        try
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+            Console.WriteLine("Database migrated successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Migration failed: {ex.Message}");
+            throw new Exception("Migration failed", ex);
+        }
+    }
+}
+
 
 //Middleware pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
