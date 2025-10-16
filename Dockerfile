@@ -25,4 +25,17 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
 
-ENTRYPOINT ["dotnet", "MuseumSystem.Api.dll"]
+# Cài EF Core CLI
+RUN apt-get update && apt-get install -y wget unzip \
+    && dotnet tool install --global dotnet-ef \
+    && ln -s /root/.dotnet/tools/dotnet-ef /usr/local/bin/dotnet-ef
+
+# Add dotnet tools to PATH
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# --- Tùy chọn: Environment (Cloud Run có thể override ENV này)
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# --- 🧠 Migration trước khi chạy app
+CMD dotnet ef database update -p MuseumSystem.Infrastructure -s MuseumSystem.Api && \
+    dotnet MuseumSystem.Api.dll

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MuseumSystem.Domain.Enums
+namespace MuseumSystem.Domain.Enums.EnumConfig
 {
     public static class EnumHelper
     {

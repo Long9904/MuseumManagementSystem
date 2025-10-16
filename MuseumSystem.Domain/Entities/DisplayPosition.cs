@@ -1,5 +1,4 @@
-﻿using MuseumSystem.Domain.Abstractions;
-using MuseumSystem.Domain.Enums;
+﻿using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Domain.Entities
 {
@@ -7,23 +6,27 @@ namespace MuseumSystem.Domain.Entities
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        public string DisplayPositionName { get; set; } = string.Empty;
+
         public string PositionCode { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
 
-        public DisplayPositionStatusEnum Status { get; set; } = DisplayPositionStatusEnum.Available;
+        public DisplayPositionStatusEnum Status { get; set; } = DisplayPositionStatusEnum.Active;
 
         // Foreign key to Area
-        public string AreaId { get; set; } = string.Empty;
+        public required string AreaId { get; set; }
 
-        public Area Area { get; set; } = null!;
+        public required Area Area { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Foreign key to ArtifactDisplay (many-to-many relationship)
-        public ICollection<ArtifactDisplay> ArtifactDisplays { get; set; } = new List<ArtifactDisplay>();
+        // relationships to artifact 1-1
+        public Artifact? Artifact { get; set; }
+        public string? ArtifactId { get; set;  }
+
 
     }
 }

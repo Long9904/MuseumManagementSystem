@@ -10,18 +10,18 @@ namespace MuseumSystem.Domain.Abstractions
     {
         public IReadOnlyCollection<T> Items { get; set; } 
         public int TotalItems { get; set; }
-        public int CurrentPage { get; set; }
+        public int PageIndex { get; set; }
         public int TotalPages { get; set; }
         public int PageSize { get; set; }
         public BasePaginatedList()
         {
             Items = new List<T>();
         }
-        public BasePaginatedList(IReadOnlyCollection<T> items, int totalItems, int currentPage, int pageSize)
+        public BasePaginatedList(IReadOnlyCollection<T> items, int totalItems, int pageIndex, int pageSize)
         {
             
             TotalItems = totalItems;
-            CurrentPage = currentPage;
+            PageIndex = pageIndex;
             PageSize = pageSize;
             TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             Items = items;

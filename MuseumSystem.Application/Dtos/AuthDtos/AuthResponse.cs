@@ -9,5 +9,7 @@ namespace MuseumSystem.Application.Dtos.AuthDtos
     public class AuthResponse
     {
         public string Token { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string MuseumId { get; set; } = string.Empty;
     }
 }

@@ -15,8 +15,8 @@ namespace MuseumSystem.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Foreign key to Artifact
-        public string ArtifactId { get; set; } = null!; 
-        public Artifact Artifact { get; set; } = null!;
+        public required string ArtifactId { get; set; }
+        public required Artifact Artifact { get; set; }
 
         // Navigation properties for different media types
         public Image? Image { get; set; }
