@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.RoleDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/roles")]
     [ApiController]
+    [SwaggerTag("Role Manage - SuperAdmin")]
     public class RoleController : ControllerBase
     {
         private readonly ILogger<RoleController> _logger;
@@ -22,6 +25,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get all roles - has paging")]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
 
@@ -31,6 +35,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Add new role")]
         public async Task<IActionResult> AddRole([FromBody] RoleRequest roleRequest)
         {
 
@@ -40,6 +45,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Get role by ID")]
         public async Task<IActionResult> GetRoleById(string id)
         {
 
@@ -50,6 +56,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Delete role by ID")]
         public async Task<IActionResult> DeleteRole(string id)
         {
             await _roleService.DeleteRoleAsync(id);
@@ -57,6 +64,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Update role by ID")]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleRequest roleRequest)
         {
             var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);

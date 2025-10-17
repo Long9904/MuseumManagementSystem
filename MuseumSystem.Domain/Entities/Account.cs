@@ -27,7 +27,7 @@ namespace MuseumSystem.Domain.Entities
         public Role Role { get; set; } = null!;
 
         // Foreign key to Museum 
-        public string MuseumId { get; set; }
+        public string? MuseumId { get; set; }
         [JsonIgnore]
         public Museum? Museum { get; set; } 
         }
