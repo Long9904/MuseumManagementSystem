@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
-using MuseumSystem.Application.Dtos.AuthDtos;
 using MuseumSystem.Application.Interfaces;
-using MuseumSystem.Application.Services;
 using MuseumSystem.Domain.Abstractions;
-using MuseumSystem.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/accounts")]
     [ApiController]
+    [SwaggerTag("Account Manage - SuperAdmin")]
     public class AccountController : ControllerBase
     {
         private readonly ILogger<AccountController> _logger;
@@ -25,6 +25,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPost("{roleId}/{museumId}")]
+        [SwaggerOperation(Summary = "Create a new account")]
         public async Task<IActionResult> CreateAccount(string roleId, string museumId, [FromBody] AccountRequest accountRequest)
         {
 
@@ -33,6 +34,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Get account by ID")]
         public async Task<IActionResult> GetAccountById(string id)
         {
 
@@ -42,6 +44,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet]
+        [SwaggerOperation(Summary = "Get all accounts")]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
 
@@ -50,6 +53,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Delete account by ID, change status")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
 
@@ -59,6 +63,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Update account by ID")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] AccountRequest accountRequest)
         {
             var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);

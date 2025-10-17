@@ -19,6 +19,12 @@ namespace MuseumSystem.Api.Middleware
             IAccountRepository _accountRepository, 
             ILogger<MuseumContextMiddleware> _logger)
         {
+            if (context.User.IsInRole("SuperAdmin"))
+            {
+                await _next(context);
+                return;
+            }
+
             var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId))
             {

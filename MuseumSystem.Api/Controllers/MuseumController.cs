@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Interfaces;
-using MuseumSystem.Application.Services;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/museums")]
     [ApiController]
+    [SwaggerTag("Museum Manage - SuperAdmin")]
     public class MuseumController : ControllerBase
     {
         private readonly IMuseumService service;
@@ -24,6 +25,7 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation (Summary = "Create a new museum")]
         public async Task<IActionResult> AddMuseum([FromBody] MuseumRequest museum)
         {
 
@@ -32,6 +34,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet]
+        [SwaggerOperation (Summary = "Get all museums - has paging")]
         public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10, [FromQuery] MuseumFilterDtos? dtos = null)
         {
             var museums = await service.GetAll(pageIndex, pageSize, dtos);
@@ -39,6 +42,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpDelete("{id}")]
+        [SwaggerOperation (Summary = "Delete museum by ID - soft delete")]
         public async Task<IActionResult> DeleteMuseum(string id)
         {
 
@@ -47,6 +51,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet("{id}")]
+        [SwaggerOperation (Summary = "Get museum by ID")]
         public async Task<IActionResult> GetMuseumById(string id)
         {
             var museum = await service.GetMuseumById(id);
@@ -54,6 +59,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpPut("{id}")]
+        [SwaggerOperation (Summary = "Update museum by ID")]
         public async Task<IActionResult> UpdateMuseum(string id, [FromBody] MuseumRequest museumRequest)
         {
             var updatedMuseum = await service.UpdateMuseum(id, museumRequest);

@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/health")]
     [ApiController]
+    [SwaggerTag("Health Check - SuperAdmin")]  
     public class HealthController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -15,7 +19,8 @@ namespace MuseumSystem.Api.Controllers
             _context = context;
         }
 
-        [HttpGet("check-connection")]
+        [HttpGet("check-db-connection")]
+        [SwaggerOperation(Summary = "Check Database Connection")]
         public async Task<IActionResult> CheckDb()
         {
             try

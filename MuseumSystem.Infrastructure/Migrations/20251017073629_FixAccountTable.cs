@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class FixTable : Migration
+    public partial class FixAccountTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -125,7 +125,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MuseumId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    MuseumId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -134,8 +134,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                         name: "FK_Accounts_Museums_MuseumId",
                         column: x => x.MuseumId,
                         principalTable: "Museums",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Accounts_Roles_RoleId",
                         column: x => x.RoleId,

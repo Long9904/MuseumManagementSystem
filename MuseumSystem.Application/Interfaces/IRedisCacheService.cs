@@ -7,5 +7,7 @@
         Task RemoveAsync(string key);
 
         Task SetMuseumIdAsync(string userId, string museumId);
+
+        Task RemoveMuseumIdAsync(string userId);
     }
 }
