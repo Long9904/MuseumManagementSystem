@@ -24,73 +24,44 @@ namespace MuseumSystem.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
-            try
-            {
-                var roles = await _roleService.GetAllRolesAsync(pageIndex, pageSize);
-                return Ok(ApiResponse<BasePaginatedList<Role>>.OkResponse(roles, "Get all roles successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<List<Role>>.InternalErrorResponse(ex.Message));
-            }
+
+            var roles = await _roleService.GetAllRolesAsync(pageIndex, pageSize);
+            return Ok(ApiResponse<BasePaginatedList<Role>>.OkResponse(roles, "Get all roles successfully", "200"));
+
         }
 
         [HttpPost]
         public async Task<IActionResult> AddRole([FromBody] RoleRequest roleRequest)
         {
-            try
-            {
-                var role = await _roleService.AddRoleAsync(roleRequest);
-                return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<Role>.InternalErrorResponse(ex.Message));
-            }
+
+            var role = await _roleService.AddRoleAsync(roleRequest);
+            return Ok(ApiResponse<Role>.OkResponse(role, "Role added successfully", "200"));
+
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoleById(string id)
         {
-            try
-            {
-                var role = await _roleService.GetRoleByIdAsync(id);
-                return Ok(ApiResponse<Role>.OkResponse(role, "Get role by id successfully", "200"));
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<Role>.InternalErrorResponse(ex.Message));
-            }
+            var role = await _roleService.GetRoleByIdAsync(id);
+            return Ok(ApiResponse<Role>.OkResponse(role, "Get role by id successfully", "200"));
+
+
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole(string id)
         {
-            try
-            {
-                await _roleService.DeleteRoleAsync(id);
-                return Ok(ApiResponse<string>.OkResponse("Role deleted successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.InternalErrorResponse(ex.Message));
-            }
+            await _roleService.DeleteRoleAsync(id);
+            return Ok(ApiResponse<string>.OkResponse("Role deleted successfully", "200"));
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleRequest roleRequest)
         {
-            try
-            {
-                var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);
-                return Ok(ApiResponse<Role>.OkResponse(roleUpdate, "Role updated successfully", "200"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.InternalErrorResponse(ex.Message));
-            }
-        }
+            var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);
+            return Ok(ApiResponse<Role>.OkResponse(roleUpdate, "Role updated successfully", "200"));
 
+        }
     }
 }
