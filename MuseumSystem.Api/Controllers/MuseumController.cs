@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Interfaces;
-using MuseumSystem.Application.Services;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
@@ -15,15 +13,16 @@ namespace MuseumSystem.Api.Controllers
     public class MuseumController : ControllerBase
     {
         private readonly IMuseumService service;
-        private readonly ILogger<MuseumController> logger;
 
-        public MuseumController(IMuseumService service, ILogger<MuseumController> logger)
+        public MuseumController(IMuseumService serviceM)
         {
-            this.service = service;
-            this.logger = logger;
+            service = serviceM;
         }
 
         [HttpPost]
+        [SwaggerOperation(
+            Summary = "Create a new museum",
+            Description = "Creates a new museum")]
         public async Task<IActionResult> AddMuseum([FromBody] MuseumRequest museum)
         {
 
@@ -32,6 +31,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet]
+        [SwaggerOperation(
+            Summary = "Get all museums",
+            Description = "Retrieves a paginated list of all museums.")]
         public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10, [FromQuery] MuseumFilterDtos? dtos = null)
         {
             var museums = await service.GetAll(pageIndex, pageSize, dtos);
@@ -39,6 +41,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpDelete("{id}")]
+        [SwaggerOperation(
+            Summary = "Delete a museum",
+            Description = "Deletes an existing museum identified by its ID.")]
         public async Task<IActionResult> DeleteMuseum(string id)
         {
 
@@ -47,6 +52,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Get a museum by ID",
+            Description = "Retrieves the details of a specific museum identified by its ID.")]
         public async Task<IActionResult> GetMuseumById(string id)
         {
             var museum = await service.GetMuseumById(id);
@@ -54,6 +62,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpPut("{id}")]
+        [SwaggerOperation(
+            Summary = "Update a museum",
+            Description = "Updates the details of an existing museum identified by its ID.")]
         public async Task<IActionResult> UpdateMuseum(string id, [FromBody] MuseumRequest museumRequest)
         {
             var updatedMuseum = await service.UpdateMuseum(id, museumRequest);

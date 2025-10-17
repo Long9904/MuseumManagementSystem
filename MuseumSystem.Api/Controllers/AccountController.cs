@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
-using MuseumSystem.Application.Dtos.AuthDtos;
 using MuseumSystem.Application.Interfaces;
-using MuseumSystem.Application.Services;
 using MuseumSystem.Domain.Abstractions;
-using MuseumSystem.Domain.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
@@ -14,17 +11,19 @@ namespace MuseumSystem.Api.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly ILogger<AccountController> _logger;
         private readonly IAccountService _accountService;
 
-        public AccountController(ILogger<AccountController> logger, IAccountService accountService)
+        public AccountController(IAccountService accountService)
         {
-            _logger = logger;
             _accountService = accountService;
 
         }
 
         [HttpPost("{roleId}/{museumId}")]
+        [SwaggerOperation(
+            Summary = "Create a new account",
+            Description = "Creates a new account with the provided details.")]
+
         public async Task<IActionResult> CreateAccount(string roleId, string museumId, [FromBody] AccountRequest accountRequest)
         {
 
@@ -33,6 +32,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Get an account by ID",
+            Description = "Retrieves the details of a specific account identified by its ID.")]
         public async Task<IActionResult> GetAccountById(string id)
         {
 
@@ -42,6 +44,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet]
+        [SwaggerOperation(
+            Summary = "Get all accounts",
+            Description = "Retrieves a paginated list of all accounts.")]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
 
@@ -50,6 +55,9 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpDelete("{id}")]
+        [SwaggerOperation(
+            Summary = "Delete an account",
+            Description = "Deletes an existing account identified by its ID.")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
 
@@ -59,6 +67,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerOperation(
+            Summary = "Update an existing account",
+            Description = "Updates the details of an existing account identified by its ID.")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] AccountRequest accountRequest)
         {
             var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
