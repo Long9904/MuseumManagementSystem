@@ -18,6 +18,7 @@ namespace MuseumSystem.Infrastructure
             services.AddScoped<IMuseumRepository, MuseumRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IDisplayPositionRepository, DisplayPositionRepository>();
+            services.AddScoped<IArtifactRepository, ArtifactRepository>();
         }
     }
 }

@@ -29,7 +29,7 @@ public class RedisCacheService : IRedisCacheService
             _logger.LogWarning("Redis connection string is not provided. Falling back to in-memory cache.");
             return;
         }
-       
+
         try
         {
             _connection = ConnectionMultiplexer.Connect(redisOptions.RedisConnection);
@@ -117,6 +117,9 @@ public class RedisCacheService : IRedisCacheService
         await SetAsync(key, museumId, _defaultExpiryMuseum);
     }
 
-
-
+    public Task RemoveMuseumIdAsync(string userId)
+    {
+        var key = $"user:{userId}:museumId";
+        return RemoveAsync(key);
+    }
 }

@@ -11,5 +11,7 @@ namespace MuseumSystem.Application.Interfaces
     {
         Task<AuthResponse> LoginAsync(AuthRequest request);
         Task<AuthResponse> LoginGoogleAsync(LoginGGRequest loginGGRequest);
+
+        Task Logout();
     }
 }

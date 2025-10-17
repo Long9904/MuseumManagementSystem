@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251016015058_FixTable")]
-    partial class FixTable
+    [Migration("20251017073629_FixAccountTable")]
+    partial class FixAccountTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,7 +41,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MuseumId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Password")
@@ -342,9 +341,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
                         .WithMany("Accounts")
-                        .HasForeignKey("MuseumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MuseumId");
 
                     b.HasOne("MuseumSystem.Domain.Entities.Role", "Role")
                         .WithMany("Accounts")

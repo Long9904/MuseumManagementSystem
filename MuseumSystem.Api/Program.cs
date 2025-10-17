@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using AutoMapper;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Domain.Options;
@@ -15,6 +17,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
 
 //Controllers + Validation
 builder.Services.AddControllers(options =>
@@ -196,16 +200,9 @@ builder.Services.AddHttpContextAccessor();
 
 
 var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
-if (isDeploy)
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(8080);
-    });
-}
-
 
 var app = builder.Build();
+
 
 if (isDeploy)
 {
@@ -222,6 +219,12 @@ if (isDeploy)
             Console.WriteLine($"Migration failed: {ex.Message}");
             throw new Exception("Migration failed", ex);
         }
+    }
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
+        await seedService.SeedSuperAdminAsync();
     }
 }
 

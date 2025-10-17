@@ -38,7 +38,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MuseumId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Password")
@@ -339,9 +338,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
                         .WithMany("Accounts")
-                        .HasForeignKey("MuseumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MuseumId");
 
                     b.HasOne("MuseumSystem.Domain.Entities.Role", "Role")
                         .WithMany("Accounts")
