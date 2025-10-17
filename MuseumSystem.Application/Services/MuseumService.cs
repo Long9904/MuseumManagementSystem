@@ -47,7 +47,14 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentException("Museum ID cannot be null or empty.", nameof(id));
             }
             var museum = await GetMuseumById(id);
-            museum.Status = EnumStatus.Inactive;
+            if(museum.Status.Equals(EnumStatus.Inactive))
+            {
+                museum.Status = EnumStatus.Active;
+            }
+            else
+            {
+                museum.Status = EnumStatus.Inactive;
+            }
             await unit.GetRepository<Museum>().UpdateAsync(museum);
             await unit.SaveChangeAsync();
         }

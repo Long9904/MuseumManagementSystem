@@ -31,30 +31,25 @@ namespace MuseumSystem.Application.Services
         public async Task<AccountRespone> CreateAccountAsync(string roleId, string museumId, AccountRequest account)
         {
             if (account == null)
-            {
-                _logger.LogError("Account request cannot be null.");
-                throw new ArgumentNullException(nameof(account), "Account request cannot be null.");
+            { 
+                throw new ArgumentNullException(nameof(account), "Account cannot be null.");
             }
             if (string.IsNullOrWhiteSpace(account.Email))
             {
-                _logger.LogError("Email cannot be null or empty.");
                 throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
             }
             var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             if (!Regex.IsMatch(account.Email, pattern))
             {
-                _logger.LogError("Invalid email format: {Email}", account.Email);
                 throw new ArgumentException("Invalid email format.", nameof(account.Email));
             }
             if (string.IsNullOrWhiteSpace(account.Password))
             {
-                _logger.LogError("Password cannot be null or empty.");
                 throw new ArgumentException("Password cannot be null or empty.", nameof(account.Password));
             }
             var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId);
             if (role == null)
             {
-                _logger.LogError("Role with ID {RoleId} not found.", roleId);
                 throw new KeyNotFoundException($"Role with ID {roleId} not found.");
             }
 
@@ -66,7 +61,6 @@ namespace MuseumSystem.Application.Services
             var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId);
             if (museum == null)
             {
-                _logger.LogError("Museum with ID {MuseumId} not found.", museumId);
                 throw new KeyNotFoundException($"Museum with ID {museumId} not found.");
             }
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
@@ -92,7 +86,6 @@ namespace MuseumSystem.Application.Services
                 include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
-                _logger.LogError("Account with ID {AccountId} not found.", id);
                 throw new KeyNotFoundException($"Account with ID {id} not found.");
             }
             account.Status = EnumStatus.Inactive;
