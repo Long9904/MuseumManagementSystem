@@ -8,9 +8,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "Staff,Admin,Manager")]
     [Authorize]
     [Route("api/v1/areas")]
     [ApiController]
+    [SwaggerTag("Area Management - Staff, Admin, Manager")]
     public class AreaController : ControllerBase
     {
         private readonly IAreaService _areaService;
@@ -23,8 +25,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(
-            Summary = "Create a new area",
-            Description = "Creates a new area with the provided details.")]
+            Summary = "Create a new area")]
         public async Task<IActionResult> CreateArea([FromBody] AreaRequest request)
         {
             var result = await _areaService.CreateArea(request);
@@ -34,8 +35,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPatch("{id}")]
         [SwaggerOperation(
-            Summary = "Update an existing area",
-            Description = "Updates the details of an existing area identified by its ID.")]
+            Summary = "Update an existing area")]
         public async Task<IActionResult> UpdateArea([FromRoute] string id, [FromBody] AreaRequest request)
         {
             var result = await _areaService.UpdateArea(id, request);
@@ -45,8 +45,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpDelete("{id}")]
         [SwaggerOperation(
-            Summary = "Delete an area",
-            Description = "Deletes an existing area identified by its ID.")]
+            Summary = "Delete an area")]
         public async Task<IActionResult> DeleteArea([FromRoute] string id)
         {
             await _areaService.DeleteArea(id);
@@ -56,8 +55,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Get all Areas",
-            Description = "Retrieves a paginated list of all areas, with optional inclusion of deleted items.")]
+            Summary = "Get all Areas - has paging")]
         public async Task<IActionResult> GetAll(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
@@ -71,8 +69,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(
-            Summary = "Get area by ID",
-            Description = "Retrieves the details of a specific area identified by its ID, with optional inclusion of deleted items.")]
+            Summary = "Get area by ID")]
         public async Task<IActionResult> GetAreaById([FromRoute] string id, [FromQuery] bool includeDeleted = false)
         {
             var result = await _areaService.GetAreaById(id, includeDeleted);

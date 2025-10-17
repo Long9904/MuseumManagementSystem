@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Interfaces;
@@ -7,8 +8,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/accounts")]
     [ApiController]
+    [SwaggerTag("Account Manage - SuperAdmin")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;

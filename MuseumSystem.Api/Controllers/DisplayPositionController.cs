@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.DisplayPositionDtos;
 using MuseumSystem.Application.Interfaces;
@@ -7,8 +8,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "Staff,Admin,Manager")]
     [Route("api/v1/display-postions")]
     [ApiController]
+    [SwaggerTag("Display Position Management - Staff, Admin, Manager")]
     public class DisplayPositionController : ControllerBase
     {
         private readonly IDisplayPositionService _displayPositionService;
@@ -20,8 +23,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(
-            Summary = "Create a new display postion",
-            Description = "Creates a new display postion with the provided details.")]
+            Summary = "Create a new display postion")]
         public async Task<IActionResult> CreateDisplayPosition([FromBody] DisplayPositionRequest request)
         {
             var result = await _displayPositionService.CreateDisplayPosition(request);
@@ -31,8 +33,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPatch("{id}")]
         [SwaggerOperation(
-            Summary = "Update an existing display postion",
-            Description = "Updates the details of an existing display postion identified by its ID.")]
+            Summary = "Update an existing display postion + move to other area")]
         public async Task<IActionResult> UpdateDisplayPosition([FromRoute] string id, [FromBody] DisplayPositionRequest request)
         {
             var result = await _displayPositionService.UpdateDisplayPosition(id, request);
@@ -42,8 +43,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpDelete("{id}")]
         [SwaggerOperation(
-            Summary = "Delete a display postion",
-            Description = "Deletes an existing display postion identified by its ID.")]
+            Summary = "Delete a display postion - soft delete")]
         public async Task<IActionResult> DeleteDisplayPosition([FromRoute] string id)
         {
             await _displayPositionService.DeleteDisplayPosition(id);
@@ -53,8 +53,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(
-            Summary = "Get a display postion by ID",
-            Description = "Retrieves the details of a specific display postion identified by its ID.")]
+            Summary = "Get a display postion by ID")]
         public async Task<IActionResult> GetDisplayPositionById([FromRoute] string id)
         {
             var result = await _displayPositionService.GetDisplayPositionById(id);
@@ -64,8 +63,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Get all display postions",
-            Description = "Retrieves a paginated list of all display postions, with optional inclusion of deleted items.")]
+            Summary = "Get all display postions, has paging")]
         public async Task<IActionResult> GetAllDisplayPositions(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,

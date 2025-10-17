@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
+using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
@@ -51,6 +52,12 @@ namespace MuseumSystem.Application.Services
             {
                 throw new KeyNotFoundException($"Role with ID {roleId} not found.");
             }
+
+            if (role.Name.Equals("SuperAdmin"))
+            {
+                throw new InvalidAccessException("You can not create account with SuperAdmin role");
+            }
+
             var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId);
             if (museum == null)
             {

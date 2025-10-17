@@ -8,8 +8,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Route("api/v1/roles")]
     [ApiController]
+    [SwaggerTag("Role Manage - SuperAdmin")]
     public class RoleController : ControllerBase
     {
         private readonly ILogger<RoleController> _logger;

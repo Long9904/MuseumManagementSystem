@@ -20,6 +20,8 @@ namespace MuseumSystem.Application
             services.AddScoped<IMuseumService, MuseumService>();
             services.AddScoped<IAreaService, AreaService>();
             services.AddScoped<IDisplayPositionService, DisplayPositionService>();
+            services.AddScoped<IArtifactService, ArtifactService>();
+            services.AddScoped<ISeedService, SeedService>();
 
             // Redis caching service
             services.AddSingleton<IRedisCacheService, RedisCacheService>();
