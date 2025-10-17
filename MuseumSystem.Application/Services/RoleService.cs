@@ -87,7 +87,7 @@ namespace MuseumSystem.Application.Services
             {
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
-            var roleWithSameName = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name);
+            var roleWithSameName = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name && x.Status == EnumStatus.Active);
             if (roleWithSameName != null)
             {
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
@@ -98,7 +98,7 @@ namespace MuseumSystem.Application.Services
                 roleExisting.Name = roleRequest.Name;
                 isUpdate = true;
             }
-            if (!isUpdate)
+            if (isUpdate)
             {
                 return roleExisting;
             }

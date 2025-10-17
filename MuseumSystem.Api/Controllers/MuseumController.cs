@@ -16,16 +16,14 @@ namespace MuseumSystem.Api.Controllers
     public class MuseumController : ControllerBase
     {
         private readonly IMuseumService service;
-        private readonly ILogger<MuseumController> logger;
 
-        public MuseumController(IMuseumService service, ILogger<MuseumController> logger)
+        public MuseumController(IMuseumService serviceM)
         {
-            this.service = service;
-            this.logger = logger;
+            service = serviceM;
         }
 
         [HttpPost]
-        [SwaggerOperation (Summary = "Create a new museum")]
+        [SwaggerOperation (Summary = "Create a new museum")]      
         public async Task<IActionResult> AddMuseum([FromBody] MuseumRequest museum)
         {
 
@@ -34,7 +32,7 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpGet]
-        [SwaggerOperation (Summary = "Get all museums - has paging")]
+        [SwaggerOperation (Summary = "Get all museums - has paging")]       
         public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10, [FromQuery] MuseumFilterDtos? dtos = null)
         {
             var museums = await service.GetAll(pageIndex, pageSize, dtos);
@@ -42,16 +40,16 @@ namespace MuseumSystem.Api.Controllers
 
         }
         [HttpDelete("{id}")]
-        [SwaggerOperation (Summary = "Delete museum by ID - soft delete")]
+        [SwaggerOperation (Summary = "Delete museum by ID - soft delete")]       
         public async Task<IActionResult> DeleteMuseum(string id)
         {
 
             await service.DeleteMuseum(id);
-            return Ok(ApiResponse<string>.OkResponse(id, "Delete museum successful!", "200"));
+            return Ok(ApiResponse<string>.OkResponse("Delete museum successful!", "200"));
 
         }
         [HttpGet("{id}")]
-        [SwaggerOperation (Summary = "Get museum by ID")]
+        [SwaggerOperation (Summary = "Get museum by ID")]       
         public async Task<IActionResult> GetMuseumById(string id)
         {
             var museum = await service.GetMuseumById(id);

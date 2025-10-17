@@ -25,7 +25,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Get all roles - has paging")]
+        [SwaggerOperation(
+            Summary = "Get all roles",
+            Description = "Retrieves a paginated list of all roles.")]
         public async Task<IActionResult> GetAll(int pageIndex = 1, int pageSize = 10)
         {
 
@@ -35,7 +37,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPost]
-        [SwaggerOperation(Summary = "Add new role")]
+        [SwaggerOperation(
+            Summary = "Add a new role",
+            Description = "Creates a new role with the provided details.")]
         public async Task<IActionResult> AddRole([FromBody] RoleRequest roleRequest)
         {
 
@@ -45,7 +49,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Get role by ID")]
+        [SwaggerOperation(
+            Summary = "Get a role by ID",
+            Description = "Retrieves the details of a specific role identified by its ID.")]
         public async Task<IActionResult> GetRoleById(string id)
         {
 
@@ -56,7 +62,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [SwaggerOperation(Summary = "Delete role by ID")]
+        [SwaggerOperation(
+            Summary = "Delete a role",
+            Description = "Deletes an existing role identified by its ID.")]
         public async Task<IActionResult> DeleteRole(string id)
         {
             await _roleService.DeleteRoleAsync(id);
@@ -64,7 +72,9 @@ namespace MuseumSystem.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [SwaggerOperation(Summary = "Update role by ID")]
+        [SwaggerOperation(
+            Summary = "Update a role",
+            Description = "Updates the details of an existing role identified by its ID.")]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleRequest roleRequest)
         {
             var roleUpdate = await _roleService.UpdateRoleAsync(id, roleRequest);

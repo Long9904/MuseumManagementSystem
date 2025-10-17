@@ -15,17 +15,14 @@ namespace MuseumSystem.Application.Validation
 
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Name is required.")
                 .Length(1, 100).WithMessage("Name must be between 1 and 100 characters.");
 
             RuleFor(x => x.Location)
                  .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Location is required.")
                 .Length(1, 100).WithMessage("Location must be between 1 and 100 characters.");
 
             RuleFor(x => x.Description)
                     .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Description is required.")
                 .Length(1, 100).WithMessage("Description must be between 1 and 100 characters.");
         }
     }
