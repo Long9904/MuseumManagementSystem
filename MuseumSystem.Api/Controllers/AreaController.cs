@@ -75,5 +75,14 @@ namespace MuseumSystem.Api.Controllers
             var result = await _areaService.GetAreaById(id, includeDeleted);
             return Ok(ApiResponse<AreaResponse>.OkResponse(result, $"Fetch Area: '{result.Name}' sucessfully", "200"));
         }
+
+        [HttpPatch("{id}/activate")]
+        [SwaggerOperation(
+            Summary = "Activate an area")]
+        public async Task<IActionResult> ActivateArea([FromRoute] string id)
+        {
+            await _areaService.ActiveArea(id);
+            return Ok(ApiResponse<string>.OkResponse(null, $"Activate Area: '{id}' sucessfully", "200"));
+        }
     }
 }

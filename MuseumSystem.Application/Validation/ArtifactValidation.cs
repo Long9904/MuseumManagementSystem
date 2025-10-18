@@ -7,11 +7,7 @@ namespace MuseumSystem.Application.Validation
     {
         public ArtifactValidation()
         {
-            RuleFor(x => x.ArtifactCode)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Artifact code is required.")
-                .MaximumLength(50).WithMessage("Artifact code cannot exceed 50 characters.");
-
+            
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Name is required.")

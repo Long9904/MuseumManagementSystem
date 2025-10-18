@@ -26,7 +26,6 @@ namespace MuseumSystem.Application.Interfaces
         Task<BasePaginatedList<ArtifactResponse>> GetAllArtifacts(
             int pageIndex,
             int pageSize,
-            string? artifactCode,
             string? name,
             string? periodTime,
             bool includeDeleted,
@@ -43,6 +42,10 @@ namespace MuseumSystem.Application.Interfaces
 
         Task<ArtifactResponse> RemoveArtifactFromDisplayPosition(
             string artifactId,
+            CancellationToken cancellationToken = default);
+
+        Task<ArtifactResponse> GetArtifactByCode(
+            string code,
             CancellationToken cancellationToken = default);
     }
 }

@@ -36,12 +36,11 @@ namespace MuseumSystem.Api.Controllers
         public async Task<IActionResult> GetAllArtifacts(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? artifactCode = null,
             [FromQuery] string? name = null,
             [FromQuery] string? periodTime = null,
             [FromQuery] bool includeDeleted = false)
         {
-            var result = await _artifactService.GetAllArtifacts(pageIndex, pageSize, artifactCode, name, periodTime, includeDeleted);
+            var result = await _artifactService.GetAllArtifacts(pageIndex, pageSize, name, periodTime, includeDeleted);
             return Ok(ApiResponse<BasePaginatedList<ArtifactResponse>>.OkResponse(result, "Get all artifacts successfully", "200"));
         }
 
