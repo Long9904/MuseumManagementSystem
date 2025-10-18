@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using System.Text;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
@@ -54,9 +56,10 @@ namespace MuseumSystem.Application.Services
             CancellationToken cancellationToken = default)
         {
             var museumId = await GetValidMuseumIdAsync();
-            await ValidateArtifactCodeAsync(request.ArtifactCode, museumId, null);
+
 
             var newArtifact = _mapper.Map<Artifact>(request);
+            newArtifact.ArtifactCode = await GenerateArtifactCodeAsync(museumId);
             newArtifact.MuseumId = museumId;
             newArtifact.Status = ArtifactStatus.InStorage;
             newArtifact.CreatedAt = DateTime.UtcNow;
@@ -100,7 +103,6 @@ namespace MuseumSystem.Application.Services
         public async Task<BasePaginatedList<ArtifactResponse>> GetAllArtifacts(
             int pageIndex,
             int pageSize,
-            string? artifactCode,
             string? name,
             string? periodTime,
             bool includeDeleted,
@@ -115,10 +117,6 @@ namespace MuseumSystem.Application.Services
             if (!includeDeleted)
             {
                 query = query.Where(a => a.Status != ArtifactStatus.Deleted);
-            }
-            if (!string.IsNullOrEmpty(artifactCode))
-            {
-                query = query.Where(a => a.ArtifactCode.ToLower().Contains(artifactCode.ToLower()));
             }
             if (!string.IsNullOrEmpty(name))
             {
@@ -167,7 +165,7 @@ namespace MuseumSystem.Application.Services
             CancellationToken cancellationToken = default)
         {
             Artifact artifact = await ValidateArtifactAccess(id);
-            await ValidateArtifactCodeAsync(request.ArtifactCode, artifact.MuseumId, artifact.Id);
+
 
             _mapper.Map(request, artifact);
             artifact.UpdatedAt = DateTime.UtcNow;
@@ -246,20 +244,6 @@ namespace MuseumSystem.Application.Services
             return museumId;
         }
 
-        private async Task ValidateArtifactCodeAsync(string artifactCode, string museumId, string? existingArtifactId = null)
-        {
-            var artifact = await _unitOfWork.ArtifactRepository
-                .FindAsync(a => a.ArtifactCode == artifactCode
-                && (existingArtifactId == null || a.Id != existingArtifactId)
-                && a.MuseumId == museumId,
-                include: source => source.Include(a => a.Museum));
-
-            if (artifact != null)
-            {
-                throw new ConflictException($"Artifact with code '{artifactCode}' already exists.");
-            }
-        }
-
         private async Task<Artifact> ValidateArtifactAccess(string artifactId)
         {
             var museumId = await GetValidMuseumIdAsync();
@@ -278,6 +262,63 @@ namespace MuseumSystem.Application.Services
             }
 
             return artifact;
+        }
+
+        private async Task<string> GenerateArtifactCodeAsync(string museumId)
+        {
+            var museum = await _unitOfWork.MuseumRepository.GetByIdAsync(museumId)
+                ?? throw new NotFoundException($"Museum with ID '{museumId}' not found.");
+
+            string cleanName = RemoveDiacritics(museum.Name).Replace(" ", "");
+
+
+            if (museum.Name.Length >= 3)
+            {
+                cleanName = cleanName.Substring(0, 3).ToUpper().Trim();
+            }
+            else
+            {
+                cleanName = cleanName.ToUpper();
+            }
+
+            int codeNumber = await _unitOfWork.ArtifactRepository.Entity
+                .CountAsync(a => a.MuseumId == museumId) + 1;
+
+            var datePart = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+
+            return $"{cleanName}-ART-{codeNumber:D4}-{datePart}";
+        }
+
+        private static string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var chars = normalized
+                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                .ToArray();
+
+            return new string(chars).Normalize(NormalizationForm.FormC);
+        }
+
+        public async Task<ArtifactResponse> GetArtifactByCode(string code, CancellationToken cancellationToken = default)
+        {
+            var museumId = await GetValidMuseumIdAsync();
+
+            Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(a => a.ArtifactCode == code && a.MuseumId == museumId,
+                include: source => source
+                    .Include(a => a.Museum)
+                    .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area))
+                ?? throw new NotFoundException($"Artifact with code '{code}' not found.");
+
+            if (artifact.Status == ArtifactStatus.Deleted)
+            {
+                throw new ObjectDeletedException("Cannot access a deleted artifact.");
+            }
+
+            return _mapper.Map<ArtifactResponse>(artifact);
+
         }
     }
 }

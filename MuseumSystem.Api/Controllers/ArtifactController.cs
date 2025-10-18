@@ -36,12 +36,11 @@ namespace MuseumSystem.Api.Controllers
         public async Task<IActionResult> GetAllArtifacts(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? artifactCode = null,
             [FromQuery] string? name = null,
             [FromQuery] string? periodTime = null,
             [FromQuery] bool includeDeleted = false)
         {
-            var result = await _artifactService.GetAllArtifacts(pageIndex, pageSize, artifactCode, name, periodTime, includeDeleted);
+            var result = await _artifactService.GetAllArtifacts(pageIndex, pageSize, name, periodTime, includeDeleted);
             return Ok(ApiResponse<BasePaginatedList<ArtifactResponse>>.OkResponse(result, "Get all artifacts successfully", "200"));
         }
 
@@ -52,6 +51,15 @@ namespace MuseumSystem.Api.Controllers
         {
             var result = await _artifactService.GetArtifactById(id, includeDeleted);
             return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Id sucessfully", "200"));
+        }
+
+        [HttpGet("code/{artifactCode}")]
+        [SwaggerOperation(
+            Summary = "Get an artifact by Code")]
+        public async Task<IActionResult> GetArtifactByCode([FromRoute] string artifactCode)
+            {
+            var result = await _artifactService.GetArtifactByCode(artifactCode);
+            return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Code sucessfully", "200"));
         }
 
         [HttpPatch("{id}")]

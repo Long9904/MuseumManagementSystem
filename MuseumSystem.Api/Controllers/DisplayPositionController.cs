@@ -73,10 +73,19 @@ namespace MuseumSystem.Api.Controllers
             [FromQuery] bool includeDeleted = false)
         {
             var result = await _displayPositionService.GetAllDisplayPositions(
-                pageIndex, pageSize, 
-                artifactName, displayPositionName, 
+                pageIndex, pageSize,
+                artifactName, displayPositionName,
                 areaName, includeDeleted);
             return Ok(ApiResponse<BasePaginatedList<DisplayPositionResponse>>.OkResponse(result, $"Get all display postions sucessfully", "200"));
+        }
+
+        [HttpPatch("activate/{id}")]
+        [SwaggerOperation(
+            Summary = "Activate a display postion")]
+        public async Task<IActionResult> ActivateDisplayPosition([FromRoute] string id)
+        {
+            await _displayPositionService.ActiveDisplayPosition(id);
+            return Ok(ApiResponse<string>.OkResponse(null, $"Activate display postion: '{id}' sucessfully", "200"));
         }
     }
 }

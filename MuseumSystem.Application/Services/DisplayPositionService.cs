@@ -29,6 +29,21 @@ namespace MuseumSystem.Application.Services
             _logger = logger;
         }
 
+        public async Task ActiveDisplayPosition(string id, CancellationToken cancellationToken = default)
+        {
+            var displayPosition = await _unitOfWork.DisplayPositionRepository.GetByIdAsync(id)
+                ?? throw new NotFoundException($"Display position with ID '{id}' not found.");
+
+            await ValidateMuseumAccess(displayPosition.AreaId);
+
+            displayPosition.Status = DisplayPositionStatusEnum.Active;
+            displayPosition.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
+            await _unitOfWork.SaveChangeAsync();
+
+            _logger.LogInformation("Activated display position {PositionCode} in area {AreaId}", displayPosition.PositionCode, displayPosition.AreaId);
+        }
 
         public async Task<DisplayPositionResponse> CreateDisplayPosition(DisplayPositionRequest request, CancellationToken cancellationToken = default)
         {
