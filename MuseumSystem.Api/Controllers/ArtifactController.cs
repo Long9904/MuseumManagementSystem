@@ -53,6 +53,15 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Id sucessfully", "200"));
         }
 
+        [HttpGet("code/{artifactCode}")]
+        [SwaggerOperation(
+            Summary = "Get an artifact by Code")]
+        public async Task<IActionResult> GetArtifactByCode([FromRoute] string artifactCode)
+            {
+            var result = await _artifactService.GetArtifactByCode(artifactCode);
+            return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Code sucessfully", "200"));
+        }
+
         [HttpPatch("{id}")]
         [SwaggerOperation(
             Summary = "Update an existing artifact")]
