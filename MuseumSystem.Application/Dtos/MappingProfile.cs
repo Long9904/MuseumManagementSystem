@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.AreaDtos;
+using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.DisplayPositionDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
@@ -37,6 +38,9 @@ namespace MuseumSystem.Application.Dtos
                 .ForMember(dest => dest.AreaName, opt => opt.MapFrom(src => src.Area != null ? src.Area.Name : null))
                 .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null));
             CreateMap<DisplayPositionRequest, DisplayPosition>();
+
+            CreateMap<ArtifactRequest, Artifact>();
+            CreateMap<Artifact, ArtifactResponse>();
         }
 
         public class BasePaginatedListConverter<TSource, TDestination> : ITypeConverter<BasePaginatedList<TSource>,BasePaginatedList<TDestination>>

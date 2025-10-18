@@ -20,6 +20,8 @@ namespace MuseumSystem.Infrastructure.Implementation
 
         public IDisplayPositionRepository DisplayPositionRepository { get; private set; }
 
+        public IArtifactRepository ArtifactRepository { get; private set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -28,6 +30,7 @@ namespace MuseumSystem.Infrastructure.Implementation
             AccountRepository = new AccountRepository(_context);
             MuseumRepository = new MuseumRepository(_context);
             DisplayPositionRepository = new DisplayPositionRepository(_context);
+            ArtifactRepository = new ArtifactRepository(_context);
         }
 
 
