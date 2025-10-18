@@ -28,5 +28,8 @@ namespace MuseumSystem.Domain.Entities
 
         [JsonIgnore]
         public ICollection<Area> Areas { get; set; } = new List<Area>();
+
+        [JsonIgnore]
+        public ICollection<Artifact> Artifacts { get; set; } = new List<Artifact>();
     }
 }

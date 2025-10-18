@@ -37,5 +37,9 @@ namespace MuseumSystem.Domain.Entities
         // elationship to DisplayPosition 1-1
         public DisplayPosition? DisplayPosition { get; set; }
 
+        // Relationship to Museum 1-many
+        public required string MuseumId { get; set; }
+        public required Museum Museum { get; set; }
+
     }
 }
