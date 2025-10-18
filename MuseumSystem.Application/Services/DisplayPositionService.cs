@@ -80,7 +80,7 @@ namespace MuseumSystem.Application.Services
             var query = _unitOfWork.DisplayPositionRepository.Entity
                 .Include(dp => dp.Area)
                 .Include(dp => dp.Artifact)
-                .Where(dp => dp.Status != DisplayPositionStatusEnum.Deleted);
+                .Where(dp => dp.Area.MuseumId == museumId);
 
             if (!includeDeleted)
             {
@@ -115,20 +115,15 @@ namespace MuseumSystem.Application.Services
         }
 
 
-        public async Task<DisplayPositionResponse> GetDisplayPositionById(string id, CancellationToken cancellationToken = default)
+        public async Task<DisplayPositionResponse> GetDisplayPositionById(string id,bool includeDeleted, CancellationToken cancellationToken = default)
         {
             DisplayPosition displayPosition = await _unitOfWork.DisplayPositionRepository.FindAsync(dp =>
-            dp.Id == id,
+            dp.Id == id
+            && (includeDeleted || dp.Status != DisplayPositionStatusEnum.Deleted),
             include: source => source
             .Include(dp => dp.Area)
             .Include(dp => dp.Artifact))
-
                 ?? throw new NotFoundException($"Display position with ID '{id}' not found.");
-
-            if (displayPosition.Status == DisplayPositionStatusEnum.Deleted)
-            {
-                throw new ObjectDeletedException("Cannot access a deleted display position.");
-            }
 
             await ValidateMuseumAccess(displayPosition.AreaId);
 

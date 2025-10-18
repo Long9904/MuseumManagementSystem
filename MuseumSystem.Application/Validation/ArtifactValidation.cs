@@ -25,19 +25,19 @@ namespace MuseumSystem.Application.Validation
             RuleFor(x => x.Description)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Description is required.")
-                .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");
+                .MaximumLength(800).WithMessage("Description cannot exceed 800 characters.");
 
             RuleFor(x => x.Weight)
-                .GreaterThan(0).When(x => x.Weight.HasValue).WithMessage("Weight must be greater than 0 if provided. (kg)");
+                .GreaterThan(-1).When(x => x.Weight.HasValue).WithMessage("Weight must be equal or greater than 0. (kg)");
 
             RuleFor(x => x.Height)
-                .GreaterThan(0).When(x => x.Height.HasValue).WithMessage("Height must be greater than 0 if provided. (cm)");
+                .GreaterThan(-1).When(x => x.Height.HasValue).WithMessage("Height must be equal or greater than 0. (cm)");
 
             RuleFor(x => x.Width)
-                .GreaterThan(0).When(x => x.Width.HasValue).WithMessage("Width must be greater than 0 if provided. (cm)");
+                .GreaterThan(-1).When(x => x.Width.HasValue).WithMessage("Width must be equal or greater than 0. (cm)");
 
             RuleFor(x => x.Length)
-                .GreaterThan(0).When(x => x.Length.HasValue).WithMessage("Length must be greater than 0 if provided. (cm)");
+                .GreaterThan(-1).When(x => x.Length.HasValue).WithMessage("Length must be equal or greater than 0. (cm)");
         }
     }
 }

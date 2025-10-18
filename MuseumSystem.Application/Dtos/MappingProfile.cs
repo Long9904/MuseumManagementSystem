@@ -40,10 +40,17 @@ namespace MuseumSystem.Application.Dtos
             CreateMap<DisplayPositionRequest, DisplayPosition>();
 
             CreateMap<ArtifactRequest, Artifact>();
-            CreateMap<Artifact, ArtifactResponse>();
+            CreateMap<Artifact, ArtifactResponse>()
+                .ForMember(dest => dest.DisplayPositionName,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.DisplayPositionName : null))
+                .ForMember(dest => dest.AreaName,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
+                .ForMember(dest => dest.AreaId,
+                            opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.AreaId : null));
         }
 
-        public class BasePaginatedListConverter<TSource, TDestination> : ITypeConverter<BasePaginatedList<TSource>,BasePaginatedList<TDestination>>
+
+        public class BasePaginatedListConverter<TSource, TDestination> : ITypeConverter<BasePaginatedList<TSource>, BasePaginatedList<TDestination>>
         {
             public BasePaginatedList<TDestination> Convert(
                 BasePaginatedList<TSource> source,
