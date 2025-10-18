@@ -29,5 +29,13 @@ namespace MuseumSystem.Application.Dtos.ArtifactDtos
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
+
+        public string? DisplayPositionId { get; set; }
+
+        public string? DisplayPositionName { get; set; }
+
+        public string? AreaId { get; set; }
+
+        public string? AreaName { get; set; }
     }
 }

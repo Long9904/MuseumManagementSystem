@@ -31,5 +31,18 @@ namespace MuseumSystem.Application.Interfaces
             string? periodTime,
             bool includeDeleted,
             CancellationToken cancellationToken = default);
+
+        Task ActiveArtifact(
+            string id,
+            CancellationToken cancellationToken = default);
+
+        Task<ArtifactResponse> AssignArtifactToDisplayPosition(
+            string artifactId,
+            string displayPositionId,
+            CancellationToken cancellationToken = default);
+
+        Task<ArtifactResponse> RemoveArtifactFromDisplayPosition(
+            string artifactId,
+            CancellationToken cancellationToken = default);
     }
 }
