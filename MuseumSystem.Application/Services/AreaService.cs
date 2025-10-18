@@ -144,7 +144,7 @@ namespace MuseumSystem.Application.Services
                 ?? throw new InvalidAccessException("User is not associated with any museum.");
 
             var museum = await _unitOfWork.MuseumRepository.FindAsync(m => m.Id == museumId && m.Status == EnumStatus.Active)
-                ?? throw new NotFoundException($"Museum not found.");
+                ?? throw new NotFoundException($"Museum not found or status is not Active");
 
             return museumId;
         }

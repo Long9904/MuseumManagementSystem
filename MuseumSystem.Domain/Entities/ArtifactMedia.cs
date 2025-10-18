@@ -9,10 +9,10 @@ namespace MuseumSystem.Domain.Entities
         public ArtifactMediaType MediaType { get; set; } = ArtifactMediaType.Image;
         public string FilePath { get; set; } = null!; // URL or relative path
         public string? FileName { get; set; }
-        public long? FileSize { get; set; }
         public string? MimeType { get; set; } //"image/png", "model/gltf+json"
         public ArtifactMediaStatus Status { get; set; } = ArtifactMediaStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
         // Foreign key to Artifact
         public required string ArtifactId { get; set; }
