@@ -32,5 +32,9 @@ namespace MuseumSystem.Application.Interfaces
             string id, 
             CancellationToken cancellationToken = default);
 
+        Task ActiveDisplayPosition(
+            string id, 
+            CancellationToken cancellationToken = default);
+
     }
 }

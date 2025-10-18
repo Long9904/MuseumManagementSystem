@@ -2,8 +2,6 @@
 {
     public class ArtifactRequest
     {
-        public required string ArtifactCode { get; set; }
-
         public required string Name { get; set; }
 
         public required string PeriodTime { get; set; }
