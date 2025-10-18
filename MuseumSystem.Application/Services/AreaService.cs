@@ -99,7 +99,7 @@ namespace MuseumSystem.Application.Services
 
             Area area = await _unitOfWork.AreaRepository.FindAsync
                  (a => id == a.Id
-                 && museumId.Equals(a.MuseumId)
+                 && museumId == a.MuseumId
                  && (includeDeleted || a.Status != AreaStatus.Deleted),
                  include: source => source.Include(a => a.DisplayPositions))
                  ?? throw new NotFoundException($"Area not found or status is deleted.");

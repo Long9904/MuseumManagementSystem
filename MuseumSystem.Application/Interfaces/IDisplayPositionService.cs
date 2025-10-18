@@ -16,6 +16,7 @@ namespace MuseumSystem.Application.Interfaces
 
         Task<DisplayPositionResponse> GetDisplayPositionById(
             string id, 
+            bool includeDeleted,
             CancellationToken cancellationToken = default);
 
         Task<BasePaginatedList<DisplayPositionResponse>> GetAllDisplayPositions(

@@ -54,9 +54,9 @@ namespace MuseumSystem.Api.Controllers
         [HttpGet("{id}")]
         [SwaggerOperation(
             Summary = "Get a display postion by ID")]
-        public async Task<IActionResult> GetDisplayPositionById([FromRoute] string id)
+        public async Task<IActionResult> GetDisplayPositionById([FromRoute] string id, [FromQuery] bool includeDeleted = false)
         {
-            var result = await _displayPositionService.GetDisplayPositionById(id);
+            var result = await _displayPositionService.GetDisplayPositionById(id, includeDeleted);
             return Ok(ApiResponse<DisplayPositionResponse>.OkResponse(result, $"Get display postion: '{result.DisplayPositionName}' by Id sucessfully", "200"));
         }
 
