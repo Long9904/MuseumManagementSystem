@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text.Json;
 using AutoMapper;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -14,6 +12,9 @@ using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Domain.Options;
 using MuseumSystem.Infrastructure.DatabaseSetting;
+using MuseumSystem.Infrastructure.Seed;
+using System.Security.Claims;
+using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -227,7 +228,12 @@ if (isDeploy)
         await seedService.SeedSuperAdminAsync();
     }
 }
-
+// Seed data for account Super Admin
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.InitializeAsync(services);
+}
 
 //Middleware pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
