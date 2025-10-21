@@ -183,6 +183,7 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
 
 // Google Cloud Storage
 builder.Services.Configure<GoogleCloudStorageOptions>(
@@ -204,7 +205,8 @@ builder.Services.AddSingleton<StorageClient>(sp =>
     }
     else
     {
-        credential = GoogleCredential.GetApplicationDefault();
+        credential = GoogleCredential.GetApplicationDefault()
+                .CreateScoped("https://www.googleapis.com/auth/devstorage.full_control");
     }
 
     return StorageClient.Create(credential);
@@ -234,7 +236,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<IVisitorService, VisitorService>();
-var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
+
 
 var app = builder.Build();
 
