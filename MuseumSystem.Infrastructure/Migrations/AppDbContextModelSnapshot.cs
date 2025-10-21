@@ -240,6 +240,42 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.ToTable("DisplayPositions");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ArtifactId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InteractionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double?>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<string>("VisitorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactId");
+
+                    b.HasIndex("VisitorId");
+
+                    b.ToTable("Interactions");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
                 {
                     b.Property<string>("Id")
@@ -289,6 +325,29 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Visitor", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Visitors");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Account", b =>
@@ -358,6 +417,25 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Artifact");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
+                        .WithMany()
+                        .HasForeignKey("ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MuseumSystem.Domain.Entities.Visitor", "Visitor")
+                        .WithMany("Interactions")
+                        .HasForeignKey("VisitorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artifact");
+
+                    b.Navigation("Visitor");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Area", b =>
                 {
                     b.Navigation("DisplayPositions");
@@ -382,6 +460,11 @@ namespace MuseumSystem.Infrastructure.Migrations
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Role", b =>
                 {
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Visitor", b =>
+                {
+                    b.Navigation("Interactions");
                 });
 #pragma warning restore 612, 618
         }
