@@ -419,3 +419,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+museum-storage-key.json
+MuseumSystem.API/Key/*

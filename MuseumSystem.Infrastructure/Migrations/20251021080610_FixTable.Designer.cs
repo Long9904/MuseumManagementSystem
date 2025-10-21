@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
@@ -11,9 +12,11 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251021080610_FixTable")]
+    partial class FixTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,29 +294,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Visitor", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Visitors");
-                });
-
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Account", b =>
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
@@ -381,47 +361,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Artifact");
                 });
 
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.ArtifactMedia", "ArtifactMedia")
-                        .WithOne("Image")
-                        .HasForeignKey("MuseumSystem.Domain.Entities.Image", "ArtifactMediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ArtifactMedia");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
-                        .WithMany()
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MuseumSystem.Domain.Entities.Visitor", "Visitor")
-                        .WithMany("Interactions")
-                        .HasForeignKey("VisitorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("Visitor");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Model3D", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.ArtifactMedia", "ArtifactMedia")
-                        .WithOne("Model3D")
-                        .HasForeignKey("MuseumSystem.Domain.Entities.Model3D", "ArtifactMediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ArtifactMedia");
-                });
-
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Area", b =>
                 {
                     b.Navigation("DisplayPositions");
@@ -446,11 +385,6 @@ namespace MuseumSystem.Infrastructure.Migrations
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Role", b =>
                 {
                     b.Navigation("Accounts");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Visitor", b =>
-                {
-                    b.Navigation("Interactions");
                 });
 #pragma warning restore 612, 618
         }

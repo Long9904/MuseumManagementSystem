@@ -1,8 +1,13 @@
+using System.Security.Claims;
+using System.Text.Json;
 using AutoMapper;
 using DotNetEnv;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
@@ -13,9 +18,6 @@ using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Domain.Options;
 using MuseumSystem.Infrastructure.DatabaseSetting;
-using MuseumSystem.Infrastructure.Seed;
-using System.Security.Claims;
-using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -179,6 +181,33 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Google Cloud Storage
+builder.Services.Configure<GoogleCloudStorageOptions>(
+    builder.Configuration.GetSection("GoogleCloudStorage"));
+
+builder.Services.AddSingleton<CloudStorageService>();
+
+builder.Services.AddSingleton<StorageClient>(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<GoogleCloudStorageOptions>>().Value;
+
+    GoogleCredential credential;
+
+    if (!string.IsNullOrEmpty(options.CredentialsFilePath))
+    {
+        using var stream = new FileStream(options.CredentialsFilePath, FileMode.Open, FileAccess.Read);
+        var serviceAccountCredential = ServiceAccountCredential.FromServiceAccountData(stream);
+        credential = serviceAccountCredential.ToGoogleCredential();
+    }
+    else
+    {
+        credential = GoogleCredential.GetApplicationDefault();
+    }
+
+    return StorageClient.Create(credential);
+});
+
+
 //Add Dependency Injection
 builder.Services.AddConfig(builder.Configuration);
 
@@ -230,12 +259,7 @@ if (isDeploy)
         await seedService.SeedSuperAdminAsync();
     }
 }
-// Seed data for account Super Admin
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedData.InitializeAsync(services);
-}
+
 
 //Middleware pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();

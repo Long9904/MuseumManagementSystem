@@ -22,7 +22,6 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
 
         public DbSet<ArtifactMedia> ArtifactMedias { get; set; }
 
-        public DbSet<Image> Images { get; set; }
 
         public DbSet<Model3D> Model3Ds { get; set; }
 

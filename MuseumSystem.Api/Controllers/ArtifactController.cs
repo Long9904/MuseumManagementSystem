@@ -15,10 +15,12 @@ namespace MuseumSystem.Api.Controllers
     public class ArtifactController : ControllerBase
     {
         private readonly IArtifactService _artifactService;
+        private readonly IArtifactMediaService _artifactMediaService;
 
-        public ArtifactController(IArtifactService artifactService)
+        public ArtifactController(IArtifactService artifactService, IArtifactMediaService artifactMediaService)
         {
             _artifactService = artifactService;
+            _artifactMediaService = artifactMediaService;
         }
 
         [HttpPost]
@@ -57,7 +59,7 @@ namespace MuseumSystem.Api.Controllers
         [SwaggerOperation(
             Summary = "Get an artifact by Code")]
         public async Task<IActionResult> GetArtifactByCode([FromRoute] string artifactCode)
-            {
+        {
             var result = await _artifactService.GetArtifactByCode(artifactCode);
             return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Code sucessfully", "200"));
         }
@@ -108,5 +110,7 @@ namespace MuseumSystem.Api.Controllers
             var result = await _artifactService.RemoveArtifactFromDisplayPosition(artifactId);
             return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Remove artifact: '{result.Name}' from its display position sucessfully", "200"));
         }
+
+        
     }
 }
