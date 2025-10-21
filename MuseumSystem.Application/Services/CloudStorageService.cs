@@ -23,5 +23,17 @@ namespace MuseumSystem.Application.Services
             // Public URL (nếu bucket public)
             return $"https://storage.googleapis.com/{_bucketName}/{objectName}";
         }
+
+        public async Task DeleteFileAsync(string filePath)
+        {
+            var prefix = $"https://storage.googleapis.com/{_bucketName}/";
+            if (!filePath.StartsWith(prefix))
+            {
+                throw new ArgumentException("Invalid file path for deletion.");
+            }
+            var objectName = filePath.Substring(prefix.Length); // Lấy tên đối tượng từ URL
+            await _storageClient.DeleteObjectAsync(_bucketName, objectName);
+
+        }
     }
 }

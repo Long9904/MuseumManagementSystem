@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AutoMapper;
 using DotNetEnv;
 using Google.Apis.Auth.OAuth2;
@@ -32,9 +33,9 @@ builder.Services.AddControllers(options =>
     .AddJsonOptions(options =>
  {
      options.JsonSerializerOptions.Converters.Add(
-            new ExclusiveEnumConverterFactory(
-                excludeFromString: new[] { typeof(StatusCodeHelper) }
-            ));
+             new ExclusiveEnumConverterFactory(
+                 excludeFromString: new[] { typeof(StatusCodeHelper) }
+             ));
  });
 
 
@@ -80,6 +81,8 @@ builder.Services.AddSwaggerGen(option =>
             Array.Empty<string>()
         }
     });
+
+    option.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
 });
 
 //Authentication: Google login , JWT

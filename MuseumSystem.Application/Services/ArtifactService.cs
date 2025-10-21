@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Text;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -135,7 +136,7 @@ namespace MuseumSystem.Application.Services
             return result;
         }
 
-        public async Task<ArtifactResponse> GetArtifactById(
+        public async Task<ArtifactDetailsResponse> GetArtifactById(
             string id,
             bool includeDeleted,
             CancellationToken cancellationToken = default)
@@ -143,6 +144,7 @@ namespace MuseumSystem.Application.Services
             Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(a => a.Id == id,
                 include: source => source
                     .Include(a => a.Museum)
+                    .Include(a => a.ArtifactMedias)
                     .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area))
                 ?? throw new NotFoundException($"Artifact with ID '{id}' not found.");
 
@@ -156,7 +158,35 @@ namespace MuseumSystem.Application.Services
             {
                 throw new ObjectDeletedException("Cannot access a deleted artifact.");
             }
-            return _mapper.Map<ArtifactResponse>(artifact);
+
+            // Take list of medias and sort by MediaType and CreatedAt
+            artifact.ArtifactMedias = artifact.ArtifactMedias
+                .OrderBy(am => am.MediaType)
+                .ThenByDescending(am => am.CreatedAt)
+                .ToList();
+
+            // Map to Media response
+
+            var mediaResponses = artifact.ArtifactMedias
+                .Select(m => new MediaResponse
+                {
+                    Id = m.Id,
+                    MediaType = m.MediaType,
+                    FilePath = m.FilePath,
+                    FileName = m.FileName,
+                    MimeType = m.MimeType,
+                    FileFormat = m.FileFormat,
+                    Caption = m.Caption,
+                    Status = m.Status,
+                    CreatedAt = m.CreatedAt,
+                    UpdatedAt = m.UpdatedAt
+                })
+                .OrderBy(m => m.MediaType)
+                .ThenByDescending(m => m.CreatedAt).ToList();
+
+            var artifactDetailsResponse = _mapper.Map<ArtifactDetailsResponse>(artifact);
+            artifactDetailsResponse.MediaItems = mediaResponses;
+            return artifactDetailsResponse;
         }
 
         public async Task<ArtifactResponse> UpdateArtifact(

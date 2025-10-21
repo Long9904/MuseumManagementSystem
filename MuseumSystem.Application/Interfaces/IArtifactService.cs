@@ -18,7 +18,7 @@ namespace MuseumSystem.Application.Interfaces
             string id,
             CancellationToken cancellationToken = default);
 
-        Task<ArtifactResponse> GetArtifactById(
+        Task<ArtifactDetailsResponse> GetArtifactById(
             string id,
             bool includeDeleted,
             CancellationToken cancellationToken = default);

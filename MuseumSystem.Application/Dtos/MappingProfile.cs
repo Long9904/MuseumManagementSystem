@@ -7,11 +7,6 @@ using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Dtos
 {
@@ -49,6 +44,15 @@ namespace MuseumSystem.Application.Dtos
                            opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
                 .ForMember(dest => dest.AreaId,
                             opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.AreaId : null));
+
+            CreateMap<Artifact, ArtifactDetailsResponse>()
+                .ForMember(dest => dest.DisplayPositionName,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.DisplayPositionName : null))
+                .ForMember(dest => dest.AreaName,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
+                .ForMember(dest => dest.AreaId,
+                            opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.AreaId : null));
+
             CreateMap<VisitorRequest, Visitor>();
             CreateMap<VisitorUpdateRequest, Visitor>();
             CreateMap<Visitor, VisitorResponse>();
