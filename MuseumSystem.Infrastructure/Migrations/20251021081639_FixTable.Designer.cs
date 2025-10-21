@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251019024417_AddVisitorTable")]
-    partial class AddVisitorTable
+    [Migration("20251021081639_FixTable")]
+    partial class FixTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,8 +164,14 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Caption")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FileFormat")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
@@ -237,32 +243,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.ToTable("DisplayPositions");
                 });
 
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ArtifactMediaId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Caption")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsThumbnail")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtifactMediaId")
-                        .IsUnique();
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
-                    b.Property<string>("InteractionId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ArtifactId")
@@ -287,36 +270,13 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("InteractionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ArtifactId");
 
                     b.HasIndex("VisitorId");
 
-                    b.ToTable("Interaction");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Model3D", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ArtifactMediaId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Caption")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileFormat")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtifactMediaId")
-                        .IsUnique();
-
-                    b.ToTable("Model3Ds");
+                    b.ToTable("Interactions");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
@@ -372,7 +332,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Visitor", b =>
                 {
-                    b.Property<string>("VisitorId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -388,7 +348,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("VisitorId");
+                    b.HasKey("Id");
 
                     b.ToTable("Visitors");
                 });
@@ -460,17 +420,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Artifact");
                 });
 
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.ArtifactMedia", "ArtifactMedia")
-                        .WithOne("Image")
-                        .HasForeignKey("MuseumSystem.Domain.Entities.Image", "ArtifactMediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ArtifactMedia");
-                });
-
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
@@ -490,17 +439,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Visitor");
                 });
 
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.Model3D", b =>
-                {
-                    b.HasOne("MuseumSystem.Domain.Entities.ArtifactMedia", "ArtifactMedia")
-                        .WithOne("Model3D")
-                        .HasForeignKey("MuseumSystem.Domain.Entities.Model3D", "ArtifactMediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ArtifactMedia");
-                });
-
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Area", b =>
                 {
                     b.Navigation("DisplayPositions");
@@ -511,13 +449,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("ArtifactMedias");
 
                     b.Navigation("DisplayPosition");
-                });
-
-            modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
-                {
-                    b.Navigation("Image");
-
-                    b.Navigation("Model3D");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
