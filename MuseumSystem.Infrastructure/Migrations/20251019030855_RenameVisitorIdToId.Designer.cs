@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
@@ -11,9 +12,11 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251019030855_RenameVisitorIdToId")]
+    partial class RenameVisitorIdToId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,7 +262,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("InteractionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ArtifactId")
@@ -284,13 +287,13 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("InteractionId");
 
                     b.HasIndex("ArtifactId");
 
                     b.HasIndex("VisitorId");
 
-                    b.ToTable("Interactions");
+                    b.ToTable("Interaction");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Model3D", b =>

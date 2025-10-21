@@ -8,6 +8,7 @@ using MuseumSystem.Api;
 using MuseumSystem.Api.Middleware;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Application.Services;
 using MuseumSystem.Application.Validation;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using MuseumSystem.Domain.Options;
@@ -199,7 +200,8 @@ builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis
 builder.Services.AddConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
-
+builder.Services.AddScoped<IInteractionService, InteractionService>();
+builder.Services.AddScoped<IVisitorService, VisitorService>();
 var isDeploy = builder.Configuration.GetValue<bool>("IsDeploy");
 
 var app = builder.Build();
