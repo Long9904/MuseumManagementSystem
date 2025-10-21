@@ -1,4 +1,5 @@
-﻿using MuseumSystem.Domain.Abstractions;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Interface;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 using MuseumSystem.Infrastructure.Repositories;
@@ -10,6 +11,8 @@ namespace MuseumSystem.Infrastructure.Implementation
     {
         private readonly AppDbContext _context;
         private bool disposed = false;
+        private IDbContextTransaction? _transaction;
+
         private Dictionary<Type, object> repositories;
 
         public IAreaRepository AreaRepository { get; private set; }
@@ -34,14 +37,33 @@ namespace MuseumSystem.Infrastructure.Implementation
         }
 
 
-        public void BeginTransaction()
+        public async Task BeginTransactionAsync()
         {
-            throw new NotImplementedException();
+            if (_transaction == null)
+                _transaction = await _context.Database.BeginTransactionAsync();
         }
 
-        public void CommitTransaction()
+        public async Task CommitTransactionAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.SaveChangesAsync();
+                if (_transaction != null)
+                    await _transaction.CommitAsync();
+            }
+            catch
+            {
+                await RollBackAsync();
+                throw;
+            }
+            finally
+            {
+                if (_transaction != null)
+                {
+                    await _transaction.DisposeAsync();
+                    _transaction = null;
+                }
+            }
         }
 
         public void Dispose()
@@ -65,9 +87,14 @@ namespace MuseumSystem.Infrastructure.Implementation
             throw new NotImplementedException();
         }
 
-        public void RollBack()
+        public async Task RollBackAsync()
         {
-            throw new NotImplementedException();
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
         public async Task SaveChangeAsync()
         {

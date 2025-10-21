@@ -166,7 +166,6 @@ namespace MuseumSystem.Application.Services
         {
             Artifact artifact = await ValidateArtifactAccess(id);
 
-
             _mapper.Map(request, artifact);
             artifact.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.ArtifactRepository.UpdateAsync(artifact);
@@ -233,6 +232,25 @@ namespace MuseumSystem.Application.Services
         }
 
 
+        public async Task<ArtifactResponse> GetArtifactByCode(string code, CancellationToken cancellationToken = default)
+        {
+            var museumId = await GetValidMuseumIdAsync();
+
+            Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(a => a.ArtifactCode == code && a.MuseumId == museumId,
+                include: source => source
+                    .Include(a => a.Museum)
+                    .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area))
+                ?? throw new NotFoundException($"Artifact with code '{code}' not found.");
+
+            if (artifact.Status == ArtifactStatus.Deleted)
+            {
+                throw new ObjectDeletedException("Cannot access a deleted artifact.");
+            }
+
+            return _mapper.Map<ArtifactResponse>(artifact);
+
+        }
+
         private async Task<string> GetValidMuseumIdAsync()
         {
             var museumId = _currentUserService.MuseumId
@@ -283,9 +301,7 @@ namespace MuseumSystem.Application.Services
 
             int codeNumber = await _unitOfWork.ArtifactRepository.Entity
                 .CountAsync(a => a.MuseumId == museumId) + 1;
-
             var datePart = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
             return $"{cleanName}-ART-{codeNumber:D4}-{datePart}";
         }
 
@@ -298,27 +314,7 @@ namespace MuseumSystem.Application.Services
             var chars = normalized
                 .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                 .ToArray();
-
             return new string(chars).Normalize(NormalizationForm.FormC);
-        }
-
-        public async Task<ArtifactResponse> GetArtifactByCode(string code, CancellationToken cancellationToken = default)
-        {
-            var museumId = await GetValidMuseumIdAsync();
-
-            Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(a => a.ArtifactCode == code && a.MuseumId == museumId,
-                include: source => source
-                    .Include(a => a.Museum)
-                    .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area))
-                ?? throw new NotFoundException($"Artifact with code '{code}' not found.");
-
-            if (artifact.Status == ArtifactStatus.Deleted)
-            {
-                throw new ObjectDeletedException("Cannot access a deleted artifact.");
-            }
-
-            return _mapper.Map<ArtifactResponse>(artifact);
-
         }
     }
 }
