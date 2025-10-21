@@ -4,6 +4,5 @@
     {
         Image,
         Model3D,
-        Video
     }
 }

@@ -52,7 +52,7 @@ namespace MuseumSystem.Api.Controllers
         public async Task<IActionResult> GetArtifactById([FromRoute] string id, [FromQuery] bool includeDeleted = false)
         {
             var result = await _artifactService.GetArtifactById(id, includeDeleted);
-            return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Id sucessfully", "200"));
+            return Ok(ApiResponse<ArtifactDetailsResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Id sucessfully", "200"));
         }
 
         [HttpGet("code/{artifactCode}")]
@@ -111,6 +111,43 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Remove artifact: '{result.Name}' from its display position sucessfully", "200"));
         }
 
-        
+
+
+        //--------Media Management for Artifact ---------//
+
+
+        [HttpPost("{artifactId}/media")]
+        [SwaggerOperation(
+            Summary = "Add media to an artifact")]
+        public async Task<IActionResult> AddArtifactMedia([FromRoute] string artifactId, [FromForm] MediaRequest mediaRequest)
+        {
+            var result = await _artifactMediaService.UploadArtifactMediaAsync(artifactId, mediaRequest);
+            return Ok(ApiResponse<MediaResponse>.OkResponse(result, $"Upload media to artifact '{artifactId}' successfully", "200"));
+
+        }
+
+
+        [HttpPut("{artifactId}/media/{mediaId}")]
+        [SwaggerOperation(
+            Summary = "Update media of an artifact")]
+        public async Task<IActionResult> UpdateArtifactMedia(
+            [FromRoute] string artifactId, 
+            [FromRoute] string mediaId, 
+            [FromForm] MediaRequest mediaRequest)
+        {
+            var result = await _artifactMediaService.UpdateArtifactMediaAsync(artifactId, mediaId, mediaRequest);
+            return Ok(ApiResponse<MediaResponse>.OkResponse(result, $"Update media '{mediaId}' of artifact '{artifactId}' successfully", "200"));
+        }
+
+
+        [HttpDelete("{artifactId}/media/{mediaId}")]
+        [SwaggerOperation(
+            Summary = "Soft delete media from an artifact")]
+        public async Task<IActionResult> DeleteArtifactMedia([FromRoute] string artifactId, [FromRoute] string mediaId)
+        {
+            var result = await _artifactMediaService.DeleteArtifactMediaAsync(artifactId, mediaId);
+            return Ok(ApiResponse<bool>.OkResponse(result, $"Delete media '{mediaId}' from artifact '{artifactId}' successfully", "200"));
+        }
+
     }
 }
