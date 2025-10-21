@@ -3,6 +3,8 @@ using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.DisplayPositionDtos;
+using MuseumSystem.Application.Dtos.InteractionDtos;
+using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using System;
@@ -47,6 +49,18 @@ namespace MuseumSystem.Application.Dtos
                            opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
                 .ForMember(dest => dest.AreaId,
                             opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.AreaId : null));
+            CreateMap<VisitorRequest, Visitor>();
+            CreateMap<VisitorUpdateRequest, Visitor>();
+            CreateMap<Visitor, VisitorResponse>();
+
+            // Interaction
+            CreateMap<InteractionRequest, Interaction>();
+            CreateMap<InteractionUpdateRequest, Interaction>();
+            CreateMap<Interaction, InteractionResponse>()
+                .ForMember(dest => dest.VisitorPhoneNumber, opt => opt.MapFrom(src => src.Visitor != null ? src.Visitor.PhoneNumber : null))
+                .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null))
+                .ForMember(dest => dest.ArtifactCode, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.ArtifactCode : null));
+
         }
 
 

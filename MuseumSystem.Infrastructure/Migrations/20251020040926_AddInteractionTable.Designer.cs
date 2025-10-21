@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MuseumSystem.Infrastructure.DatabaseSetting;
 
@@ -11,9 +12,11 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251020040926_AddInteractionTable")]
+    partial class AddInteractionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,14 +164,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Caption")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("FileFormat")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
@@ -238,6 +235,88 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasFilter("[ArtifactId] IS NOT NULL");
 
                     b.ToTable("DisplayPositions");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Image", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ArtifactMediaId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsThumbnail")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactMediaId")
+                        .IsUnique();
+
+                    b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ArtifactId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InteractionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double?>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<string>("VisitorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactId");
+
+                    b.HasIndex("VisitorId");
+
+                    b.ToTable("Interactions");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Model3D", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ArtifactMediaId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileFormat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactMediaId")
+                        .IsUnique();
+
+                    b.ToTable("Model3Ds");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
@@ -432,6 +511,13 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("ArtifactMedias");
 
                     b.Navigation("DisplayPosition");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
+                {
+                    b.Navigation("Image");
+
+                    b.Navigation("Model3D");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>

@@ -23,6 +23,13 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
         public DbSet<ArtifactMedia> ArtifactMedias { get; set; }
 
 
+        public DbSet<Model3D> Model3Ds { get; set; }
+
+        public DbSet<Visitor> Visitors { get; set; }
+
+        public DbSet<Interaction> Interactions { get; set; }
+
+
         // Configure DbSets
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +43,11 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
             modelBuilder.Entity<DisplayPosition>();
             modelBuilder.Entity<Artifact>();
             modelBuilder.Entity<ArtifactMedia>();
+            modelBuilder.Entity<Image>();
+            modelBuilder.Entity<Model3D>();
+            modelBuilder.Entity<Visitor>();
+            modelBuilder.Entity<Interaction>();
+
 
             // Auto apply configurations from the assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
