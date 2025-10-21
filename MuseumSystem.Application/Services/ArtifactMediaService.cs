@@ -118,7 +118,7 @@ namespace MuseumSystem.Application.Services
                 mediaUrl = await _storageService.Upload3DModelAsync(stream, mediaRequest.File.FileName, mediaRequest.File.ContentType);
                 if (string.IsNullOrEmpty(mediaUrl))
                 {
-                    throw new FileSaveException("Failed to upload media file.");
+                    throw new FileSaveException("Meida url fail");
                 }
                 // Delete old media from storage
                 await _storageService.DeleteFileAsync(artifactMedia.FilePath);
@@ -126,7 +126,7 @@ namespace MuseumSystem.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading media file for artifact {ArtifactId}", artifactId);
-                throw new FileSaveException("Failed to upload media file.");
+                throw new FileSaveException("Failed to upload media file." , ex);
             }
             // Update caption if provided
             artifactMedia.FilePath = mediaUrl ?? artifactMedia.FilePath;
