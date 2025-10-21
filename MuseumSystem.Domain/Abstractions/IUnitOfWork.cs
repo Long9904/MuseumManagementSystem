@@ -11,9 +11,9 @@ namespace MuseumSystem.Domain.Abstractions
     {
         IGenericRepository<T> GetRepository<T>() where T : class;        
         Task SaveChangeAsync();
-        void BeginTransaction();
-        void CommitTransaction();
-        void RollBack();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollBackAsync();
         bool HasActiveTransaction();
 
         public IAreaRepository AreaRepository { get; }

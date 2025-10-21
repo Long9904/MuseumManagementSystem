@@ -76,6 +76,8 @@ namespace MuseumSystem.Api.Middleware
                     NotFoundException => (int)HttpStatusCode.NotFound,
                     InvalidAccessException => (int)HttpStatusCode.Forbidden,
                     ObjectDeletedException => (int)HttpStatusCode.BadRequest,
+                    FileSaveException => (int)HttpStatusCode.InternalServerError,
+                    InvalidFileTypeException => (int)HttpStatusCode.BadRequest,
 
                     _ => (int)HttpStatusCode.InternalServerError
                 };
