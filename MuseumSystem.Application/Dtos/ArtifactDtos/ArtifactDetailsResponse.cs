@@ -2,7 +2,7 @@
 
 namespace MuseumSystem.Application.Dtos.ArtifactDtos
 {
-    public class ArtifactResponse
+    public class ArtifactDetailsResponse
     {
         public string? Id { get; set; }
 
@@ -12,7 +12,17 @@ namespace MuseumSystem.Application.Dtos.ArtifactDtos
 
         public string? PeriodTime { get; set; }
 
+        public string? Description { get; set; }
+
         public bool IsOriginal { get; set; }
+
+        public double? Weight { get; set; } // kg
+
+        public double? Height { get; set; } // cm
+
+        public double? Width { get; set; } // cm
+
+        public double? Length { get; set; } // cm
 
         public ArtifactStatus Status { get; set; }
 
@@ -27,5 +37,8 @@ namespace MuseumSystem.Application.Dtos.ArtifactDtos
         public string? AreaId { get; set; }
 
         public string? AreaName { get; set; }
+
+        public IEnumerable<MediaResponse>? MediaItems { get; set; }
+
     }
 }
