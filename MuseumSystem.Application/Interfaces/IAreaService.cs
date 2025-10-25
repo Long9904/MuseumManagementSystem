@@ -34,5 +34,9 @@ namespace MuseumSystem.Application.Interfaces
         Task ActiveArea (
             string id, 
             CancellationToken cancellationToken = default);
+
+        Task MaintainArea (
+            string id, 
+            CancellationToken cancellationToken = default);
     }
 }
