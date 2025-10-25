@@ -83,9 +83,9 @@ namespace MuseumSystem.Application.Services
                 throw new InvalidAccessException("User does not have access to this artifact.");
             }
 
-            if (artifact.Status == ArtifactStatus.Deleted)
+            if (artifact.Status == ArtifactStatus.Deleted || artifact.Status == ArtifactStatus.OnDisplay)
             {
-                throw new ObjectDeletedException("Artifact is already deleted.");
+                throw new ObjectDeletedException("Artifact is already deleted or is displaying.");
             }
 
             if (artifact.DisplayPosition != null)
@@ -235,10 +235,25 @@ namespace MuseumSystem.Application.Services
                 throw new ConflictException("Artifact is already assigned to a display position.");
             }
 
-            displayPosition.ArtifactId = artifact.Id;
+            artifact.Status = ArtifactStatus.OnDisplay;
+            artifact.UpdatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
-            await _unitOfWork.SaveChangeAsync();
+            displayPosition.ArtifactId = artifact.Id;
+            displayPosition.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.ArtifactRepository.UpdateAsync(artifact);
+                await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollBackAsync();
+                throw;
+            }
             _logger.LogInformation("Assigned artifact {ArtifactCode} to display position {PositionCode} in museum {MuseumId}", artifact.ArtifactCode, displayPosition.PositionCode, artifact.MuseumId);
             return _mapper.Map<ArtifactResponse>(artifact);
 
@@ -252,11 +267,25 @@ namespace MuseumSystem.Application.Services
             DisplayPosition? displayPosition = await _unitOfWork.DisplayPositionRepository.FindAsync(dp => dp.ArtifactId == artifactId)
                       ?? throw new NotFoundException("Artifact is not assigned to any display position.");
 
+            artifact.Status = ArtifactStatus.InStorage;
+            artifact.UpdatedAt = DateTime.UtcNow;
+
             displayPosition.ArtifactId = null;
             displayPosition.UpdatedAt = DateTime.UtcNow;
 
-            await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
-            await _unitOfWork.SaveChangeAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.ArtifactRepository.UpdateAsync(artifact);
+                await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollBackAsync();
+                throw;
+            }               
             _logger.LogInformation("Removed artifact {ArtifactCode} from display position {PositionCode} in museum {MuseumId}", artifact.ArtifactCode, displayPosition.PositionCode, artifact.MuseumId);
             return _mapper.Map<ArtifactResponse>(artifact);
         }

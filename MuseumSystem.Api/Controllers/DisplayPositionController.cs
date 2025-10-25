@@ -79,7 +79,7 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<BasePaginatedList<DisplayPositionResponse>>.OkResponse(result, $"Get all display postions sucessfully", "200"));
         }
 
-        [HttpPatch("activate/{id}")]
+        [HttpPatch("{id}/active")]
         [SwaggerOperation(
             Summary = "Activate a display postion")]
         public async Task<IActionResult> ActivateDisplayPosition([FromRoute] string id)
@@ -87,5 +87,15 @@ namespace MuseumSystem.Api.Controllers
             await _displayPositionService.ActiveDisplayPosition(id);
             return Ok(ApiResponse<string>.OkResponse(null, $"Activate display postion: '{id}' sucessfully", "200"));
         }
+
+        [HttpPatch("{id}/maintain")]
+        [SwaggerOperation(
+            Summary = "Set a display postion to maintenance status")]
+        public async Task<IActionResult> MaintainDisplayPosition([FromRoute] string id)
+        {
+            await _displayPositionService.MaintainDisplayPosition(id);
+            return Ok(ApiResponse<string>.OkResponse(null, $"Set display postion: '{id}' to maintenance sucessfully", "200"));
+        }
+
     }
 }
