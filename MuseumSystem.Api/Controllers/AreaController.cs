@@ -84,5 +84,14 @@ namespace MuseumSystem.Api.Controllers
             await _areaService.ActiveArea(id);
             return Ok(ApiResponse<string>.OkResponse(null, $"Activate Area: '{id}' sucessfully", "200"));
         }
+
+        [HttpPatch("{id}/maintain")]
+        [SwaggerOperation(
+            Summary = "Set an area to maintenance mode")]
+        public async Task<IActionResult> MaintainArea([FromRoute] string id)
+        {
+            await _areaService.MaintainArea(id);
+            return Ok(ApiResponse<string>.OkResponse(null, $"Set Area: '{id}' to maintenance sucessfully", "200"));
+        }
     }
 }

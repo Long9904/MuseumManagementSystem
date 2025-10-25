@@ -120,6 +120,25 @@ namespace MuseumSystem.Application.Services
             return _mapping.Map<AreaResponse>(area);
         }
 
+        public async Task MaintainArea(string id, CancellationToken cancellationToken = default)
+        {
+            var museumId = await GetValidMuseumIdAsync();
+
+            Area area = await _unitOfWork.AreaRepository.FindAsync(a => id.Equals(a.Id) && a.MuseumId == museumId)
+                ?? throw new NotFoundException($"Area not found.");
+
+            if (area.Status == AreaStatus.Deleted)
+            {
+                throw new ObjectDeletedException("Cannot set a deleted area to maintenance.");
+            }
+
+            area.Status = AreaStatus.UnderMaintenance;
+            area.UpdatedAt = DateTime.UtcNow;
+            await _unitOfWork.AreaRepository.UpdateAsync(area);
+            await _unitOfWork.SaveChangeAsync();
+            _logger.LogInformation("Activated area {AreaName} for museum {MuseumId}", area.Name, area.MuseumId);
+        }
+
         public async Task<AreaResponse> UpdateArea(string id, AreaRequest request, CancellationToken cancellationToken)
         {
             Area area = await _unitOfWork.AreaRepository.GetByIdAsync(id)

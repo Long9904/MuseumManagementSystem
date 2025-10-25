@@ -130,7 +130,7 @@ namespace MuseumSystem.Application.Services
         }
 
 
-        public async Task<DisplayPositionResponse> GetDisplayPositionById(string id,bool includeDeleted, CancellationToken cancellationToken = default)
+        public async Task<DisplayPositionResponse> GetDisplayPositionById(string id, bool includeDeleted, CancellationToken cancellationToken = default)
         {
             DisplayPosition displayPosition = await _unitOfWork.DisplayPositionRepository.FindAsync(dp =>
             dp.Id == id
@@ -145,6 +145,26 @@ namespace MuseumSystem.Application.Services
             return _mapping.Map<DisplayPositionResponse>(displayPosition);
         }
 
+        public async Task MaintainDisplayPosition(string id, CancellationToken cancellationToken = default)
+        {
+            var displayPosition = await _unitOfWork.DisplayPositionRepository.GetByIdAsync(id)
+               ?? throw new NotFoundException($"Display position with ID '{id}' not found.");
+
+            await ValidateMuseumAccess(displayPosition.AreaId);
+
+            if (displayPosition.Status == DisplayPositionStatusEnum.Deleted)
+            {
+                throw new ObjectDeletedException("Cannot set a deleted position to maintenance.");
+            }
+
+            displayPosition.Status = DisplayPositionStatusEnum.UnderMaintenance;
+            displayPosition.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.DisplayPositionRepository.UpdateAsync(displayPosition);
+            await _unitOfWork.SaveChangeAsync();
+
+            _logger.LogInformation("Activated display position {PositionCode} in area {AreaId}", displayPosition.PositionCode, displayPosition.AreaId);
+        }
 
         public async Task<DisplayPositionResponse> UpdateDisplayPosition(string id, DisplayPositionRequest request, CancellationToken cancellationToken = default)
         {
