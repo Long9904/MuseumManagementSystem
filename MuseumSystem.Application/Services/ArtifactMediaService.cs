@@ -110,6 +110,7 @@ namespace MuseumSystem.Application.Services
             }
 
             var mediaUrl = string.Empty;
+            string oldFilePath = artifactMedia.FilePath;
             // Upload new media to cloud storage if a new file is provided and remove the old one
             using var stream = mediaRequest.File.OpenReadStream();
             try
@@ -118,9 +119,7 @@ namespace MuseumSystem.Application.Services
                 if (string.IsNullOrEmpty(mediaUrl))
                 {
                     throw new FileSaveException("Meida url fail");
-                }
-                // Delete old media from storage
-                await _storageService.DeleteFileAsync(artifactMedia.FilePath);
+                }              
             }
             catch (Exception ex)
             {
@@ -134,6 +133,10 @@ namespace MuseumSystem.Application.Services
 
             await _unitOfWork.GetRepository<ArtifactMedia>().UpdateAsync(artifactMedia);
             await _unitOfWork.SaveChangeAsync();
+
+            // Delete old media from storage after successful save to db
+            await _storageService.DeleteFileAsync(oldFilePath);
+
             // Map to MediaResponse DTO
             var mediaResponse = new MediaResponse
             {
