@@ -9,7 +9,8 @@ namespace MuseumSystem.Domain.Abstractions
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<T> GetRepository<T>() where T : class;        
+        IGenericRepository<T> GetRepository<T>() where T : class;
+        
         Task SaveChangeAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

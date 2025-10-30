@@ -15,6 +15,17 @@ namespace MuseumSystem.Domain.Enums
         [Display(Name = "Inactive")]
         Inactive
     }
+    public enum ExhibitionStatus
+    {
+        [Display(Name = "Active")]
+        Active = 0,   
+
+        [Display(Name = "Expired")]
+        Expired = 1, 
+
+        [Display(Name = "Daily")]
+        Daily = 2    
+    }
     public enum EnumOrderBy
     {
         [Display(Name = "Ascending")]
