@@ -5,6 +5,7 @@ using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,16 +28,16 @@ namespace MuseumSystem.Application.Services
         public async Task<Role> AddRoleAsync(RoleRequest roleRequest)
         {
             if (string.IsNullOrWhiteSpace(roleRequest.Name))
-            {              
+            {
                 throw new ArgumentException("Role name cannot be null or empty.", nameof(roleRequest.Name));
             }
             if (!Regex.IsMatch(roleRequest.Name, @"^[a-zA-Z0-9 ]+$"))
-            {               
+            {
                 throw new ArgumentException("Role name contains invalid characters.", nameof(roleRequest.Name));
             }
             var existingRole = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name);
             if (existingRole != null)
-            {     
+            {
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
             var role = new Role
@@ -54,8 +55,13 @@ namespace MuseumSystem.Application.Services
         {
             var role = await GetRoleByIdAsync(id);
             if (role == null)
-            {   
+            {
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
+            }
+            var roleCurrentlyUsed = new ArrayList() { "SuperAdmin", "Admin", "Manager", "Staff" };
+            if (roleCurrentlyUsed.Contains(role.Name))
+            {
+                throw new InvalidOperationException($"Role with name {role.Name} is currently in use and cannot be deleted.");
             }
             role.Status = EnumStatus.Inactive;
             await _unitOfWork.GetRepository<Role>().UpdateAsync(role);
@@ -73,7 +79,7 @@ namespace MuseumSystem.Application.Services
         {
             var role = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Id == id && x.Status == EnumStatus.Active);
             if (role == null)
-            {            
+            {
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
             }
             return role;
@@ -92,6 +98,12 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
+            var roleCurrentlyUsed = new ArrayList() { "SuperAdmin", "Admin", "Manager", "Staff" };
+            if( roleCurrentlyUsed.Contains(roleExisting.Name))
+            {
+                throw new InvalidOperationException($"Role with name {roleExisting.Name} is currently in use and cannot be updated.");
+            }
+
             bool isUpdate = false;
             if (roleExisting.Name != roleRequest.Name && string.IsNullOrWhiteSpace(roleRequest.Name))
             {
