@@ -65,6 +65,13 @@ namespace MuseumSystem.Application.Services
         public async Task DeleteArea(string id, CancellationToken cancellationToken)
         {
             Area area = await _unitOfWork.AreaRepository.FindAsync(a => id.Equals(a.Id)) ?? throw new KeyNotFoundException($"Area not found.");
+
+            var museumId = await GetValidMuseumIdAsync();
+            if (area.MuseumId != museumId)
+            {
+                throw new InvalidAccessException("You do not have permission to delete this area.");
+            }
+
             area.Status = AreaStatus.Deleted;
             area.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.AreaRepository.UpdateAsync(area);
