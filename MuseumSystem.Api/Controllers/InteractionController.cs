@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Interfaces;
@@ -6,9 +7,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
+    [Authorize(Roles = "Visitor, Admin,Staff")]
     [Route("api/v1/[controller]")]
     [ApiController]
-    [SwaggerTag("Interaction Manage - Quản lý tương tác giữa khách tham quan và hiện vật")]
+    [SwaggerTag("Interaction Manage - Visitor, Admin,Staff")]
     public class InteractionController : ControllerBase
     {
         private readonly IInteractionService _interactionService;
@@ -54,29 +56,29 @@ namespace MuseumSystem.Api.Controllers
             return StatusCode((int)response.Code, response);
         }
 
-        [HttpPut("{id}")]
-        [SwaggerOperation(
-            Summary = "Update an existing interaction",
-            Description = "Updates an existing interaction identified by its ID. Allows modifying interaction type, comment, and rating."
-        )]
-        public async Task<IActionResult> UpdateInteraction(string id, [FromBody] InteractionUpdateRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<string>.BadRequestResponse("Invalid data."));
+        //[HttpPut("{id}")]
+        //[SwaggerOperation(
+        //    Summary = "Update an existing interaction",
+        //    Description = "Updates an existing interaction identified by its ID. Allows modifying interaction type, comment, and rating."
+        //)]
+        //public async Task<IActionResult> UpdateInteraction(string id, [FromBody] InteractionUpdateRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ApiResponse<string>.BadRequestResponse("Invalid data."));
 
-            var response = await _interactionService.UpdateAsync(id, request);
-            return StatusCode((int)response.Code, response);
-        }
+        //    var response = await _interactionService.UpdateAsync(id, request);
+        //    return StatusCode((int)response.Code, response);
+        //}
 
-        [HttpDelete("{id}")]
-        [SwaggerOperation(
-            Summary = "Delete an interaction",
-            Description = "Deletes an existing interaction identified by its ID from the system."
-        )]
-        public async Task<IActionResult> DeleteInteraction(string id)
-        {
-            var response = await _interactionService.DeleteAsync(id);
-            return StatusCode((int)response.Code, response);
-        }
+        //[HttpDelete("{id}")]
+        //[SwaggerOperation(
+        //    Summary = "Delete an interaction",
+        //    Description = "Deletes an existing interaction identified by its ID from the system."
+        //)]
+        //public async Task<IActionResult> DeleteInteraction(string id)
+        //{
+        //    var response = await _interactionService.DeleteAsync(id);
+        //    return StatusCode((int)response.Code, response);
+        //}
     }
 }

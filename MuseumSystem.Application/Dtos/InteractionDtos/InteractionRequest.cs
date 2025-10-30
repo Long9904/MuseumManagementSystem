@@ -10,7 +10,6 @@ namespace MuseumSystem.Application.Dtos.InteractionDtos
     {
         public string VisitorId { get; set; }
         public string ArtifactId { get; set; }
-        public string InteractionType { get; set; }
         public string? Comment { get; set; }
         public double? Rating { get; set; }
     }
