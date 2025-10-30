@@ -26,6 +26,11 @@ namespace MuseumSystem.Application.Services
 
         public async Task<Museum> CreateMuseum(MuseumRequest museumDto)
         {
+            var existingMuseum = await unit.GetRepository<Museum>().FindAsync(x => x.Name == museumDto.Name);
+            if (existingMuseum != null)
+            {
+                throw new InvalidOperationException($"A museum with name {museumDto.Name} already exists.");
+            }
             var museum = new Museum
             {
                 Name = museumDto.Name,
