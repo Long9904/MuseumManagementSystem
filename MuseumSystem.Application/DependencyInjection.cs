@@ -24,6 +24,8 @@ namespace MuseumSystem.Application
             services.AddScoped<ISeedService, SeedService>();
             services.AddScoped<IArtifactMediaService, ArtifactMediaService>();
             services.AddScoped<IDashboardSuperService, DashboardService>();
+            services.AddScoped<IGeminiService, GeminiService>();
+
 
             // Redis caching service
             services.AddSingleton<IRedisCacheService, RedisCacheService>();

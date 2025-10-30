@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251021081639_FixTable")]
-    partial class FixTable
+    [Migration("20251030140121_AddAccountTable")]
+    partial class AddAccountTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,6 +115,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExhibitionId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double?>("Height")
                         .HasColumnType("float");
 
@@ -150,9 +153,26 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ExhibitionId");
+
                     b.HasIndex("MuseumId");
 
                     b.ToTable("Artifacts");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactHistoricalContext", b =>
+                {
+                    b.Property<string>("ArtifactId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("HistoricalContextId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ArtifactId", "HistoricalContextId");
+
+                    b.HasIndex("HistoricalContextId");
+
+                    b.ToTable("ArtifactHistoricalContexts");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
@@ -243,6 +263,89 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.ToTable("DisplayPositions");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Exhibition", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MuseumId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MuseumId");
+
+                    b.ToTable("Exhibitions");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.ExhibitionHistoricalContext", b =>
+                {
+                    b.Property<string>("ExhibitionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("HistoricalContextId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ExhibitionId", "HistoricalContextId");
+
+                    b.HasIndex("HistoricalContextId");
+
+                    b.ToTable("ExhibitionHistoricalContexts");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.HistoricalContext", b =>
+                {
+                    b.Property<string>("HistoricalContextId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Period")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("HistoricalContextId");
+
+                    b.ToTable("HistoricalContexts");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
                     b.Property<string>("Id")
@@ -257,11 +360,6 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("InteractionType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<double?>("Rating")
                         .HasColumnType("float");
@@ -345,8 +443,7 @@ namespace MuseumSystem.Infrastructure.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -383,6 +480,10 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
                 {
+                    b.HasOne("MuseumSystem.Domain.Entities.Exhibition", null)
+                        .WithMany("Artifacts")
+                        .HasForeignKey("ExhibitionId");
+
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
                         .WithMany("Artifacts")
                         .HasForeignKey("MuseumId")
@@ -390,6 +491,25 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Museum");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactHistoricalContext", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
+                        .WithMany("ArtifactHistoricalContexts")
+                        .HasForeignKey("ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MuseumSystem.Domain.Entities.HistoricalContext", "HistoricalContext")
+                        .WithMany("ArtifactHistoricalContexts")
+                        .HasForeignKey("HistoricalContextId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artifact");
+
+                    b.Navigation("HistoricalContext");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.ArtifactMedia", b =>
@@ -420,6 +540,36 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("Artifact");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Exhibition", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
+                        .WithMany()
+                        .HasForeignKey("MuseumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Museum");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.ExhibitionHistoricalContext", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Exhibition", "Exhibition")
+                        .WithMany("ExhibitionHistoricalContexts")
+                        .HasForeignKey("ExhibitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MuseumSystem.Domain.Entities.HistoricalContext", "HistoricalContext")
+                        .WithMany("ExhibitionHistoricalContexts")
+                        .HasForeignKey("HistoricalContextId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exhibition");
+
+                    b.Navigation("HistoricalContext");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
@@ -446,9 +596,25 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
                 {
+                    b.Navigation("ArtifactHistoricalContexts");
+
                     b.Navigation("ArtifactMedias");
 
                     b.Navigation("DisplayPosition");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.Exhibition", b =>
+                {
+                    b.Navigation("Artifacts");
+
+                    b.Navigation("ExhibitionHistoricalContexts");
+                });
+
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.HistoricalContext", b =>
+                {
+                    b.Navigation("ArtifactHistoricalContexts");
+
+                    b.Navigation("ExhibitionHistoricalContexts");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Museum", b =>
