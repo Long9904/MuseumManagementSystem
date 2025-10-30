@@ -63,7 +63,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -298,7 +298,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     VisitorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InteractionType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Rating = table.Column<double>(type: "float", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
