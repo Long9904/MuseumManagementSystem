@@ -41,5 +41,7 @@ namespace MuseumSystem.Domain.Entities
         public required string MuseumId { get; set; }
         public required Museum Museum { get; set; }
 
+        // 🔹 Navigation Property cho quan hệ nhiều-nhiều với HistoricalContext
+        public ICollection<ArtifactHistoricalContext> ArtifactHistoricalContexts { get; set; } = new  List<ArtifactHistoricalContext>();
     }
 }

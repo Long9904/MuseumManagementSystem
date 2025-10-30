@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuseumSystem.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,7 +8,7 @@ namespace MuseumSystem.Domain.Entities
     public class Visitor
     {
         [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString(); // ✅ Đổi VisitorId -> Id
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [Phone]
         [Required]
@@ -15,8 +16,7 @@ namespace MuseumSystem.Domain.Entities
         public string PhoneNumber { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string Status { get; set; } = "Active";
+        public EnumStatus Status { get; set; } = EnumStatus.Active; // ✅ Enum, không string
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

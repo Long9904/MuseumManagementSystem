@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Application.Services;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Interface;
 using MuseumSystem.Infrastructure.Implementation;
@@ -19,6 +21,10 @@ namespace MuseumSystem.Infrastructure
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IDisplayPositionRepository, DisplayPositionRepository>();
             services.AddScoped<IArtifactRepository, ArtifactRepository>();
+            services.AddScoped<IInteractionService, InteractionService>();
+            services.AddScoped<IVisitorService, VisitorService>();
+            services.AddScoped<IExhibitionService, ExhibitionService>();
+            services.AddScoped<IHistoricalContextService, HistoricalContextService>();
         }
     }
 }

@@ -39,7 +39,6 @@ namespace MuseumSystem.Application.Services
                 Id = i.Id,
                 VisitorId = i.VisitorId,
                 ArtifactId = i.ArtifactId,
-                InteractionType = i.InteractionType,
                 Comment = i.Comment,
                 Rating = i.Rating,
                 CreatedAt = i.CreatedAt,
@@ -73,7 +72,6 @@ namespace MuseumSystem.Application.Services
                 Id = interaction.Id,
                 VisitorId = interaction.VisitorId,
                 ArtifactId = interaction.ArtifactId,
-                InteractionType = interaction.InteractionType,
                 Comment = interaction.Comment,
                 Rating = interaction.Rating,
                 CreatedAt = interaction.CreatedAt,
@@ -114,7 +112,6 @@ namespace MuseumSystem.Application.Services
                     Id = interaction.Id,
                     VisitorId = interaction.VisitorId,
                     ArtifactId = interaction.ArtifactId,
-                    InteractionType = interaction.InteractionType,
                     Comment = interaction.Comment,
                     Rating = interaction.Rating,
                     CreatedAt = interaction.CreatedAt,
@@ -150,9 +147,6 @@ namespace MuseumSystem.Application.Services
             if (interaction == null)
                 return ApiResponse<InteractionResponse>.NotFoundResponse("Interaction not found");
 
-            if (!string.IsNullOrEmpty(request.InteractionType))
-                interaction.InteractionType = request.InteractionType;
-
             if (request.Comment != null)
                 interaction.Comment = request.Comment;
 
@@ -167,7 +161,6 @@ namespace MuseumSystem.Application.Services
                 Id = interaction.Id,
                 VisitorId = interaction.VisitorId,
                 ArtifactId = interaction.ArtifactId,
-                InteractionType = interaction.InteractionType,
                 Comment = interaction.Comment,
                 Rating = interaction.Rating,
                 CreatedAt = interaction.CreatedAt,

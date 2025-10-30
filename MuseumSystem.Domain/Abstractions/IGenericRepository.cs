@@ -19,6 +19,8 @@ namespace MuseumSystem.Domain.Abstractions
         Task<T?> FindAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>>? include = null);
         Task<IList<T>> FilterByAsync(Expression<Func<T, bool>> predicate);
         Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
+        IQueryable<T> GetQueryable();
+
 
 
     }
