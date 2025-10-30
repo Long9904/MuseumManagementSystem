@@ -212,6 +212,9 @@ builder.Services.AddSingleton<StorageClient>(sp =>
     return StorageClient.Create(credential);
 });
 
+// Gemini Settings
+builder.Services.AddHttpClient();
+builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiApi"));
 
 //Add Dependency Injection
 builder.Services.AddConfig(builder.Configuration);
