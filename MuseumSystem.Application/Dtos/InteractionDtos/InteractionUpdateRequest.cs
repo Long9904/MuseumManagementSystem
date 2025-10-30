@@ -8,7 +8,6 @@ namespace MuseumSystem.Application.Dtos.InteractionDtos
 {
     public class InteractionUpdateRequest
     {
-        public string? InteractionType { get; set; }
         public string? Comment { get; set; }
         public double? Rating { get; set; }
     }

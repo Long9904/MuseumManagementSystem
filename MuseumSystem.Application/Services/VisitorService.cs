@@ -4,6 +4,7 @@ using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
+using MuseumSystem.Domain.Enums;
 using MuseumSystem.Domain.Enums.EnumConfig;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -49,8 +50,23 @@ namespace MuseumSystem.Application.Services
 
         public async Task<ApiResponse<VisitorResponse>> CreateAsync(VisitorRequest request)
         {
-            var visitor = _mapper.Map<Visitor>(request);
-            await _unitOfWork.GetRepository<Visitor>().InsertAsync(visitor);
+            var repo = _unitOfWork.GetRepository<Visitor>();
+
+            // ✅ Check trùng số điện thoại
+            var existing = await repo.FindByConditionAsync(v => v.PhoneNumber == request.PhoneNumber);
+            if (existing != null)
+            {
+                return ApiResponse<VisitorResponse>.BadRequestResponse("Phone number already exists.");
+            }
+
+            // ✅ Map request -> entity
+            var visitor = new Visitor
+            {
+                PhoneNumber = request.PhoneNumber,
+                Status = EnumStatus.Active // ✅ Mặc định là Active
+            };
+
+            await repo.InsertAsync(visitor);
             await _unitOfWork.SaveChangeAsync();
 
             var data = _mapper.Map<VisitorResponse>(visitor);
@@ -58,9 +74,11 @@ namespace MuseumSystem.Application.Services
                 StatusCodeHelper.Created,
                 StatusCodeHelper.Created.Names(),
                 data,
-                "Visitor created successfully"
+                "Visitor created successfully."
             );
         }
+
+
 
         public async Task<ApiResponse<VisitorResponse>> UpdateAsync(string id, VisitorUpdateRequest request)
         {
@@ -70,16 +88,43 @@ namespace MuseumSystem.Application.Services
             if (visitor == null)
                 return ApiResponse<VisitorResponse>.NotFoundResponse("Visitor not found");
 
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-                visitor.PhoneNumber = request.PhoneNumber;
-
+            // ✅ Nếu có truyền Status thì convert string -> EnumStatus
             if (!string.IsNullOrEmpty(request.Status))
-                visitor.Status = request.Status;
+            {
+                if (Enum.TryParse<EnumStatus>(request.Status, true, out var parsedStatus))
+                {
+                    visitor.Status = parsedStatus;
+                }
+                else
+                {
+                    return ApiResponse<VisitorResponse>.BadRequestResponse("Invalid status value. Allowed values: Active, Inactive.");
+                }
+            }
+
+            // ⚠️ Nếu bạn KHÔNG muốn cho phép đổi số điện thoại, có thể bỏ phần này
+            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            {
+                // Kiểm tra số điện thoại trùng
+                var exists = await repo.FindByConditionAsync(v => v.PhoneNumber == request.PhoneNumber && v.Id != id);
+                if (exists != null)
+                {
+                    return new ApiResponse<VisitorResponse>(
+                        StatusCodeHelper.Conflict,
+                        StatusCodeHelper.Conflict.Names(),
+                        null,
+                        "Phone number already exists."
+                    );
+                }
+
+                visitor.PhoneNumber = request.PhoneNumber;
+            }
 
             await repo.UpdateAsync(visitor);
             await _unitOfWork.SaveChangeAsync();
 
             var data = _mapper.Map<VisitorResponse>(visitor);
+            data.Status = visitor.Status.ToString();
+
             return new ApiResponse<VisitorResponse>(
                 StatusCodeHelper.OK,
                 StatusCodeHelper.OK.Names(),
@@ -87,6 +132,7 @@ namespace MuseumSystem.Application.Services
                 "Visitor updated successfully"
             );
         }
+
 
         public async Task<ApiResponse<bool>> DeleteAsync(string id)
         {

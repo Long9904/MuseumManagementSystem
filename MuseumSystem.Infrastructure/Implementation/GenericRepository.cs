@@ -96,5 +96,10 @@ namespace MuseumSystem.Infrastructure.Implementation
             var items = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
             return new BasePaginatedList<T>(items, count, index, pageSize);
         }
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
     }
 }

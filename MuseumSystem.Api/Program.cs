@@ -234,9 +234,6 @@ builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis
 builder.Services.AddConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IInteractionService, InteractionService>();
-builder.Services.AddScoped<IVisitorService, VisitorService>();
-
 
 var app = builder.Build();
 

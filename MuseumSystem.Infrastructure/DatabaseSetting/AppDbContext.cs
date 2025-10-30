@@ -26,6 +26,16 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
 
         public DbSet<Interaction> Interactions { get; set; }
 
+        public DbSet<Exhibition> Exhibitions { get; set; }
+
+        public DbSet<HistoricalContext> HistoricalContexts { get; set; }
+
+        public DbSet<ArtifactHistoricalContext> ArtifactHistoricalContexts { get; set; }
+
+        public DbSet<ExhibitionHistoricalContext> ExhibitionHistoricalContexts { get; set; }
+
+
+
 
         // Configure DbSets
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,10 +52,51 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
             modelBuilder.Entity<ArtifactMedia>();
             modelBuilder.Entity<Visitor>();
             modelBuilder.Entity<Interaction>();
+            modelBuilder.Entity<Exhibition>();
+            modelBuilder.Entity<HistoricalContext>();
+            modelBuilder.Entity<ArtifactHistoricalContext>();
+            modelBuilder.Entity<ExhibitionHistoricalContext>();
 
 
             // Auto apply configurations from the assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.Entity<Visitor>()
+        .Property(v => v.Status)
+        .HasConversion<string>(); // ✅ Lưu Enum thành chuỗi ("Active", "Inactive")
+
+            modelBuilder.Entity<ArtifactHistoricalContext>()
+                .HasKey(ah => new { ah.ArtifactId, ah.HistoricalContextId });
+
+            modelBuilder.Entity<ArtifactHistoricalContext>()
+                .HasOne(ah => ah.Artifact)
+                .WithMany(a => a.ArtifactHistoricalContexts)
+                .HasForeignKey(ah => ah.ArtifactId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArtifactHistoricalContext>()
+                .HasOne(ah => ah.HistoricalContext)
+                .WithMany(h => h.ArtifactHistoricalContexts)
+                .HasForeignKey(ah => ah.HistoricalContextId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ==========================
+            // Configure many-to-many: Exhibition ↔ HistoricalContext
+            // ==========================
+            modelBuilder.Entity<ExhibitionHistoricalContext>()
+                .HasKey(eh => new { eh.ExhibitionId, eh.HistoricalContextId });
+
+            modelBuilder.Entity<ExhibitionHistoricalContext>()
+                .HasOne(eh => eh.Exhibition)
+                .WithMany(e => e.ExhibitionHistoricalContexts)
+                .HasForeignKey(eh => eh.ExhibitionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ExhibitionHistoricalContext>()
+                .HasOne(eh => eh.HistoricalContext)
+                .WithMany(h => h.ExhibitionHistoricalContexts)
+                .HasForeignKey(eh => eh.HistoricalContextId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
     // must here ..\MuseumManagement\MuseumManagementSystem> dotnet ef ...

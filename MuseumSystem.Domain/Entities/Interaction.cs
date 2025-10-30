@@ -15,10 +15,6 @@ namespace MuseumSystem.Domain.Entities
         [Required]
         public string ArtifactId { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string InteractionType { get; set; } // Comment, Rating, View, ...
-
         public string? Comment { get; set; }
 
         public double? Rating { get; set; }
