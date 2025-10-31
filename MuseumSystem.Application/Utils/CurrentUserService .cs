@@ -29,7 +29,8 @@ namespace MuseumSystem.Application.Utils
             get 
             {
                 var context = _httpContextAccessor.HttpContext;
-                return context?.Items["MuseumId"]?.ToString();
+                return context?.Items["MuseumId"]?.ToString() 
+                    ?? throw new UnauthorizedAccessException("User is not login or not relation with any museum");
             }
         }
     }
