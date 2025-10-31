@@ -61,9 +61,7 @@ namespace MuseumSystem.Infrastructure.DatabaseSetting
             // Auto apply configurations from the assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-            modelBuilder.Entity<Visitor>()
-        .Property(v => v.Status)
-        .HasConversion<string>(); // ✅ Lưu Enum thành chuỗi ("Active", "Inactive")
+         
 
             modelBuilder.Entity<ArtifactHistoricalContext>()
                 .HasKey(ah => new { ah.ArtifactId, ah.HistoricalContextId });

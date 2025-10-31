@@ -1,19 +1,21 @@
-﻿using MuseumSystem.Application.Dtos;
+﻿using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MuseumSystem.Domain.Abstractions;
 
 namespace MuseumSystem.Application.Interfaces
 {
     public interface IVisitorService
     {
-        Task<ApiResponse<List<VisitorResponse>>> GetAllAsync();
-        Task<ApiResponse<VisitorResponse>> GetByIdAsync(string id);
-        Task<ApiResponse<VisitorResponse>> CreateAsync(VisitorRequest request);
-        Task<ApiResponse<VisitorResponse>> UpdateAsync(string id, VisitorUpdateRequest request);
-        Task<ApiResponse<bool>> DeleteAsync(string id);
+        Task<VisitorResponse> RegisterVisitorAsync(VisitorRequest visitorRequest);
+
+        Task<VisitorLoginResponse> LoginVisitorAsync(VisitorRequest visitorRequest);
+
+        Task<VisitorResponse> MyProfileAsync();
+
+        // Post interactions like comments, ratings, etc. can be added here in the future
+        Task<VisitorInteractionResponse> PostInteractionAsync(InteractionRequest request);
+
+        // My interactions
+        Task<BasePaginatedList<VisitorInteractionResponse>> MyInteractionsAsync(int pageIndex, int pageSize);
     }
 }

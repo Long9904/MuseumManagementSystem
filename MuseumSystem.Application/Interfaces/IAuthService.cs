@@ -1,9 +1,5 @@
 ﻿using MuseumSystem.Application.Dtos.AuthDtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MuseumSystem.Application.Interfaces
 {
@@ -13,5 +9,7 @@ namespace MuseumSystem.Application.Interfaces
         Task<AuthResponse> LoginGoogleAsync(LoginGGRequest loginGGRequest);
 
         Task Logout();
+
+        Task<UserProfileResponse> GetCurrentUserProfileAsync();
     }
 }

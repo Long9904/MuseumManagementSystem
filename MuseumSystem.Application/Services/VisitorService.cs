@@ -1,158 +1,170 @@
 ﻿using AutoMapper;
-using MuseumSystem.Application.Dtos;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
+using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
-using MuseumSystem.Domain.Enums.EnumConfig;
-
 
 namespace MuseumSystem.Application.Services
 {
     public class VisitorService : IVisitorService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGenerateTokenService _generateTokenService;
+        private readonly ILogger<VisitorService> _logger;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public VisitorService(IUnitOfWork unitOfWork, IMapper mapper)
+        public VisitorService(
+            IUnitOfWork unitOfWork,
+            IGenerateTokenService generateTokenService,
+            ILogger<VisitorService> logger,
+            ICurrentUserService currentUserService,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _generateTokenService = generateTokenService;
+            _logger = logger;
+            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<List<VisitorResponse>>> GetAllAsync()
+        public async Task<VisitorLoginResponse> LoginVisitorAsync(VisitorRequest visitorRequest)
         {
-            var visitors = await _unitOfWork.GetRepository<Visitor>().GetAllAsync();
-            var data = _mapper.Map<List<VisitorResponse>>(visitors);
+            var existingVisitor = await _unitOfWork.GetRepository<Visitor>()
+                .FindAsync(v => v.Username == visitorRequest.Username);
 
-            return ApiResponse<List<VisitorResponse>>.OkResponse(
-                data,
-                "Get all visitors successfully",
-                StatusCodeHelper.OK.Names()
-            );
-        }
-
-        public async Task<ApiResponse<VisitorResponse>> GetByIdAsync(string id)
-        {
-            var visitor = await _unitOfWork.GetRepository<Visitor>().GetByIdAsync(id);
-            if (visitor == null)
-                return ApiResponse<VisitorResponse>.NotFoundResponse("Visitor not found");
-
-            var data = _mapper.Map<VisitorResponse>(visitor);
-            return ApiResponse<VisitorResponse>.OkResponse(
-                data,
-                "Get visitor successfully",
-                StatusCodeHelper.OK.Names()
-            );
-        }
-
-        public async Task<ApiResponse<VisitorResponse>> CreateAsync(VisitorRequest request)
-        {
-            var repo = _unitOfWork.GetRepository<Visitor>();
-
-            // ✅ Check trùng số điện thoại
-            var existing = await repo.FindByConditionAsync(v => v.PhoneNumber == request.PhoneNumber);
-            if (existing != null)
+            if (existingVisitor == null)
             {
-                return new ApiResponse<VisitorResponse>(
-                StatusCodeHelper.OK,
-                StatusCodeHelper.OK.Names(),
-                null,
-                $"Visitor with phone number {request.PhoneNumber} already exists. Success use APP"
-            );
+                _logger.LogWarning("Login attempt failed for username: {Username}", visitorRequest.Username);
+                throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
-            // ✅ Map request -> entity
-            var visitor = new Visitor
+            if (!BCrypt.Net.BCrypt.Verify(visitorRequest.Password, existingVisitor.PasswordHash))
             {
-                PhoneNumber = request.PhoneNumber,
-                Status = EnumStatus.Active
+                throw new UnauthorizedAccessException("Invalid email or password.");
+            }
+
+            if (existingVisitor.Status != VisitorStatus.Active)
+            {
+                throw new UnauthorizedAccessException("Account is not active.");
+            }
+
+            var res = new VisitorLoginResponse
+            {
+                Token = _generateTokenService.GenerateVisitorToken(existingVisitor),
             };
 
-            await repo.InsertAsync(visitor);
-            await _unitOfWork.SaveChangeAsync();
-
-            var data = _mapper.Map<VisitorResponse>(visitor);
-            return new ApiResponse<VisitorResponse>(
-                StatusCodeHelper.Created,
-                StatusCodeHelper.Created.Names(),
-                data,
-                "Visitor created successfully."
-            );
+            _logger.LogInformation("Visitor with username {Username} logged in successfully.", visitorRequest.Username);
+            return res;
         }
 
-
-
-        public async Task<ApiResponse<VisitorResponse>> UpdateAsync(string id, VisitorUpdateRequest request)
+        public async Task<VisitorResponse> MyProfileAsync()
         {
-            var repo = _unitOfWork.GetRepository<Visitor>();
-            var visitor = await repo.GetByIdAsync(id);
-
+            var visitorId = _currentUserService.UserId;
+            var visitor = await _unitOfWork.GetRepository<Visitor>().FindAsync(v => v.Id == visitorId);
             if (visitor == null)
-                return ApiResponse<VisitorResponse>.NotFoundResponse("Visitor not found");
-
-            // ✅ Nếu có truyền Status thì convert string -> EnumStatus
-            if (!string.IsNullOrEmpty(request.Status))
             {
-                if (Enum.TryParse<EnumStatus>(request.Status, true, out var parsedStatus))
-                {
-                    visitor.Status = parsedStatus;
-                }
-                else
-                {
-                    return ApiResponse<VisitorResponse>.BadRequestResponse("Invalid status value. Allowed values: Active, Inactive.");
-                }
+                throw new NotFoundException("Visitor not found.");
             }
 
-            // ⚠️ Nếu bạn KHÔNG muốn cho phép đổi số điện thoại, có thể bỏ phần này
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            return new VisitorResponse
             {
-                // Kiểm tra số điện thoại trùng
-                var exists = await repo.FindByConditionAsync(v => v.PhoneNumber == request.PhoneNumber && v.Id != id);
-                if (exists != null)
-                {
-                    return new ApiResponse<VisitorResponse>(
-                        StatusCodeHelper.Conflict,
-                        StatusCodeHelper.Conflict.Names(),
-                        null,
-                        "Phone number already exists."
-                    );
-                }
+                Id = visitor.Id,
+                Username = visitor.Username,
+                Status = visitor.Status,
+                CreatedAt = visitor.CreatedAt,
+                UpdatedAt = visitor.UpdatedAt
+            };
+        }
 
-                visitor.PhoneNumber = request.PhoneNumber;
+
+        public async Task<VisitorResponse> RegisterVisitorAsync(VisitorRequest visitorRequest)
+        {
+            var existingVisitor = await _unitOfWork.GetRepository<Visitor>()
+                .FindAsync(v => v.Username == visitorRequest.Username);
+
+            if (existingVisitor != null)
+            {
+                throw new ConflictException("Username already exists.");
             }
 
-            await repo.UpdateAsync(visitor);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(visitorRequest.Password);
+
+            var newVisitor = new Visitor
+            {
+                Username = visitorRequest.Username,
+                PasswordHash = hashedPassword,
+                Status = VisitorStatus.Active,
+            };
+
+            await _unitOfWork.GetRepository<Visitor>().InsertAsync(newVisitor);
             await _unitOfWork.SaveChangeAsync();
-
-            var data = _mapper.Map<VisitorResponse>(visitor);
-            data.Status = visitor.Status.ToString();
-
-            return new ApiResponse<VisitorResponse>(
-                StatusCodeHelper.OK,
-                StatusCodeHelper.OK.Names(),
-                data,
-                "Visitor updated successfully"
-            );
+            _logger.LogInformation("New visitor registered with username: {Username}", visitorRequest.Username);
+            return new VisitorResponse
+            {
+                Id = newVisitor.Id,
+                Username = newVisitor.Username,
+                Status = newVisitor.Status,
+                CreatedAt = newVisitor.CreatedAt,
+                UpdatedAt = newVisitor.UpdatedAt
+            };
         }
 
-
-        public async Task<ApiResponse<bool>> DeleteAsync(string id)
+        public async Task<BasePaginatedList<VisitorInteractionResponse>> MyInteractionsAsync(
+            int pageIndex, int pageSize)
         {
-            var repo = _unitOfWork.GetRepository<Visitor>();
-            var visitor = await repo.GetByIdAsync(id);
-            if (visitor == null)
-                return ApiResponse<bool>.NotFoundResponse("Visitor not found");
+            var visitorId = _currentUserService.UserId;
+            // Get all interactions by visitor
+            var query = _unitOfWork.GetRepository<Interaction>().Entity
+                .Where(i => i.VisitorId == visitorId)
+                .Include(i => i.Artifact).ThenInclude(a => a.Museum)
+                .Include(i => i.Visitor)
+                .OrderByDescending(i => i.CreatedAt);
 
-            await repo.DeleteAsync(id);
-            await _unitOfWork.SaveChangeAsync();
+            BasePaginatedList<Interaction> paginatedInteractions = await _unitOfWork.GetRepository<Interaction>().GetPagging(query, pageIndex, pageSize);
 
-            return ApiResponse<bool>.OkResponse(
-                true,
-                "Visitor deleted successfully",
-                StatusCodeHelper.OK.Names()
-            );
+            // Map to response
+            var result = _mapper.Map<BasePaginatedList<Interaction>, BasePaginatedList<VisitorInteractionResponse>>(paginatedInteractions);
+            return result;
         }
+
+
+        public async Task<VisitorInteractionResponse> PostInteractionAsync(InteractionRequest request)
+        {
+            var visitorId = _currentUserService.UserId;
+            var visitor = await _unitOfWork.GetRepository<Visitor>().FindAsync(v => v.Id == visitorId);
+            if (visitor == null)
+            {
+                throw new NotFoundException("Visitor not found.");
+            }
+
+            // Create new Interaction
+            var interaction = new Interaction
+            {
+                VisitorId = visitor.Id,
+                ArtifactId = request.ArtifactId,
+                Comment = request.Comment,
+                Rating = request.Rating
+            };
+
+            await _unitOfWork.GetRepository<Interaction>().InsertAsync(interaction);
+            await _unitOfWork.SaveChangeAsync();
+            _logger.LogInformation("Visitor {VisitorId} posted a new interaction on Artifact {ArtifactId}.", visitor.Id, request.ArtifactId);
+
+            return new VisitorInteractionResponse
+            {
+                InteractionId = interaction.Id,
+                ArtifactId = interaction.ArtifactId,
+                Comment = interaction.Comment,
+                Rating = interaction.Rating,
+                CreatedAt = interaction.CreatedAt
+            };
+        }
+
     }
 }

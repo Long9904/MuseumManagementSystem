@@ -21,7 +21,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Get all interactions and by user logined - Admin, Staff",
+            Summary = "Get all interactions and by user logined (user's museum) - Admin, Staff",
             Description = "Retrieves all interactions between visitors and artifacts, including visitor and artifact details."
         )]
         [Authorize(Roles = "Admin,Staff")]
@@ -33,7 +33,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(
-            Summary = "Get interaction by ID and by user logined - Admin, Staff",
+            Summary = "Get interaction by ID and by user logined (user's museum) - Admin, Staff",
             Description = "Retrieves the details of a specific interaction by its ID, including visitor and artifact information."
         )]
 
@@ -44,19 +44,8 @@ namespace MuseumSystem.Api.Controllers
             return StatusCode((int)response.Code, response);
         }
 
-        [HttpPost]
-        [SwaggerOperation(
-            Summary = "Create a new interaction, sample login - No role",
-            Description = "Creates a new interaction record between a visitor and an artifact, including comments, ratings, and interaction type."
-        )]
-        public async Task<IActionResult> CreateInteraction([FromBody] InteractionRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<string>.BadRequestResponse("Invalid data."));
-
-            var response = await _interactionService.CreateAsync(request);
-            return StatusCode((int)response.Code, response);
-        }
+     
+        
 
         //[HttpPut("{id}")]
         //[SwaggerOperation(
