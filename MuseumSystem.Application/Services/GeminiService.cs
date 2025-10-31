@@ -47,15 +47,21 @@ namespace MuseumSystem.Application.Services
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                using var doc = JsonDocument.Parse(json);
+                using var doc = JsonDocument.Parse(responseContent);
                 var root = doc.RootElement;
 
-                string? text = root
-                    .GetProperty("candidates")[0]
-                    .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
-                    .GetString();
+                string? text = null;
+
+                if (root.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
+                {
+                    var firstCandidate = candidates[0];
+                    if (firstCandidate.TryGetProperty("content", out var content) &&
+                        content.TryGetProperty("parts", out var parts) &&
+                        parts.GetArrayLength() > 0)
+                    {
+                        text = parts[0].GetProperty("text").GetString();
+                    }
+                }
 
                 return text ?? "(No content)";
             }
