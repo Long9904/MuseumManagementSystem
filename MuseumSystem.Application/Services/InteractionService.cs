@@ -2,14 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
+using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums.EnumConfig;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Services
 {
@@ -28,7 +25,7 @@ namespace MuseumSystem.Application.Services
 
 
 
-        // ✅ Lấy tất cả Interaction (có include Visitor + Artifact)
+        // Take all Interactions by MuseumId - Admin, Staff
         public async Task<ApiResponse<List<InteractionResponse>>> GetAllAsync()
         {
             var repo = _unitOfWork.GetRepository<Interaction>();
@@ -59,7 +56,7 @@ namespace MuseumSystem.Application.Services
             );
         }
 
-        // ✅ Lấy chi tiết Interaction
+        // Take Interaction by Id - Admin, Staff
         public async Task<ApiResponse<InteractionResponse>> GetByIdAsync(string id)
         {
             var repo = _unitOfWork.GetRepository<Interaction>();
@@ -98,12 +95,13 @@ namespace MuseumSystem.Application.Services
             try
             {
                 var visitor = await _unitOfWork.GetRepository<Visitor>().GetByIdAsync(request.VisitorId);
-                if (visitor == null)
-                    return ApiResponse<InteractionResponse>.BadRequestResponse("VisitorId không tồn tại trong hệ thống.");
+                if (visitor == null) throw new NotFoundException("Visitor is not exist");
+
+
 
                 var artifact = await _unitOfWork.GetRepository<Artifact>().GetByIdAsync(request.ArtifactId);
-                if (artifact == null)
-                    return ApiResponse<InteractionResponse>.BadRequestResponse("ArtifactId không tồn tại trong hệ thống.");
+                if (artifact == null) throw new NotFoundException("Artifact is not exist");
+
 
                 var interaction = _mapper.Map<Interaction>(request);
                 interaction.Visitor = visitor;

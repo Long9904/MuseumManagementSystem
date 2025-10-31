@@ -6,8 +6,7 @@ using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
 using MuseumSystem.Domain.Enums.EnumConfig;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace MuseumSystem.Application.Services
 {
@@ -56,14 +55,19 @@ namespace MuseumSystem.Application.Services
             var existing = await repo.FindByConditionAsync(v => v.PhoneNumber == request.PhoneNumber);
             if (existing != null)
             {
-                return ApiResponse<VisitorResponse>.BadRequestResponse("Phone number already exists.");
+                return new ApiResponse<VisitorResponse>(
+                StatusCodeHelper.OK,
+                StatusCodeHelper.OK.Names(),
+                null,
+                $"Visitor with phone number {request.PhoneNumber} already exists. Success use APP"
+            );
             }
 
             // ✅ Map request -> entity
             var visitor = new Visitor
             {
                 PhoneNumber = request.PhoneNumber,
-                Status = EnumStatus.Active // ✅ Mặc định là Active
+                Status = EnumStatus.Active
             };
 
             await repo.InsertAsync(visitor);

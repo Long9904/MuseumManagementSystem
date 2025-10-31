@@ -7,10 +7,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
 {
-    [Authorize(Roles = "Visitor, Admin,Staff")]
     [Route("api/v1/[controller]")]
     [ApiController]
-    [SwaggerTag("Interaction Manage - Visitor, Admin,Staff")]
+    [SwaggerTag("Interaction Manage")]
     public class InteractionController : ControllerBase
     {
         private readonly IInteractionService _interactionService;
@@ -22,9 +21,10 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Get all interactions",
+            Summary = "Get all interactions and by user logined - Admin, Staff",
             Description = "Retrieves all interactions between visitors and artifacts, including visitor and artifact details."
         )]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetAllInteractions()
         {
             var response = await _interactionService.GetAllAsync();
@@ -33,9 +33,11 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(
-            Summary = "Get interaction by ID",
+            Summary = "Get interaction by ID and by user logined - Admin, Staff",
             Description = "Retrieves the details of a specific interaction by its ID, including visitor and artifact information."
         )]
+
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetInteractionById(string id)
         {
             var response = await _interactionService.GetByIdAsync(id);
@@ -44,7 +46,7 @@ namespace MuseumSystem.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(
-            Summary = "Create a new interaction",
+            Summary = "Create a new interaction, sample login - No role",
             Description = "Creates a new interaction record between a visitor and an artifact, including comments, ratings, and interaction type."
         )]
         public async Task<IActionResult> CreateInteraction([FromBody] InteractionRequest request)
