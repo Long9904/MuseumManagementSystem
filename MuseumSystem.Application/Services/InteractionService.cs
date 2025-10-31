@@ -17,12 +17,16 @@ namespace MuseumSystem.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public InteractionService(IUnitOfWork unitOfWork, IMapper mapper)
+        public InteractionService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
+
+
 
         // ✅ Lấy tất cả Interaction (có include Visitor + Artifact)
         public async Task<ApiResponse<List<InteractionResponse>>> GetAllAsync()
@@ -32,6 +36,7 @@ namespace MuseumSystem.Application.Services
             var interactions = await repo.Entity
                 .Include(i => i.Visitor)
                 .Include(i => i.Artifact)
+                .Where(i => i.Artifact.MuseumId == _currentUserService.MuseumId)
                 .ToListAsync();
 
             var data = interactions.Select(i => new InteractionResponse
