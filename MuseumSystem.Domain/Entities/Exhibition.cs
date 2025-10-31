@@ -36,9 +36,6 @@ namespace MuseumSystem.Domain.Entities
         [JsonIgnore]
         public Museum? Museum { get; set; }
 
-        // Liên kết đến danh sách artifact hoặc context
-        [JsonIgnore]
-        public ICollection<Artifact>? Artifacts { get; set; }
 
         [JsonIgnore]
         public ICollection<ExhibitionHistoricalContext> ExhibitionHistoricalContexts { get; set; } = new List<ExhibitionHistoricalContext>();

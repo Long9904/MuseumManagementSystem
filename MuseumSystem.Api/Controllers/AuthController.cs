@@ -59,5 +59,13 @@ namespace MuseumSystem.Api.Controllers
             await _authService.Logout();
             return Ok(ApiResponse<string>.OkResponse("Logout successful", "Logout successful", "200"));
         }
+
+        [HttpGet("profile")]
+        [SwaggerOperation(Summary = "Get current user profile")]
+        public async Task<IActionResult> GetCurrentUserProfile()
+        {
+            var result = await _authService.GetCurrentUserProfileAsync();
+            return Ok(ApiResponse<UserProfileResponse>.OkResponse(result, "Get current user profile successful", "200"));
+        }
     }
 }

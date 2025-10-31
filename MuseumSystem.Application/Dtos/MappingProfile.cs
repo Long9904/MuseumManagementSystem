@@ -5,7 +5,6 @@ using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.DisplayPositionDtos;
 using MuseumSystem.Application.Dtos.HistoricalContexts;
 using MuseumSystem.Application.Dtos.InteractionDtos;
-using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 
@@ -54,21 +53,23 @@ namespace MuseumSystem.Application.Dtos
                 .ForMember(dest => dest.AreaId,
                             opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.AreaId : null));
 
-            CreateMap<VisitorRequest, Visitor>();
-            CreateMap<VisitorUpdateRequest, Visitor>();
-            CreateMap<Visitor, VisitorResponse>();
+
 
             // Interaction
-            CreateMap<InteractionRequest, Interaction>();
             CreateMap<InteractionUpdateRequest, Interaction>();
             CreateMap<Interaction, InteractionResponse>()
-                .ForMember(dest => dest.VisitorPhoneNumber, opt => opt.MapFrom(src => src.Visitor != null ? src.Visitor.PhoneNumber : null))
                 .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null))
                 .ForMember(dest => dest.ArtifactCode, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.ArtifactCode : null));
             CreateMap<HistoricalContext, HistoricalContextResponse>().ReverseMap();
             CreateMap<HistoricalContextRequest, HistoricalContext>().ReverseMap();
             CreateMap<HistoricalContextUpdateRequest, HistoricalContext>().ReverseMap();
 
+            // Interaction
+            CreateMap<Interaction, VisitorInteractionResponse>()
+                .ForMember(dest => dest.InteractionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null))
+                .ForMember(dest => dest.MuseumId, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.MuseumId : null))
+                .ForMember(dest => dest.MuseumName, opt => opt.MapFrom(src => src.Artifact != null && src.Artifact.Museum != null ? src.Artifact.Museum.Name : null));
         }
 
 

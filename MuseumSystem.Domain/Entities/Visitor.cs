@@ -1,24 +1,21 @@
-﻿using MuseumSystem.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿
+using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Domain.Entities
 {
     public class Visitor
     {
-        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        [Phone]
-        [Required]
-        [StringLength(15)]
-        public string PhoneNumber { get; set; }
+        public required string Username { get; set; }
 
-        [Required]
-        public EnumStatus Status { get; set; } = EnumStatus.Active; // ✅ Enum, không string
+        public required string PasswordHash { get; set; }
+
+        public VisitorStatus Status { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
     }
