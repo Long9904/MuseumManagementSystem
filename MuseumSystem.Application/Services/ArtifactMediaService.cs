@@ -52,17 +52,13 @@ namespace MuseumSystem.Application.Services
 
             ArtifactMediaType type = ArtifactMediaType.Image;
 
-            if (mediaRequest.File.ContentType == "model/gltf+json" || mediaRequest.File.ContentType == "model/gltf-binary")
-            {
-                type = ArtifactMediaType.Model3D;
-            }
-            else if (mediaRequest.File.ContentType.StartsWith("image/"))
+            if (mediaRequest.File.ContentType.StartsWith("image/"))
             {
                 type = ArtifactMediaType.Image;
             }
             else
             {
-                throw new InvalidFileTypeException("Unsupported media file type. Image: image/*, 3D Model: model/gltf+json, model/gltf-binary are supported.");
+                type = ArtifactMediaType.Model3D;
             }
 
             // Create ArtifactMedia entity
@@ -119,12 +115,12 @@ namespace MuseumSystem.Application.Services
                 if (string.IsNullOrEmpty(mediaUrl))
                 {
                     throw new FileSaveException("Meida url fail");
-                }              
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading media file for artifact {ArtifactId}", artifactId);
-                throw new FileSaveException("Failed to upload media file." , ex);
+                throw new FileSaveException("Failed to upload media file.", ex);
             }
             // Update caption if provided
             artifactMedia.FilePath = mediaUrl ?? artifactMedia.FilePath;
