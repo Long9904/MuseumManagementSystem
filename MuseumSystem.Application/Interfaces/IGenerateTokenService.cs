@@ -10,5 +10,7 @@ namespace MuseumSystem.Application.Interfaces
     public interface IGenerateTokenService
     {
         Task<string> GenerateToken(Account acc);
+
+        string GenerateVisitorToken(Visitor visitor);
     }
 }

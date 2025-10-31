@@ -19,7 +19,7 @@ namespace MuseumSystem.Api.Middleware
             IAccountRepository _accountRepository, 
             ILogger<MuseumContextMiddleware> _logger)
         {
-            if (context.User.IsInRole("SuperAdmin"))
+            if (context.User.IsInRole("SuperAdmin") || context.User.IsInRole("Visitor"))
             {
                 await _next(context);
                 return;

@@ -22,7 +22,6 @@ namespace MuseumSystem.Infrastructure
             services.AddScoped<IDisplayPositionRepository, DisplayPositionRepository>();
             services.AddScoped<IArtifactRepository, ArtifactRepository>();
             services.AddScoped<IInteractionService, InteractionService>();
-            services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<IExhibitionService, ExhibitionService>();
             services.AddScoped<IHistoricalContextService, HistoricalContextService>();
         }

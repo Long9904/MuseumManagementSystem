@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos.AuthDtos;
+using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
@@ -32,6 +33,31 @@ namespace MuseumSystem.Application.Services
             _generateTokenService = generateTokenService;
             _redisCacheService = redisCacheService;
             _currentUserService = currentUserService;
+        }
+
+        public async Task<UserProfileResponse> GetCurrentUserProfileAsync()
+        {
+            var currentUserId = _currentUserService.UserId;
+            var account = await _unit.GetRepository<Account>()
+                .FindAsync(x => x.Id == currentUserId, 
+                include: source => source
+                .Include(x => x.Museum)
+                .Include(x => x.Role))
+                ?? throw new NotFoundException("Current user not found.");
+            return new UserProfileResponse
+            {
+
+                Id = account.Id,
+                Email = account.Email,
+                FullName = account.FullName,
+                MuseumId = account.MuseumId,
+                MuseumName = account.Museum?.Name,
+                MuseumDescription = account.Museum?.Description,
+                MuseumLocation = account.Museum?.Location,
+                RoleId = account.RoleId,
+                RoleName = account.Role.Name
+            };
+
         }
 
         public async Task<AuthResponse> LoginAsync(AuthRequest request)

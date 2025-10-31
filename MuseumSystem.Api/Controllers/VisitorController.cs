@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Domain.Abstractions;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Threading.Tasks;
 
 namespace MuseumSystem.Api.Controllers
 {
-    
     [Route("api/v1/visitors")]
+    [SwaggerTag("Visitor api")]
     [ApiController]
-    [SwaggerTag("Visitor Manage - Quản lý khách tham quan bảo tàng")]
     public class VisitorController : ControllerBase
     {
         private readonly IVisitorService _visitorService;
@@ -21,69 +21,62 @@ namespace MuseumSystem.Api.Controllers
             _visitorService = visitorService;
         }
 
-        //[HttpGet]
-        //[SwaggerOperation(
-        //    Summary = "Get all visitors",
-        //    Description = "Retrieves a list of all visitors who have visited or interacted with the museum."
-        //)]
-        //[Authorize(Roles = "Admin,Staff")]
-        //public async Task<IActionResult> GetAllVisitors()
-        //{
-        //    var response = await _visitorService.GetAllAsync();
-        //    return StatusCode((int)response.Code, response);
-        //}
 
-        //[Authorize(Roles = "Admin,Staff")]
-        //[HttpGet("{id}")]
-        //[SwaggerOperation(
-        //    Summary = "Get visitor by ID",
-        //    Description = "Retrieves detailed information about a specific visitor identified by their ID."
-        //)]
-        //public async Task<IActionResult> GetVisitorById(string id)
-        //{
-        //    var response = await _visitorService.GetByIdAsync(id);
-        //    return StatusCode((int)response.Code, response);
-        //}
-
-        [HttpPost]
+        [HttpPost("login")]
         [SwaggerOperation(
-            Summary = "Create a new visitor",
-            Description = "Creates a new visitor record with basic information such as name, phone number, and email."
-        )]
-        public async Task<IActionResult> CreateVisitor([FromBody] VisitorRequest request)
+            Summary = "Visitor login",
+            Description = "Authenticate a visitor using their credentials and obtain an access token.")]
+        public async Task<IActionResult> LoginVisitorAsync([FromBody] VisitorRequest visitorRequest)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<string>.BadRequestResponse("Invalid data."));
-
-            var response = await _visitorService.CreateAsync(request);
-            return StatusCode((int)response.Code, response);
+            var result = await _visitorService.LoginVisitorAsync(visitorRequest);
+            return Ok(ApiResponse<VisitorLoginResponse>.OkResponse(result, "Login successfully", "200"));
         }
 
-        //[Authorize(Roles = "Admin,Staff")]
-        //[HttpPut("{id}")]
-        //[SwaggerOperation(
-        //    Summary = "Update visitor information",
-        //    Description = "Updates the information of an existing visitor identified by their ID."
-        //)]
-        //public async Task<IActionResult> UpdateVisitor(string id, [FromBody] VisitorUpdateRequest request)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ApiResponse<string>.BadRequestResponse("Invalid data."));
 
-        //    var response = await _visitorService.UpdateAsync(id, request);
-        //    return StatusCode((int)response.Code, response);
-        //}
+        [HttpPost("register")]
+        [SwaggerOperation(
+            Summary = "Register a new visitor",
+            Description = "Create a new visitor account with the provided information.")]
+        public async Task<IActionResult> RegisterVisitorAsync([FromBody] VisitorRequest visitorRequest)
+        {
+            var result = await _visitorService.RegisterVisitorAsync(visitorRequest);
+            return Ok(ApiResponse<VisitorResponse>.OkResponse(result, "Register successfully", "200"));
+        }
 
-        //[Authorize(Roles = "Admin,Staff")]
-        //[HttpDelete("{id}")]
-        //[SwaggerOperation(
-        //    Summary = "Delete a visitor",
-        //    Description = "Deletes a visitor record from the system using their unique ID."
-        //)]
-        //public async Task<IActionResult> DeleteVisitor(string id)
-        //{
-        //    var response = await _visitorService.DeleteAsync(id);
-        //    return StatusCode((int)response.Code, response);
-        //}
+
+        [HttpGet("me")]
+        [SwaggerOperation(
+            Summary = "Get my profile information",
+            Description = "Retrieve the profile information of the currently authenticated visitor.")]
+        public async Task<IActionResult> MyProfileAsync()
+        {
+            var result = await _visitorService.MyProfileAsync();
+            return Ok(ApiResponse<VisitorResponse>.OkResponse(result, "Take profile sucessfully", "200"));
+        }
+
+
+        [HttpPost("interactions")]
+        [SwaggerOperation(
+            Summary = "Post a visitor interaction - Visitor Access",
+            Description = "Submit an interaction (e.g., comment, rating) as the currently authenticated visitor.")]
+        [Authorize(Roles = "Visitor")]
+        public async Task<IActionResult> PostInteractionAsync([FromBody] InteractionRequest request)
+        {
+            var result = await _visitorService.PostInteractionAsync(request);
+            return Ok(ApiResponse<VisitorInteractionResponse>.OkResponse(result, "Interaction posted successfully", "200"));
+        }
+
+
+        [HttpGet("interactions")]
+        [SwaggerOperation(
+            Summary = "Get my interactions - Visitor Access",
+            Description = "Retrieve a paginated list of interactions made by the currently authenticated visitor.")]
+        [Authorize(Roles = "Visitor")]
+        public async Task<IActionResult> MyInteractionsAsync(
+            [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _visitorService.MyInteractionsAsync(pageIndex, pageSize);
+            return Ok(ApiResponse<BasePaginatedList<VisitorInteractionResponse>>.OkResponse(result, "Take interactions successfully", "200"));
+        }
     }
 }

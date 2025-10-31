@@ -40,11 +40,11 @@ namespace MuseumSystem.Application.Services
             {
                 Id = i.Id,
                 VisitorId = i.VisitorId,
+                VisitorName = i.Visitor.Username,
                 ArtifactId = i.ArtifactId,
                 Comment = i.Comment,
                 Rating = i.Rating,
                 CreatedAt = i.CreatedAt,
-                VisitorPhoneNumber = i.Visitor?.PhoneNumber,
                 ArtifactName = i.Artifact?.Name,
                 ArtifactCode = i.Artifact?.ArtifactCode
             }).ToList();
@@ -73,11 +73,11 @@ namespace MuseumSystem.Application.Services
             {
                 Id = interaction.Id,
                 VisitorId = interaction.VisitorId,
+                VisitorName = interaction.Visitor.Username,
                 ArtifactId = interaction.ArtifactId,
                 Comment = interaction.Comment,
                 Rating = interaction.Rating,
                 CreatedAt = interaction.CreatedAt,
-                VisitorPhoneNumber = interaction.Visitor?.PhoneNumber,
                 ArtifactName = interaction.Artifact?.Name,
                 ArtifactCode = interaction.Artifact?.ArtifactCode
             };
@@ -89,54 +89,7 @@ namespace MuseumSystem.Application.Services
             );
         }
 
-        // ✅ Tạo mới Interaction
-        public async Task<ApiResponse<InteractionResponse>> CreateAsync(InteractionRequest request)
-        {
-            try
-            {
-                var visitor = await _unitOfWork.GetRepository<Visitor>().GetByIdAsync(request.VisitorId);
-                if (visitor == null) throw new NotFoundException("Visitor is not exist");
-
-
-
-                var artifact = await _unitOfWork.GetRepository<Artifact>().GetByIdAsync(request.ArtifactId);
-                if (artifact == null) throw new NotFoundException("Artifact is not exist");
-
-
-                var interaction = _mapper.Map<Interaction>(request);
-                interaction.Visitor = visitor;
-                interaction.Artifact = artifact;
-
-                await _unitOfWork.GetRepository<Interaction>().InsertAsync(interaction);
-                await _unitOfWork.SaveChangeAsync();
-
-                var data = new InteractionResponse
-                {
-                    Id = interaction.Id,
-                    VisitorId = interaction.VisitorId,
-                    ArtifactId = interaction.ArtifactId,
-                    Comment = interaction.Comment,
-                    Rating = interaction.Rating,
-                    CreatedAt = interaction.CreatedAt,
-                    VisitorPhoneNumber = visitor?.PhoneNumber,
-                    ArtifactName = artifact?.Name,
-                    ArtifactCode = artifact?.ArtifactCode
-                };
-
-                return new ApiResponse<InteractionResponse>(
-                    StatusCodeHelper.Created,
-                    StatusCodeHelper.Created.Names(),
-                    data,
-                    "Interaction created successfully"
-                );
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse<InteractionResponse>.InternalErrorResponse(
-                    $"Không thể tạo Interaction: {ex.InnerException?.Message ?? ex.Message}"
-                );
-            }
-        }
+ 
 
         // ✅ Cập nhật Interaction
         public async Task<ApiResponse<InteractionResponse>> UpdateAsync(string id, InteractionUpdateRequest request)
@@ -167,7 +120,6 @@ namespace MuseumSystem.Application.Services
                 Comment = interaction.Comment,
                 Rating = interaction.Rating,
                 CreatedAt = interaction.CreatedAt,
-                VisitorPhoneNumber = interaction.Visitor?.PhoneNumber,
                 ArtifactName = interaction.Artifact?.Name,
                 ArtifactCode = interaction.Artifact?.ArtifactCode
             };

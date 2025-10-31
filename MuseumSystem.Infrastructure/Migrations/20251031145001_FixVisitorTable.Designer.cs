@@ -12,8 +12,8 @@ using MuseumSystem.Infrastructure.DatabaseSetting;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251030140121_AddAccountTable")]
-    partial class AddAccountTable
+    [Migration("20251031145001_FixVisitorTable")]
+    partial class FixVisitorTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,9 +115,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ExhibitionId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<double?>("Height")
                         .HasColumnType("float");
 
@@ -152,8 +149,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExhibitionId");
 
                     b.HasIndex("MuseumId");
 
@@ -436,12 +431,17 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -480,10 +480,6 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
                 {
-                    b.HasOne("MuseumSystem.Domain.Entities.Exhibition", null)
-                        .WithMany("Artifacts")
-                        .HasForeignKey("ExhibitionId");
-
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
                         .WithMany("Artifacts")
                         .HasForeignKey("MuseumId")
@@ -605,8 +601,6 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Exhibition", b =>
                 {
-                    b.Navigation("Artifacts");
-
                     b.Navigation("ExhibitionHistoricalContexts");
                 });
 
