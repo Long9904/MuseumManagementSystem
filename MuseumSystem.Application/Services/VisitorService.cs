@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
+using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
 using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
@@ -166,5 +168,129 @@ namespace MuseumSystem.Application.Services
             };
         }
 
+        public async Task<BasePaginatedList<MuseumResponseV1>> GetMuseumsAsync(int pageIndex, int pageSize, string? museumName = null)
+        {
+            var query = _unitOfWork.GetRepository<Museum>().Entity
+                .OrderBy(m => m.Name)
+                .Where(m => m.Status == EnumStatus.Active);
+
+            if (!string.IsNullOrEmpty(museumName))
+            {
+                query = query.Where(m => m.Name.ToLower().Contains(museumName));
+            }
+
+            BasePaginatedList<Museum> basePaginatedList =
+            await _unitOfWork.GetRepository<Museum>().GetPagging(query, pageIndex, pageSize);
+
+            var result = _mapper.Map<BasePaginatedList<Museum>, BasePaginatedList<MuseumResponseV1>>(basePaginatedList);
+            return result;
+        }
+
+        public async Task<MuseumResponseV1> GetMuseumByIdAsync(string museumId)
+        {
+            var museum = await _unitOfWork.GetRepository<Museum>()
+                .FindAsync(m => m.Id == museumId && m.Status == EnumStatus.Active);
+
+            if (museum == null)
+            {
+                throw new NotFoundException("Museum not found.");
+            }
+            var result = _mapper.Map<Museum, MuseumResponseV1>(museum);
+            return result;
+        }
+
+        public async Task<BasePaginatedList<ArtifactDetailsResponse>> GetAllArtifactsByMuseumAsync(
+            string museumId,
+            int pageIndex,
+            int pageSize,
+            string? artifactName = null,
+            string? periodTime = null,
+            string? areaName = null,
+            string? displayPositionName = null)
+        {
+            // 1. Verify museum exists
+            var museum = await _unitOfWork.GetRepository<Museum>()
+                .FindAsync(m => m.Id == museumId && m.Status == EnumStatus.Active)
+                ?? throw new NotFoundException("Museum not found.");
+
+            // 2. Build query for artifacts
+            var query = _unitOfWork.GetRepository<Artifact>().Entity
+                .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area)
+                .Include(a => a.ArtifactMedias)
+                .Include(a => a.Museum)
+                .Where(a => a.MuseumId == museumId
+                && (a.Status == ArtifactStatus.OnDisplay || a.Status == ArtifactStatus.InStorage));
+
+            if (!string.IsNullOrEmpty(artifactName))
+            {
+                query = query.Where(a => a.Name.ToLower().Contains(artifactName));
+            }
+
+            if (!string.IsNullOrEmpty(periodTime))
+            {
+                query = query.Where(a => a.PeriodTime != null && a.PeriodTime.ToLower().Contains(periodTime));
+            }
+
+            if (!string.IsNullOrEmpty(areaName))
+            {
+                query = query.Where(a => a.DisplayPosition != null
+                    && a.DisplayPosition.Area != null
+                    && a.DisplayPosition.Area.Name.ToLower().Contains(areaName));
+            }
+
+            if (!string.IsNullOrEmpty(displayPositionName))
+            {
+                query = query.Where(a => a.DisplayPosition != null
+                    && a.DisplayPosition.DisplayPositionName.ToLower().Contains(displayPositionName));
+            }
+
+            query = query.OrderBy(a => a.Name);
+
+            // 3. Get paginated list
+            BasePaginatedList<Artifact> paginatedArtifacts =
+                await _unitOfWork.GetRepository<Artifact>().GetPagging(query, pageIndex, pageSize);
+
+            // 5. Map to response
+
+            var result = _mapper.Map<BasePaginatedList<Artifact>, BasePaginatedList<ArtifactDetailsResponse>>(paginatedArtifacts);
+            return result;
+        }
+
+        public async Task<ArtifactDetailsResponse> GetArtifactByIdAsync(string artifactId)
+        {
+            Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(
+                a => a.Id == artifactId 
+                && (a.Status == ArtifactStatus.OnDisplay || a.Status == ArtifactStatus.InStorage),
+                include: source => source
+                    .Include(a => a.Museum)
+                    .Include(a => a.ArtifactMedias)
+                    .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area))
+                ?? throw new NotFoundException($"Artifact with ID '{artifactId}' not found.");
+
+            // Take list of medias and sort by MediaType and CreatedAt
+            artifact.ArtifactMedias = artifact.ArtifactMedias
+                .OrderBy(am => am.MediaType)
+                .ThenByDescending(am => am.CreatedAt)
+                .ToList();
+
+            // Map to Media response
+
+            var mediaResponses = artifact.ArtifactMedias
+                .Select(m => new MediaResponse
+                {
+                    Id = m.Id,
+                    MediaType = m.MediaType,
+                    FilePath = m.FilePath,
+                    FileFormat = m.FileFormat,
+                    Caption = m.Caption,
+                    Status = m.Status,
+                })
+                .OrderBy(m => m.MediaType)
+                .ThenByDescending(m => m.CreatedAt).ToList();
+
+            var artifactDetailsResponse = _mapper.Map<ArtifactDetailsResponse>(artifact);
+            artifactDetailsResponse.MediaItems = mediaResponses;
+            return artifactDetailsResponse;
+        }
     }
 }
