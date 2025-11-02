@@ -1,6 +1,7 @@
-﻿using MuseumSystem.Domain.Enums;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Application.Dtos.ExhibitionDtos
 {
@@ -14,12 +15,10 @@ namespace MuseumSystem.Application.Dtos.ExhibitionDtos
         [Range(0, 10)]
         public int Priority { get; set; } = 0;
 
-        public ExhibitionStatus Status { get; set; } = ExhibitionStatus.Daily;
-
-        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        [Required]
-        public string MuseumId { get; set; } = string.Empty;
+        // ✅ Danh sách các HistoricalContext được gán vào Exhibition
+        public List<string>? HistoricalContextIds { get; set; } = new();
     }
 }

@@ -20,8 +20,7 @@ namespace MuseumSystem.Domain.Abstractions
         Task<IList<T>> FilterByAsync(Expression<Func<T, bool>> predicate);
         Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
         IQueryable<T> GetQueryable();
-
-
+        Task DeleteRangeAsync(IEnumerable<T> entities);
 
     }
 }
