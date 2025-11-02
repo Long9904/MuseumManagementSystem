@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuseumSystem.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,7 +12,7 @@ namespace MuseumSystem.Domain.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [MaxLength(255)]
         public string? Period { get; set; }
@@ -19,9 +20,8 @@ namespace MuseumSystem.Domain.Entities
         [MaxLength(2000)]
         public string? Description { get; set; }
 
-        [MaxLength(50)]
-        public string? Status { get; set; }
-
+        [Required]
+        public HistoricalStatus Status { get; set; } = HistoricalStatus.Active;
         // Navigation
         public ICollection<ArtifactHistoricalContext>? ArtifactHistoricalContexts { get; set; }
         public ICollection<ExhibitionHistoricalContext>? ExhibitionHistoricalContexts { get; set; }

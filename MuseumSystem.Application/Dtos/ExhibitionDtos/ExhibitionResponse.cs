@@ -1,6 +1,7 @@
-﻿using MuseumSystem.Domain.Entities;
+﻿using System.Linq;
+using System.Collections.Generic;
+using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
-using System;
 
 namespace MuseumSystem.Application.Dtos.ExhibitionDtos
 {
@@ -13,7 +14,8 @@ namespace MuseumSystem.Application.Dtos.ExhibitionDtos
         public ExhibitionStatus Status { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string MuseumId { get; set; }
+
+        public List<object> HistoricalContexts { get; set; } = new();
 
         public ExhibitionResponse(Exhibition ex)
         {
@@ -24,7 +26,15 @@ namespace MuseumSystem.Application.Dtos.ExhibitionDtos
             Status = ex.Status;
             StartDate = ex.StartDate;
             EndDate = ex.EndDate;
-            MuseumId = ex.MuseumId;
+
+            if (ex.HistoricalContexts != null)
+            {
+                HistoricalContexts = ex.HistoricalContexts.Select(h => new
+                {
+                    historicalContextId = h.HistoricalContextId,
+                    title = h.Title
+                }).ToList<object>();
+            }
         }
     }
 }
