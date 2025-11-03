@@ -82,11 +82,11 @@ namespace MuseumSystem.Application.Services
                 {
                     query = query.Where(x => x.Description.Contains(dtos.Description));
                 }
-                if (dtos.Status != null)
+                if (dtos.Status != 0)
                 {
                     query = query.Where(x => x.Status == dtos.Status);
                 }
-                if (dtos.Orderby != null)
+                if (dtos.Orderby != 0)
                 {
                     if (dtos.Orderby == EnumOrderBy.Asc)
                     {
