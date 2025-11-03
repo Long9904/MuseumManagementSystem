@@ -108,18 +108,18 @@ namespace MuseumSystem.Application.Services
                 }
 
                 // Gán exhibitions (nếu có)
-                if (request.ExhibitionIds?.Any() == true)
-                {
-                    var exhibitionRepo = _unitOfWork.GetRepository<ExhibitionHistoricalContext>();
-                    foreach (var id in request.ExhibitionIds)
-                    {
-                        await exhibitionRepo.InsertAsync(new ExhibitionHistoricalContext
-                        {
-                            ExhibitionId = id,
-                            HistoricalContextId = newContext.HistoricalContextId
-                        });
-                    }
-                }
+                //if (request.ExhibitionIds?.Any() == true)
+                //{
+                //    var exhibitionRepo = _unitOfWork.GetRepository<ExhibitionHistoricalContext>();
+                //    foreach (var id in request.ExhibitionIds)
+                //    {
+                //        await exhibitionRepo.InsertAsync(new ExhibitionHistoricalContext
+                //        {
+                //            ExhibitionId = id,
+                //            HistoricalContextId = newContext.HistoricalContextId
+                //        });
+                //    }
+                //}
 
                 await _unitOfWork.SaveChangeAsync();
 
