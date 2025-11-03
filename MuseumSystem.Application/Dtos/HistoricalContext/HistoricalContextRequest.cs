@@ -9,6 +9,6 @@ namespace MuseumSystem.Application.Dtos.HistoricalContexts
         public string? Description { get; set; }
         // Liên kết nhiều - nhiều
         public List<string>? ArtifactIds { get; set; } = new();
-        public List<string>? ExhibitionIds { get; set; } = new();
+        //public List<string>? ExhibitionIds { get; set; } = new();
     }
 }
