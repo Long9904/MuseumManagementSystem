@@ -16,6 +16,7 @@ namespace MuseumSystem.Application.Dtos.HistoricalContexts
         public HistoricalContextResponse(HistoricalContext entity)
         {
             HistoricalContextId = entity.HistoricalContextId;
+
             Title = entity.Title;
             Period = entity.Period;
             Description = entity.Description;

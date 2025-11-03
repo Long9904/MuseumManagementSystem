@@ -32,25 +32,25 @@ namespace MuseumSystem.Application.Services
         {
             var repo = _unitOfWork.GetRepository<Exhibition>();
 
-            // 👉 Đổi sang var để tránh lỗi ép kiểu
             var query = repo.Entity
                 .Include(e => e.ExhibitionHistoricalContexts)
                     .ThenInclude(eh => eh.HistoricalContext)
                 .AsQueryable();
 
-            // 🔍 Nếu có truyền statusFilter thì chỉ lấy đúng status đó
+            // 🔍 Lọc theo trạng thái
             if (statusFilter.HasValue)
             {
                 query = query.Where(e => e.Status == statusFilter.Value);
             }
             else
             {
-                // Mặc định loại bỏ Deleted
                 query = query.Where(e => e.Status != ExhibitionStatus.Deleted);
             }
 
-            // 👉 Sắp xếp sau khi lọc, không trước
-            query = query.OrderByDescending(e => e.CreatedAt);
+            // 🔽 Sắp xếp theo Priority (0 là cao nhất), sau đó theo CreatedAt mới nhất
+            query = query
+                .OrderBy(e => e.Priority)
+                .ThenByDescending(e => e.CreatedAt);
 
             var totalCount = await query.CountAsync();
             var exhibitions = await query
@@ -67,6 +67,7 @@ namespace MuseumSystem.Application.Services
                 "200"
             );
         }
+
 
 
 
