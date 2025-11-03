@@ -52,10 +52,10 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidOperationException($"An account with email {account.Email} already exists.");
             }
-            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId);
+            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId && x.Status != EnumStatus.Inactive);
             if (role == null)
             {
-                throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+                throw new KeyNotFoundException($"Role not found.");
             }
 
             if (role.Name.Equals("SuperAdmin"))
@@ -119,7 +119,7 @@ namespace MuseumSystem.Application.Services
                 include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
-                _logger.LogWarning("Account with ID {AccountId} not found.", id);
+                _logger.LogWarning("Account not found.");
                 throw new KeyNotFoundException($"Account with ID {id} not found.");
             }
             return _mapping.Map<AccountRespone>(account);
