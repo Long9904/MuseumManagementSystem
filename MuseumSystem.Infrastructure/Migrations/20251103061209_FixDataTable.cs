@@ -6,26 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MuseumSystem.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class FixVisitorTable : Migration
+    public partial class FixDataTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "HistoricalContexts",
-                columns: table => new
-                {
-                    HistoricalContextId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Period = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HistoricalContexts", x => x.HistoricalContextId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Museums",
                 columns: table => new
@@ -64,7 +49,7 @@ namespace MuseumSystem.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -90,36 +75,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                     table.PrimaryKey("PK_Areas", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Areas_Museums_MuseumId",
-                        column: x => x.MuseumId,
-                        principalTable: "Museums",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Artifacts",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ArtifactCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PeriodTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsOriginal = table.Column<bool>(type: "bit", nullable: false),
-                    Weight = table.Column<double>(type: "float", nullable: true),
-                    Height = table.Column<double>(type: "float", nullable: true),
-                    Width = table.Column<double>(type: "float", nullable: true),
-                    Length = table.Column<double>(type: "float", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MuseumId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Artifacts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Artifacts_Museums_MuseumId",
                         column: x => x.MuseumId,
                         principalTable: "Museums",
                         principalColumn: "Id",
@@ -183,27 +138,60 @@ namespace MuseumSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArtifactHistoricalContexts",
+                name: "Artifacts",
                 columns: table => new
                 {
-                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    HistoricalContextId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ArtifactCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PeriodTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsOriginal = table.Column<bool>(type: "bit", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: true),
+                    Height = table.Column<double>(type: "float", nullable: true),
+                    Width = table.Column<double>(type: "float", nullable: true),
+                    Length = table.Column<double>(type: "float", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MuseumId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ExhibitionId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArtifactHistoricalContexts", x => new { x.ArtifactId, x.HistoricalContextId });
+                    table.PrimaryKey("PK_Artifacts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ArtifactHistoricalContexts_Artifacts_ArtifactId",
-                        column: x => x.ArtifactId,
-                        principalTable: "Artifacts",
+                        name: "FK_Artifacts_Exhibitions_ExhibitionId",
+                        column: x => x.ExhibitionId,
+                        principalTable: "Exhibitions",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Artifacts_Museums_MuseumId",
+                        column: x => x.MuseumId,
+                        principalTable: "Museums",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HistoricalContexts",
+                columns: table => new
+                {
+                    HistoricalContextId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Period = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ExhibitionId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HistoricalContexts", x => x.HistoricalContextId);
                     table.ForeignKey(
-                        name: "FK_ArtifactHistoricalContexts_HistoricalContexts_HistoricalContextId",
-                        column: x => x.HistoricalContextId,
-                        principalTable: "HistoricalContexts",
-                        principalColumn: "HistoricalContextId",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_HistoricalContexts_Exhibitions_ExhibitionId",
+                        column: x => x.ExhibitionId,
+                        principalTable: "Exhibitions",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -292,6 +280,30 @@ namespace MuseumSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ArtifactHistoricalContexts",
+                columns: table => new
+                {
+                    ArtifactId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HistoricalContextId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArtifactHistoricalContexts", x => new { x.ArtifactId, x.HistoricalContextId });
+                    table.ForeignKey(
+                        name: "FK_ArtifactHistoricalContexts_Artifacts_ArtifactId",
+                        column: x => x.ArtifactId,
+                        principalTable: "Artifacts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ArtifactHistoricalContexts_HistoricalContexts_HistoricalContextId",
+                        column: x => x.HistoricalContextId,
+                        principalTable: "HistoricalContexts",
+                        principalColumn: "HistoricalContextId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ExhibitionHistoricalContexts",
                 columns: table => new
                 {
@@ -341,6 +353,11 @@ namespace MuseumSystem.Infrastructure.Migrations
                 column: "ArtifactId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Artifacts_ExhibitionId",
+                table: "Artifacts",
+                column: "ExhibitionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Artifacts_MuseumId",
                 table: "Artifacts",
                 column: "MuseumId");
@@ -366,6 +383,11 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "IX_Exhibitions_MuseumId",
                 table: "Exhibitions",
                 column: "MuseumId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HistoricalContexts_ExhibitionId",
+                table: "HistoricalContexts",
+                column: "ExhibitionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Interactions_ArtifactId",
@@ -406,9 +428,6 @@ namespace MuseumSystem.Infrastructure.Migrations
                 name: "Areas");
 
             migrationBuilder.DropTable(
-                name: "Exhibitions");
-
-            migrationBuilder.DropTable(
                 name: "HistoricalContexts");
 
             migrationBuilder.DropTable(
@@ -416,6 +435,9 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Visitors");
+
+            migrationBuilder.DropTable(
+                name: "Exhibitions");
 
             migrationBuilder.DropTable(
                 name: "Museums");

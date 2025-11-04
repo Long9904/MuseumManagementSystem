@@ -28,7 +28,7 @@ namespace MuseumSystem.Application.Services
             _logger = logger;
             _mapping = mapping;
         }
-        public async Task<AccountRespone> CreateAccountAsync(string roleId, string museumId, AccountRequest account)
+        public async Task<AccountRespone> CreateAccountAsync(string roleId, AccountRequest account)
         {
             if (account == null)
             {
@@ -52,21 +52,15 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidOperationException($"An account with email {account.Email} already exists.");
             }
-            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId);
+            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Id == roleId && x.Status != EnumStatus.Inactive);
             if (role == null)
             {
-                throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+                throw new KeyNotFoundException($"Role not found.");
             }
 
             if (role.Name.Equals("SuperAdmin"))
             {
                 throw new InvalidAccessException("You can not create account with SuperAdmin role");
-            }
-
-            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId);
-            if (museum == null)
-            {
-                throw new KeyNotFoundException($"Museum with ID {museumId} not found.");
             }
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
             var newAccount = new Account
@@ -74,11 +68,14 @@ namespace MuseumSystem.Application.Services
                 Email = account.Email,
                 Password = hashedPassword,
                 FullName = account.FullName,
-                Status = EnumStatus.Active,
+                Status = EnumStatus.Pending,
                 CreateAt = DateTime.UtcNow,
                 RoleId = role.Id,
-                MuseumId = museum.Id
             };
+            if (role.Name == "SuperAdmin")
+            {
+                newAccount.Status = EnumStatus.Active;
+            }
             await _unit.GetRepository<Account>().InsertAsync(newAccount);
             await _unit.SaveChangeAsync();
             _logger.LogInformation("Account with email {AccountEmail} created successfully.", account.Email);
@@ -119,7 +116,7 @@ namespace MuseumSystem.Application.Services
                 include: x => x.Include(x => x.Role).Include(x => x.Museum));
             if (account == null)
             {
-                _logger.LogWarning("Account with ID {AccountId} not found.", id);
+                _logger.LogWarning("Account not found.");
                 throw new KeyNotFoundException($"Account with ID {id} not found.");
             }
             return _mapping.Map<AccountRespone>(account);
@@ -151,7 +148,7 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentException("Email cannot be null or empty.", nameof(account.Email));
             }
             var accountExisting = await _unit.GetRepository<Account>().FindAsync(x => x.Email == account.Email && x.Id != accountId);
-           
+
             if (string.IsNullOrWhiteSpace(account.Password))
             {
                 _logger.LogError("Password cannot be null or empty.");
@@ -196,6 +193,46 @@ namespace MuseumSystem.Application.Services
 
         }
 
+        public async Task<AccountRespone> AssignAccountToMuseumAsync(string accountId, string museumId)
+        {
+            if (accountId == null)
+            {
+                throw new ArgumentNullException(nameof(accountId), "Account ID cannot be null.");
+            }
+            var account = await _unit.GetRepository<Account>().FindAsync(
+                x => x.Id == accountId && x.Status == EnumStatus.Pending,
+                include: x => x.Include(x => x.Role));
+            if (account == null)
+            {
+                throw new KeyNotFoundException($"Pending account not found.");
+            }
 
+            if (museumId == null)
+            {
+                throw new ArgumentNullException(nameof(museumId), "Museum ID cannot be null.");
+            }
+            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId && x.Status == EnumStatus.Pending);
+            if (museum == null)
+            {
+                throw new KeyNotFoundException($"Pending museum not found.");
+            }
+
+            var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.MuseumId == museumId && x.Status == EnumStatus.Active);
+            if (existingAccount != null)
+            {
+                throw new InvalidOperationException($"This museum is already assigned to another account.");
+            }
+
+            account.MuseumId = museum.Id;
+            account.Status = EnumStatus.Active;
+            museum.Status = EnumStatus.Active;
+
+            await _unit.GetRepository<Account>().UpdateAsync(account);
+            await _unit.GetRepository<Museum>().UpdateAsync(museum);
+            await _unit.SaveChangeAsync();
+
+            _logger.LogInformation("Account with ID {AccountId} assigned to museum with ID {MuseumId} successfully.", accountId, museumId);
+            return _mapping.Map<AccountRespone>(account);
+        }
     }
 }

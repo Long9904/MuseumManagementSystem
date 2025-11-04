@@ -8,24 +8,42 @@ using System.Threading.Tasks;
 
 namespace MuseumSystem.Domain.Enums
 {
-    public enum EnumStatus  
+    public enum EnumStatus
     {
+        
         [Display(Name = "Active")]
         Active,
         [Display(Name = "Inactive")]
-        Inactive
+        Inactive,
+        [Display(Name = "Pending")]
+        Pending,
     }
     public enum ExhibitionStatus
     {
+        [Display(Name = "Upcoming")]
+        Upcoming = 0,
+
         [Display(Name = "Active")]
-        Active = 0,   
+        Active = 1,
 
         [Display(Name = "Expired")]
-        Expired = 1, 
+        Expired = 2,
 
         [Display(Name = "Daily")]
-        Daily = 2    
+        Daily = 3,
+
+        [Display(Name = "Deleted")]
+        Deleted = 4
     }
+    public enum HistoricalStatus
+    {
+        [Display(Name = "Active")]
+        Active = 0,
+
+        [Display(Name = "Deleted")]
+        Deleted = 1
+    }
+
     public enum EnumOrderBy
     {
         [Display(Name = "Ascending")]

@@ -112,6 +112,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExhibitionId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double?>("Height")
                         .HasColumnType("float");
 
@@ -146,6 +149,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExhibitionId");
 
                     b.HasIndex("MuseumId");
 
@@ -320,13 +325,15 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<string>("ExhibitionId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Period")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Status")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -334,6 +341,8 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("HistoricalContextId");
+
+                    b.HasIndex("ExhibitionId");
 
                     b.ToTable("HistoricalContexts");
                 });
@@ -432,8 +441,9 @@ namespace MuseumSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -477,6 +487,10 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Artifact", b =>
                 {
+                    b.HasOne("MuseumSystem.Domain.Entities.Exhibition", null)
+                        .WithMany("Artifacts")
+                        .HasForeignKey("ExhibitionId");
+
                     b.HasOne("MuseumSystem.Domain.Entities.Museum", "Museum")
                         .WithMany("Artifacts")
                         .HasForeignKey("MuseumId")
@@ -563,6 +577,13 @@ namespace MuseumSystem.Infrastructure.Migrations
                     b.Navigation("HistoricalContext");
                 });
 
+            modelBuilder.Entity("MuseumSystem.Domain.Entities.HistoricalContext", b =>
+                {
+                    b.HasOne("MuseumSystem.Domain.Entities.Exhibition", null)
+                        .WithMany("HistoricalContexts")
+                        .HasForeignKey("ExhibitionId");
+                });
+
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Interaction", b =>
                 {
                     b.HasOne("MuseumSystem.Domain.Entities.Artifact", "Artifact")
@@ -598,7 +619,11 @@ namespace MuseumSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.Exhibition", b =>
                 {
+                    b.Navigation("Artifacts");
+
                     b.Navigation("ExhibitionHistoricalContexts");
+
+                    b.Navigation("HistoricalContexts");
                 });
 
             modelBuilder.Entity("MuseumSystem.Domain.Entities.HistoricalContext", b =>

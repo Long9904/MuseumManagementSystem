@@ -81,5 +81,21 @@ namespace MuseumSystem.API.Controllers
             var response = await _exhibitionService.DeleteAsync(id);
             return StatusCode((int)response.Code, response);
         }
+        [HttpPost("{id}/assign-historical")]
+        [SwaggerOperation(Summary = "Assign historical contexts", Description = "Assigns a list of historical contexts to the exhibition.")]
+        public async Task<IActionResult> AssignHistoricalContexts(string id, [FromBody] ExhibitionHistoricalAssignRequest request)
+        {
+            var response = await _exhibitionService.AssignHistoricalContextsAsync(id, request);
+            return StatusCode((int)response.Code, response);
+        }
+
+        [HttpPost("{id}/remove-historical")]
+        [SwaggerOperation(Summary = "Remove historical contexts", Description = "Removes a list of historical contexts from the exhibition.")]
+        public async Task<IActionResult> RemoveHistoricalContexts(string id, [FromBody] ExhibitionHistoricalAssignRequest request)
+        {
+            var response = await _exhibitionService.RemoveHistoricalContextsAsync(id, request);
+            return StatusCode((int)response.Code, response);
+        }
+
     }
 }

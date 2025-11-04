@@ -100,6 +100,12 @@ namespace MuseumSystem.Infrastructure.Implementation
         {
             return _dbSet.AsQueryable();
         }
+        public async Task DeleteRangeAsync(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+            await Task.CompletedTask; // Giữ async signature
+        }
+
 
     }
 }

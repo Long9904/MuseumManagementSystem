@@ -117,7 +117,7 @@ namespace MuseumSystem.Application.Services
             };
         }
 
-        public async Task<BasePaginatedList<VisitorInteractionResponse>> MyInteractionsAsync(
+        public async Task<BasePaginatedList<MyInteractionResponse>> MyInteractionsAsync(
             int pageIndex, int pageSize)
         {
             var visitorId = _currentUserService.UserId;
@@ -131,12 +131,34 @@ namespace MuseumSystem.Application.Services
             BasePaginatedList<Interaction> paginatedInteractions = await _unitOfWork.GetRepository<Interaction>().GetPagging(query, pageIndex, pageSize);
 
             // Map to response
-            var result = _mapper.Map<BasePaginatedList<Interaction>, BasePaginatedList<VisitorInteractionResponse>>(paginatedInteractions);
+            var result = _mapper.Map<BasePaginatedList<Interaction>, BasePaginatedList<MyInteractionResponse>>(paginatedInteractions);
             return result;
         }
 
+        public async Task<BasePaginatedList<VisitorInteractionResponse>> GetAllInteractionsByArtifactAsync(
+            string artifactId,
+            int pageIndex,
+            int pageSize)
+        {
+            var artifact = await _unitOfWork.GetRepository<Artifact>()
+                .FindAsync(a => a.Id == artifactId
+                && (a.Status == ArtifactStatus.OnDisplay || a.Status == ArtifactStatus.InStorage))
+                ?? throw new NotFoundException("Artifact not found.");
 
-        public async Task<VisitorInteractionResponse> PostInteractionAsync(InteractionRequest request)
+            var query = _unitOfWork.GetRepository<Interaction>().Entity
+                .Where(i => i.ArtifactId == artifactId)
+                .Include(i => i.Visitor)
+                .OrderByDescending(i => i.CreatedAt);
+
+            BasePaginatedList<Interaction> paginatedInteractions =
+                await _unitOfWork.GetRepository<Interaction>().GetPagging(query, pageIndex, pageSize);
+
+            var result = _mapper.Map<BasePaginatedList<Interaction>, BasePaginatedList<VisitorInteractionResponse>>(paginatedInteractions);
+
+            return result;
+        }
+
+        public async Task<MyInteractionResponse> PostInteractionAsync(InteractionRequest request)
         {
             var visitorId = _currentUserService.UserId;
             var visitor = await _unitOfWork.GetRepository<Visitor>().FindAsync(v => v.Id == visitorId);
@@ -158,7 +180,7 @@ namespace MuseumSystem.Application.Services
             await _unitOfWork.SaveChangeAsync();
             _logger.LogInformation("Visitor {VisitorId} posted a new interaction on Artifact {ArtifactId}.", visitor.Id, request.ArtifactId);
 
-            return new VisitorInteractionResponse
+            return new MyInteractionResponse
             {
                 InteractionId = interaction.Id,
                 ArtifactId = interaction.ArtifactId,
@@ -167,6 +189,7 @@ namespace MuseumSystem.Application.Services
                 CreatedAt = interaction.CreatedAt
             };
         }
+
 
         public async Task<BasePaginatedList<MuseumResponseV1>> GetMuseumsAsync(int pageIndex, int pageSize, string? museumName = null)
         {

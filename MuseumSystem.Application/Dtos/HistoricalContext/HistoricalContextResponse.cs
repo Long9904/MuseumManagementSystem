@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Domain.Entities;
 
 namespace MuseumSystem.Application.Dtos.HistoricalContexts
@@ -13,26 +11,25 @@ namespace MuseumSystem.Application.Dtos.HistoricalContexts
         public string? Description { get; set; }
         public string? Status { get; set; }
 
-        // Danh sách Artifact và Exhibition liên quan
-        public List<string>? ArtifactIds { get; set; }
-        public List<string>? ExhibitionIds { get; set; }
+        public List<ArtifactResponse> Artifacts { get; set; }
 
         public HistoricalContextResponse(HistoricalContext entity)
         {
             HistoricalContextId = entity.HistoricalContextId;
+
             Title = entity.Title;
             Period = entity.Period;
             Description = entity.Description;
-            Status = entity.Status;
+            Status = entity.Status.ToString();
 
-            // Mapping quan hệ
-            ArtifactIds = entity.ArtifactHistoricalContexts?
-                .Select(a => a.ArtifactId)
-                .ToList();
-
-            ExhibitionIds = entity.ExhibitionHistoricalContexts?
-                .Select(e => e.ExhibitionId)
-                .ToList();
+            Artifacts = entity.ArtifactHistoricalContexts?
+                .Where(ah => ah.Artifact != null)
+                .Select(ah => new ArtifactResponse
+                {
+                    Id = ah.Artifact.Id,
+                    Name = ah.Artifact.Name
+                })
+                .ToList() ?? new List<ArtifactResponse>();
         }
     }
 }
