@@ -34,9 +34,13 @@ namespace MuseumSystem.Application.Dtos.ArtifactDtos
 
         public string? DisplayPositionName { get; set; }
 
+        public string? DisplayPositionDescription { get; set; }
+
         public string? AreaId { get; set; }
 
         public string? AreaName { get; set; }
+
+        public string? AreaDescription { get; set; }
 
         public IEnumerable<MediaResponse>? MediaItems { get; set; }
 

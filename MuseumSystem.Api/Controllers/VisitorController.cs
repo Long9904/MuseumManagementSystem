@@ -66,7 +66,7 @@ namespace MuseumSystem.Api.Controllers
         public async Task<IActionResult> PostInteractionAsync([FromBody] InteractionRequest request)
         {
             var result = await _visitorService.PostInteractionAsync(request);
-            return Ok(ApiResponse<VisitorInteractionResponse>.OkResponse(result, "Interaction posted successfully", "200"));
+            return Ok(ApiResponse<MyInteractionResponse>.OkResponse(result, "Interaction posted successfully", "200"));
         }
 
 
@@ -79,6 +79,20 @@ namespace MuseumSystem.Api.Controllers
             [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _visitorService.MyInteractionsAsync(pageIndex, pageSize);
+            return Ok(ApiResponse<BasePaginatedList<MyInteractionResponse>>.OkResponse(result, "Take interactions successfully", "200"));
+        }
+
+        [HttpGet("artifacts/{artifactId}/interactions")]
+        [SwaggerOperation(
+            Summary = "Get all interactions for an artifact - Visitor Access",
+            Description = "Retrieve a paginated list of all interactions associated with a specific artifact.")]
+
+        public async Task<IActionResult> GetAllInteractionsByArtifactAsync(
+            [FromRoute] string artifactId,
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _visitorService.GetAllInteractionsByArtifactAsync(artifactId, pageIndex, pageSize);
             return Ok(ApiResponse<BasePaginatedList<VisitorInteractionResponse>>.OkResponse(result, "Take interactions successfully", "200"));
         }
 

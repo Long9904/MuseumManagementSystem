@@ -41,6 +41,10 @@ namespace MuseumSystem.Application.Dtos
             CreateMap<Artifact, ArtifactResponse>()
                 .ForMember(dest => dest.DisplayPositionName,
                            opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.DisplayPositionName : null))
+                .ForMember(dest => dest.DisplayPositionDescription,
+                            opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.Description : null))
+                .ForMember(destinationMember => destinationMember.AreaDescription,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Description : null))
                 .ForMember(dest => dest.AreaName,
                            opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
                 .ForMember(dest => dest.AreaId,
@@ -49,6 +53,10 @@ namespace MuseumSystem.Application.Dtos
             CreateMap<Artifact, ArtifactDetailsResponse>()
                 .ForMember(dest => dest.DisplayPositionName,
                            opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.DisplayPositionName : null))
+                .ForMember(dest => dest.DisplayPositionDescription,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null ? src.DisplayPosition.Description : null)) 
+                .ForMember(destinationMember => destinationMember.AreaDescription,
+                           opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Description : null))
                 .ForMember(dest => dest.AreaName,
                            opt => opt.MapFrom(src => src.DisplayPosition != null && src.DisplayPosition.Area != null ? src.DisplayPosition.Area.Name : null))
                 .ForMember(dest => dest.AreaId,
@@ -66,11 +74,17 @@ namespace MuseumSystem.Application.Dtos
             CreateMap<HistoricalContextUpdateRequest, HistoricalContext>().ReverseMap();
 
             // Interaction
-            CreateMap<Interaction, VisitorInteractionResponse>()
+            CreateMap<Interaction, MyInteractionResponse>()
                 .ForMember(dest => dest.InteractionId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null))
                 .ForMember(dest => dest.MuseumId, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.MuseumId : null))
                 .ForMember(dest => dest.MuseumName, opt => opt.MapFrom(src => src.Artifact != null && src.Artifact.Museum != null ? src.Artifact.Museum.Name : null));
+
+            CreateMap<Interaction, VisitorInteractionResponse>()
+                .ForMember(dest => dest.InteractionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ArtifactName, opt => opt.MapFrom(src => src.Artifact != null ? src.Artifact.Name : null))
+                .ForMember(dest => dest.VisitorId, memberOptions => memberOptions.MapFrom(src => src.Visitor != null ? src.Visitor.Id : null))
+                .ForMember(dest => dest.VisitorName, memberOptions => memberOptions.MapFrom(src => src.Visitor != null ? src.Visitor.Username : null));
 
             // Specail Mappings
             CreateMap<Museum, MuseumResponseV1>();
