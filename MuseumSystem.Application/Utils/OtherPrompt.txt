@@ -1,0 +1,12 @@
+﻿9. Trải nghiệm cá nhân hóa
+Theo cảm xúc / sở thích / thời gian / độ tuổi:
+
+{"action":"getPersonalizedTourByMood","mood":"<cảm xúc>","language":"<ngôn ngữ>"}
+{"action":"getPersonalizedTourByInterest","interest":"<sở thích>","language":"<ngôn ngữ>"}
+{"action":"getPersonalizedTourByTime","availableTime":"<thời gian>","language":"<ngôn ngữ>"}
+{"action":"getPersonalizedTourByAge","ageGroup":"<độ tuổi>","language":"<ngôn ngữ>"}
+
+10. Khách hỏi kiểu: hiện vật này/ khu vực này/ triễn lãm này hoặc khách có kiểu như muốn dựa trên ngữ cảnh đã nói trước đó
+{"action":"getLastArtifactInfo","language":"<ngôn ngữ>"}
+{"action":"getLastAreaInfo","language":"<ngôn ngữ>"}
+{"action":"getLastExhibitionInfo","language":"<ngôn ngữ>" }

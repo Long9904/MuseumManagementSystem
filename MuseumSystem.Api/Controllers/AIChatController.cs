@@ -22,7 +22,7 @@ namespace MuseumSystem.Api.Controllers
             {
                 return BadRequest("Prompt cannot be empty.");
             }
-            var response = await _geminiService.GenerateTextAsync(request.Prompt, isProcess: false);
+            var response = await _geminiService.SendPrompting(request.Prompt, request.MuseumId);
             return Ok(response);
         }
     }

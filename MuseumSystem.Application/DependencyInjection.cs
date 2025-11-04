@@ -30,6 +30,7 @@ namespace MuseumSystem.Application
 
             // Redis caching service
             services.AddSingleton<IRedisCacheService, RedisCacheService>();
+            services.AddScoped<IChatContextService, ChatContextService>();
 
             // utils
             services.AddScoped<ICurrentUserService, CurrentUserService>();

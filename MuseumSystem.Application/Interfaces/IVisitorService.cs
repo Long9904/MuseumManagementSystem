@@ -15,10 +15,10 @@ namespace MuseumSystem.Application.Interfaces
         Task<VisitorResponse> MyProfileAsync();
 
         // Post interactions like comments, ratings, etc. can be added here in the future
-        Task<VisitorInteractionResponse> PostInteractionAsync(InteractionRequest request);
+        Task<MyInteractionResponse> PostInteractionAsync(InteractionRequest request);
 
         // My interactions
-        Task<BasePaginatedList<VisitorInteractionResponse>> MyInteractionsAsync(int pageIndex, int pageSize);
+        Task<BasePaginatedList<MyInteractionResponse>> MyInteractionsAsync(int pageIndex, int pageSize);
 
         // Museum service
         Task<BasePaginatedList<MuseumResponseV1>> GetMuseumsAsync
@@ -38,5 +38,10 @@ namespace MuseumSystem.Application.Interfaces
             string? displayPositionName = null);
 
         Task<ArtifactDetailsResponse> GetArtifactByIdAsync(string artifactId);
+
+        Task<BasePaginatedList<VisitorInteractionResponse>> GetAllInteractionsByArtifactAsync(
+            string artifactId,
+            int pageIndex,
+            int pageSize);
     }
 }
