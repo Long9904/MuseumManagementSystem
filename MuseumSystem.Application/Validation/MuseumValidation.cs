@@ -23,7 +23,7 @@ namespace MuseumSystem.Application.Validation
 
             RuleFor(x => x.Description)
                     .Cascade(CascadeMode.Stop)
-                .Length(1, 100).WithMessage("Description must be between 1 and 100 characters.");
+                .Length(1, 500).WithMessage("Description must be between 1 and 500 characters.");
         }
     }
 }

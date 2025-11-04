@@ -105,12 +105,12 @@ namespace MuseumSystem.Application.Services
             }
 
             bool isUpdate = false;
-            if (roleExisting.Name != roleRequest.Name && string.IsNullOrWhiteSpace(roleRequest.Name))
+            if (roleExisting.Name != roleRequest.Name )
             {
                 roleExisting.Name = roleRequest.Name;
                 isUpdate = true;
             }
-            if (isUpdate)
+            if (!isUpdate)
             {
                 return roleExisting;
             }

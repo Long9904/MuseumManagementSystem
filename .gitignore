@@ -422,3 +422,4 @@ FodyWeavers.xsd
 
 museum-storage-key.json
 MuseumSystem.API/Key/*
+/MuseumSystem.Infrastructure/Migrations/20251031145001_FixVisitorTable.cs

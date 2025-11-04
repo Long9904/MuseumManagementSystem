@@ -10,10 +10,13 @@ namespace MuseumSystem.Domain.Enums
 {
     public enum EnumStatus
     {
+        
         [Display(Name = "Active")]
         Active,
         [Display(Name = "Inactive")]
-        Inactive
+        Inactive,
+        [Display(Name = "Pending")]
+        Pending,
     }
     public enum ExhibitionStatus
     {
