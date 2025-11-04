@@ -22,15 +22,15 @@ namespace MuseumSystem.Api.Controllers
 
         }
 
-        [HttpPost("{roleId}/{museumId}")]
+        [HttpPost("{roleId}")]
         [SwaggerOperation(
             Summary = "Create a new account",
             Description = "Creates a new account with the provided details.")]
 
-        public async Task<IActionResult> CreateAccount(string roleId, string museumId, [FromBody] AccountRequest accountRequest)
+        public async Task<IActionResult> CreateAccount(string roleId, [FromBody] AccountRequest accountRequest)
         {
 
-            var account = await _accountService.CreateAccountAsync(roleId, museumId, accountRequest);
+            var account = await _accountService.CreateAccountAsync(roleId, accountRequest);
             return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Account created successfully", "200"));
 
         }
@@ -79,5 +79,15 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account updated successfully", "200"));
 
         }
+        [HttpPut("{accountId}/assign-museum/{museumId}")]
+        [SwaggerOperation(
+            Summary = "Assign account to museum",
+            Description = "Assigns an a museum to account.")]
+        public async Task<IActionResult> AssignAccountToMuseum(string accountId, string museumId)
+        {
+            var updatedAccount = await _accountService.AssignAccountToMuseumAsync(accountId, museumId);
+            return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account assigned to museum successfully", "200"));
+        }
+
     }
 }
