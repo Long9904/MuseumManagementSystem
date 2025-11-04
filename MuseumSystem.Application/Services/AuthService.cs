@@ -78,7 +78,7 @@ namespace MuseumSystem.Application.Services
             {
                 throw new UnauthorizedAccessException("Invalid email or password.");
             }
-            if (accountExisting.Status != EnumStatus.Active)
+            if(accountExisting.Status == EnumStatus.Inactive)
             {
                 throw new UnauthorizedAccessException("Account is not active.");
             }

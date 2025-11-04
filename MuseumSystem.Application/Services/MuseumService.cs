@@ -24,7 +24,7 @@ namespace MuseumSystem.Application.Services
             this.logger = logger;
         }
 
-        public async Task<Museum> CreateMuseum(MuseumRequest museumDto)
+        public async Task<Museum> RegisterMuseum(MuseumRequest museumDto)
         {
             var existingMuseum = await unit.GetRepository<Museum>().FindAsync(x => x.Name == museumDto.Name);
             if (existingMuseum != null)
@@ -36,12 +36,12 @@ namespace MuseumSystem.Application.Services
                 Name = museumDto.Name,
                 Location = museumDto.Location,
                 Description = museumDto.Description,
-                Status = EnumStatus.Active,
+                Status = EnumStatus.Pending,
                 CreateAt = DateTime.UtcNow
             };
             await unit.GetRepository<Museum>().InsertAsync(museum);
             await unit.SaveChangeAsync();
-            logger.LogInformation("Museum {MuseumName} created successfully.", museumDto.Name);
+            logger.LogInformation("Museum {MuseumName} registered successfully.", museumDto.Name);
             return museum;
         }
 
@@ -52,14 +52,18 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentException("Museum ID cannot be null or empty.", nameof(id));
             }
             var museum = await GetMuseumById(id);
-            if(museum.Status.Equals(EnumStatus.Inactive))
+            museum.Status = EnumStatus.Inactive;
+            await unit.GetRepository<Museum>().UpdateAsync(museum);
+            await unit.SaveChangeAsync();
+        }
+        public async Task ActiveMuseum(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
             {
-                museum.Status = EnumStatus.Active;
+                throw new ArgumentException("Museum ID cannot be null or empty.", nameof(id));
             }
-            else
-            {
-                museum.Status = EnumStatus.Inactive;
-            }
+            var museum = await GetMuseumById(id);
+            museum.Status = EnumStatus.Active;
             await unit.GetRepository<Museum>().UpdateAsync(museum);
             await unit.SaveChangeAsync();
         }
