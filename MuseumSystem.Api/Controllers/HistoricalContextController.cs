@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.HistoricalContexts;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading.Tasks;
 
@@ -26,9 +27,13 @@ namespace MuseumSystem.API.Controllers
             Summary = "Get all historical contexts",
             Description = "Retrieves a list of all historical contexts available in the museum."
         )]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? title = null,
+    [FromQuery] HistoricalStatus? statusFilter = null)
         {
-            var response = await _historicalContextService.GetAllAsync();
+            var response = await _historicalContextService.GetAllAsync(pageIndex, pageSize, title, statusFilter);
             return StatusCode((int)response.Code, response);
         }
 

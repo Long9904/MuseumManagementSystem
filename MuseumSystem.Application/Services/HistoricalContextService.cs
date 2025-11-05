@@ -22,7 +22,11 @@ namespace MuseumSystem.Application.Services
         }
 
         public async Task<ApiResponse<BasePaginatedList<HistoricalContextResponse>>> GetAllAsync(
-            int pageNumber = 1, int pageSize = 10, HistoricalStatus? statusFilter = null)
+    int pageIndex,
+    int pageSize,
+    string? title,
+    HistoricalStatus? statusFilter
+)
         {
             var repo = _unitOfWork.GetRepository<HistoricalContext>();
 
@@ -33,29 +37,48 @@ namespace MuseumSystem.Application.Services
                     .ThenInclude(x => x.Exhibition)
                 .AsQueryable();
 
-            // 🔍 Lọc theo status
+            // 🔍 Lọc theo trạng thái
             if (statusFilter.HasValue)
+            {
                 query = query.Where(x => x.Status == statusFilter.Value);
+            }
             else
+            {
                 query = query.Where(x => x.Status != HistoricalStatus.Deleted);
+            }
 
-            query = query.OrderByDescending(x => x.Title);
+            // 🔍 Lọc theo tiêu đề (title)
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                var lowerTitle = title.Trim().ToLower();
+                query = query.Where(x => x.Title.ToLower().Contains(lowerTitle));
+            }
 
-            var totalCount = await query.CountAsync();
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            // 🔽 Sắp xếp theo Title (A-Z)
+            query = query.OrderBy(x => x.Title);
 
-            var result = items.Select(x => new HistoricalContextResponse(x)).ToList();
-            var paginated = new BasePaginatedList<HistoricalContextResponse>(result, totalCount, pageNumber, pageSize);
+            // 📄 Sử dụng paging chuẩn (giống Area)
+            var paginatedContexts = await repo.GetPagging(query, pageIndex, pageSize);
 
+            // 🧩 Map sang DTO
+            var result = paginatedContexts.Items.Select(x => new HistoricalContextResponse(x)).ToList();
+
+            // 🧾 Tạo danh sách phân trang
+            var paginated = new BasePaginatedList<HistoricalContextResponse>(
+                result,
+                paginatedContexts.TotalItems,
+                pageIndex,
+                pageSize
+            );
+
+            // ✅ Trả về ApiResponse chuẩn
             return ApiResponse<BasePaginatedList<HistoricalContextResponse>>.OkResponse(
                 paginated,
                 "Get all historical contexts successfully",
                 "200"
             );
         }
+
 
         public async Task<ApiResponse<HistoricalContextResponse>> GetByIdAsync(string id)
         {
