@@ -50,6 +50,7 @@ namespace MuseumSystem.Application.Services
                 Id = account.Id,
                 Email = account.Email,
                 FullName = account.FullName,
+                Status = account.Status.ToString(),
                 MuseumId = account.MuseumId,
                 MuseumName = account.Museum?.Name,
                 MuseumDescription = account.Museum?.Description,

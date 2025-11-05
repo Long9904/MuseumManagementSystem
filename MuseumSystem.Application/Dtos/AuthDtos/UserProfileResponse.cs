@@ -13,6 +13,8 @@ namespace MuseumSystem.Application.Dtos.AuthDtos
 
         public string RoleName { get; set; } = string.Empty;
 
+        public string? Status { get; set; }
+
         public string? MuseumId { get; set; }
 
         public string? MuseumName { get; set; }
