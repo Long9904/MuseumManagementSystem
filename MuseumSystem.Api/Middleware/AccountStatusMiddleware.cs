@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
+using MuseumSystem.Domain.Abstractions;
 
 namespace MuseumSystem.Api.Middleware
 {
@@ -10,12 +12,15 @@ namespace MuseumSystem.Api.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
             var user = context.User;
             if (user.Identity?.IsAuthenticated == true)
             {
-                var status = user.FindFirst("Status")?.Value;
+                var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier)
+                                ?? throw new UnauthorizedAccessException("User is not login");
+                var account = await unitOfWork.AccountRepository.GetByIdAsync(userId);
+                var status = account?.Status.ToString();
 
                 var path = context.Request.Path.Value?.ToLower();
                 if (status == "Pending" && !IsPublicPath(context.Request.Path.Value ?? ""))
