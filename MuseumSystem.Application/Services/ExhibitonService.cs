@@ -26,9 +26,11 @@ namespace MuseumSystem.Application.Services
 
         // 🔹 Lấy tất cả Exhibition có phân trang
         public async Task<ApiResponse<BasePaginatedList<ExhibitionResponse>>> GetAllAsync(
-    int pageNumber = 1,
-    int pageSize = 10,
-    ExhibitionStatus? statusFilter = null)
+    int pageIndex,
+    int pageSize,
+    string? name,
+    ExhibitionStatus? statusFilter
+)
         {
             var repo = _unitOfWork.GetRepository<Exhibition>();
 
@@ -47,28 +49,39 @@ namespace MuseumSystem.Application.Services
                 query = query.Where(e => e.Status != ExhibitionStatus.Deleted);
             }
 
+            // 🔍 Lọc theo tên (nếu có)
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                var lowerName = name.Trim().ToLower();
+                query = query.Where(e => e.Name.ToLower().Contains(lowerName));
+            }
+
             // 🔽 Sắp xếp theo Priority (0 là cao nhất), sau đó theo CreatedAt mới nhất
             query = query
                 .OrderBy(e => e.Priority)
                 .ThenByDescending(e => e.CreatedAt);
 
-            var totalCount = await query.CountAsync();
-            var exhibitions = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            // 📄 Sử dụng paging từ repository (giống Area)
+            var paginatedExhibitions = await repo.GetPagging(query, pageIndex, pageSize);
 
-            var result = exhibitions.Select(e => new ExhibitionResponse(e)).ToList();
-            var paginated = new BasePaginatedList<ExhibitionResponse>(result, totalCount, pageNumber, pageSize);
+            // 🧩 Map sang DTO
+            var result = paginatedExhibitions.Items.Select(e => new ExhibitionResponse(e)).ToList();
 
+            // 🧾 Tạo danh sách có phân trang
+            var paginated = new BasePaginatedList<ExhibitionResponse>(
+                result,
+                paginatedExhibitions.TotalItems,
+                pageIndex,
+                pageSize
+            );
+
+            // ✅ Trả về ApiResponse chuẩn
             return ApiResponse<BasePaginatedList<ExhibitionResponse>>.OkResponse(
                 paginated,
                 "Get exhibitions successfully",
                 "200"
             );
         }
-
-
 
 
         // 🔹 Lấy Exhibition theo Id

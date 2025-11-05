@@ -10,9 +10,12 @@ namespace MuseumSystem.Application.Interfaces
     public interface IExhibitionService
     {
         Task<ApiResponse<BasePaginatedList<ExhibitionResponse>>> GetAllAsync(
-    int pageNumber = 1,
-    int pageSize = 10,
-    ExhibitionStatus? statusFilter = null);
+    int pageIndex,
+    int pageSize,
+    string? name,
+    ExhibitionStatus? statusFilter
+);
+
         Task<ApiResponse<ExhibitionResponse>> GetByIdAsync(string id);
         Task<ApiResponse<ExhibitionResponse>> CreateAsync(ExhibitionRequest request);
         Task<ApiResponse<ExhibitionResponse>> UpdateAsync(string id, ExhibitionUpdateRequest request);
