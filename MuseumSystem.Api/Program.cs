@@ -273,8 +273,10 @@ app.UseRouting();
 app.UseCors("AllowAll");
 
 app.UseAuthentication(); // JWT Authentication
-app.UseMiddleware<MuseumContextMiddleware>(); // Museum access for each request
 app.UseAuthorization(); // Role Authorization
+app.UseMiddleware<AccountStatusMiddleware>(); // Account status check
+app.UseMiddleware<MuseumContextMiddleware>(); // Museum access for each request
+
 
 app.UseSwagger();
 app.UseSwaggerUI();

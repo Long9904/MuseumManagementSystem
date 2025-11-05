@@ -55,14 +55,14 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<ArtifactDetailsResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Id sucessfully", "200"));
         }
 
-        [HttpGet("code/{artifactCode}")]
-        [SwaggerOperation(
-            Summary = "Get an artifact by Code")]
-        public async Task<IActionResult> GetArtifactByCode([FromRoute] string artifactCode)
-        {
-            var result = await _artifactService.GetArtifactByCode(artifactCode);
-            return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Code sucessfully", "200"));
-        }
+        //[HttpGet("code/{artifactCode}")]
+        //[SwaggerOperation(
+        //    Summary = "Get an artifact by Code")]
+        //public async Task<IActionResult> GetArtifactByCode([FromRoute] string artifactCode)
+        //{
+        //    var result = await _artifactService.GetArtifactByCode(artifactCode);
+        //    return Ok(ApiResponse<ArtifactResponse>.OkResponse(result, $"Get artifact: '{result.Name}' by Code sucessfully", "200"));
+        //}
 
         [HttpPatch("{id}")]
         [SwaggerOperation(
@@ -82,13 +82,13 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<string>.OkResponse(null, $"Delete artifact: '{id}' sucessfully", "200"));
         }
 
-        [HttpPatch("{id}/activate")]
+        [HttpPatch("{id}/maintenance")]
         [SwaggerOperation(
-            Summary = "Activate a soft-deleted artifact")]
+            Summary = "Maintenance the artifact in storage")]
         public async Task<IActionResult> ActivateArtifact([FromRoute] string id)
         {
-            await _artifactService.ActiveArtifact(id);
-            return Ok(ApiResponse<string>.OkResponse(null, $"Activate artifact: '{id}' sucessfully", "200"));
+            await _artifactService.MaintainaceArtifact(id);
+            return Ok(ApiResponse<string>.OkResponse(null, $"Maintenance artifact: '{id}' sucessfully", "200"));
         }
 
         // Assign artifact to display position

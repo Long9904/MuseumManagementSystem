@@ -31,7 +31,7 @@ namespace MuseumSystem.Application.Interfaces
             bool includeDeleted,
             CancellationToken cancellationToken = default);
 
-        Task ActiveArtifact(
+        Task MaintainaceArtifact(
             string id,
             CancellationToken cancellationToken = default);
 
