@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MuseumSystem.Application.Dtos.AIChatDtos;
+using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Interfaces;
@@ -106,7 +106,7 @@ namespace MuseumSystem.Application.Services
 
             //0. Read initial prompt template
 
-            var fullPrompt = $"{_basePrompt}\nMessage Customer: {prompt}";
+            var fullPrompt = $"Message Customer: {prompt} \n {_basePrompt}";
 
             //1. Generate response from Gemini API - 1
             string response = await GenerateTextAsync(fullPrompt, false);
@@ -204,7 +204,7 @@ namespace MuseumSystem.Application.Services
                         if (rawJson.TryGetProperty("area", out JsonElement areaEl))
                             area = areaEl.GetString();
 
-                        var artifacts = await GetArtifactInfo(1,5,
+                        var artifacts = await GetArtifactInfo(1, 5,
                             artifactName, artifactPeriod, isOrigin, displayPosition, area, museumId
                         );
 
@@ -212,9 +212,58 @@ namespace MuseumSystem.Application.Services
                         response.data = artifacts;
                         return response;
                     }
+                case "getAreaInfo":
+                    {
+                        string? areaName = null;
+                        specificRequest = JsonSerializer.Deserialize<ListAreasInfo>(text);
+                        if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
+                            areaName = areaEl.GetString();
+                        var areas = await GetAreaInfo(1, 8, museumId);
+                        response.language = language;
+                        response.data = areas;
+                        return response;
+                    }
+                case "getAreaDetails":
+                    {
+                        string? areaName = null;
+                        specificRequest = JsonSerializer.Deserialize<AreaDetailsInfo>(text);
+                        if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
+                            areaName = areaEl.GetString();
+                        // Implement GetAreaDetails method if needed
+                        response.language = language;
+                        response.data = "Chức năng đang trong quá trình phát triển";
+                        return response;
+                    }
+                case "getArtifactsInArea":
+                    {
+                        string? areaName = null;
+                        specificRequest = JsonSerializer.Deserialize<ArtifactInfoInArea>(text);
+                        if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
+                            areaName = areaEl.GetString();
+                        // Implement GetArtifactsInArea method if needed
+                        response.language = language;
+                        response.data = "Chức năng đang trong quá trình phát triển";
+                        return response;
+                    }
+                case "getExhibitions":
+                    {
+                        specificRequest = JsonSerializer.Deserialize<ExhibitionDetailsInfo>(text);
+                        // Implement GetExhibitions method if needed
+                        response.language = language;
+                        response.data = "Chức năng đang trong quá trình phát triển";
+                        return response;
+                    }
+                case "getExhibitionDetails":
+                    {
+                        specificRequest = JsonSerializer.Deserialize<ExhibitionDetailsInfo>(text);
+                        // Implement GetExhibitionDetails method if needed
+                        response.language = language;
+                        response.data = "Chức năng đang trong quá trình phát triển";
+                        return response;
+                    }
 
                 default:
-                    return new ParapahraseResponse { language = language, data = "Xin lỗi vì xữ bất tiện này. Chức năng không tồn trại hoặc đang trong quá trình phát triển" };
+                    return new ParapahraseResponse { language = language, data = "Chức năng không tồn trại hoặc đang trong quá trình phát triển" };
             }
             return response;
         }
@@ -293,11 +342,25 @@ namespace MuseumSystem.Application.Services
                                          a.DisplayPosition.Area.Name.ToLower().Contains(area.ToLower()));
             }
 
-            var artifact =  await _unitOfWork.ArtifactRepository.GetPagging(query, pageIndex, pageSize);
+            var artifact = await _unitOfWork.ArtifactRepository.GetPagging(query, pageIndex, pageSize);
             var result = _mapper.Map<BasePaginatedList<Artifact>, BasePaginatedList<ArtifactResponse>>(artifact);
 
             return result;
         }
 
+        private async Task<BasePaginatedList<AreaResponse>> GetAreaInfo(
+            int pageIndex = 1,
+            int pageSize = 5,
+            string? museumId = null!)
+        {
+            var query = _unitOfWork.AreaRepository.Entity
+              .Include(a => a.Museum)
+              .Where(a => a.MuseumId == museumId);
+
+            query = query.OrderBy(a => a.Name);
+            BasePaginatedList<Area> paginatedList = await _unitOfWork.AreaRepository.GetPagging(query, pageIndex, pageSize);
+            var result = _mapper.Map<BasePaginatedList<Area>, BasePaginatedList<AreaResponse>>(paginatedList);
+            return result;
+        }
     }
 }
