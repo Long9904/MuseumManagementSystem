@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using System.Text;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
+using QRCoder;
 
 namespace MuseumSystem.Application.Services
 {
@@ -32,7 +32,7 @@ namespace MuseumSystem.Application.Services
             _mapper = mapper;
         }
 
-        public async Task ActiveArtifact(string id, CancellationToken cancellationToken = default)
+        public async Task MaintainaceArtifact(string id, CancellationToken cancellationToken = default)
         {
             var museumId = await GetValidMuseumIdAsync();
 
@@ -43,8 +43,17 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidAccessException("User does not have access to this artifact.");
             }
+            if (artifact.Status == ArtifactStatus.Deleted)
+            {
+                throw new ObjectDeletedException("Cannot maintain a deleted artifact.");
+            }
 
-            artifact.Status = ArtifactStatus.InStorage;
+            if (artifact.Status == ArtifactStatus.OnDisplay)
+            {
+                throw new ConflictException("Cannot maintain an artifact that is currently on display.");
+            }
+
+            artifact.Status = ArtifactStatus.UnderRestoration;
             artifact.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.ArtifactRepository.UpdateAsync(artifact);
@@ -60,7 +69,9 @@ namespace MuseumSystem.Application.Services
 
 
             var newArtifact = _mapper.Map<Artifact>(request);
-            newArtifact.ArtifactCode = await GenerateArtifactCodeAsync(museumId);
+            string id = Guid.NewGuid().ToString();
+            newArtifact.Id = id;
+            newArtifact.ArtifactCode = GenerateQrCode(id);
             newArtifact.MuseumId = museumId;
             newArtifact.Status = ArtifactStatus.InStorage;
             newArtifact.CreatedAt = DateTime.UtcNow;
@@ -374,6 +385,18 @@ namespace MuseumSystem.Application.Services
                 .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                 .ToArray();
             return new string(chars).Normalize(NormalizationForm.FormC);
+        }
+
+        private string GenerateQrCode(string id)
+        {
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode(id, QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new PngByteQRCode(qrCodeData);
+            byte[] qrCodeBytes = qrCode.GetGraphic(10);
+
+            string base64 = Convert.ToBase64String(qrCodeBytes);
+            string imgSrc = $"data:image/png;base64,{base64}";
+            return imgSrc;
         }
     }
 }
