@@ -38,23 +38,19 @@ Khi hỏi tên, nguồn gốc, niên đại, mô tả, chất liệu, vị trí,
 
 {"action":"getAreaInfo","areaName":"<tên khu vực>","language":"<ngôn ngữ>"}
 
-4. Chi tiết khu vực
-
-{"action":"getAreaDetails","areaName":"<tên khu vực>","language":"<ngôn ngữ>"}
-
-5. Hiện vật trong khu vực
+4. Hiện vật trong khu vực
 
 {"action":"getArtifactsInArea","areaName":"<tên khu vực>","language":"<ngôn ngữ>"}
 
-6. Sự kiện / triển lãm chung
+5. Sự kiện / triển lãm chung hoặc danh sách sự kiện / triển lãm
 
 {"action":"getExhibitions","language":"<ngôn ngữ>"}
 
-7. Chi tiết sự kiện / triển lãm cụ thể
+6. Chi tiết sự kiện / triển lãm cụ thể
 
 {"action":"getExhibitionDetails","exhibitionName":"<tên>","language":"<ngôn ngữ>"}
 
-8. Gợi ý tham quan (chưa khả dụng)
+7. Gợi ý tham quan (chưa khả dụng)
 → “Tính năng gợi ý tham quan đang được phát triển. Vui lòng quay lại sau.”
 
 
