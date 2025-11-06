@@ -27,11 +27,6 @@ namespace MuseumSystem.Application.Dtos.AIChatDtos
         public string areaName { get; set; } = string.Empty;
     }
 
-    public class AreaDetailsInfo : BaseResponse
-    {
-        public string areaName { get; set; } = string.Empty;
-    }
-
     public class ArtifactInfoInArea : BaseResponse
     {
         public string areaName { get; set; } = string.Empty;

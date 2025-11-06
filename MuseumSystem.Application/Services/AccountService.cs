@@ -200,32 +200,32 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentNullException(nameof(accountId), "Account ID cannot be null.");
             }
             var account = await _unit.GetRepository<Account>().FindAsync(
-                x => x.Id == accountId && x.Status == EnumStatus.Pending,
+                x => x.Id == accountId && (x.Status == EnumStatus.Pending || x.Status == EnumStatus.Active),
                 include: x => x.Include(x => x.Role));
             if (account == null)
             {
                 throw new KeyNotFoundException($"Pending account not found.");
             }
-
+            if (account.MuseumId != null && account.MuseumId != museumId)
+            {
+                throw new InvalidOperationException("Account already assigned to another museum.");
+            }
             if (museumId == null)
             {
                 throw new ArgumentNullException(nameof(museumId), "Museum ID cannot be null.");
             }
-            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId && x.Status == EnumStatus.Pending);
+            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId && (x.Status == EnumStatus.Pending || x.Status == EnumStatus.Active));
             if (museum == null)
             {
                 throw new KeyNotFoundException($"Pending museum not found.");
             }
 
-            var existingAccount = await _unit.GetRepository<Account>().FindAsync(x => x.MuseumId == museumId && x.Status == EnumStatus.Active);
-            if (existingAccount != null)
-            {
-                throw new InvalidOperationException($"This museum is already assigned to another account.");
-            }
-
             account.MuseumId = museum.Id;
-            account.Status = EnumStatus.Active;
-            museum.Status = EnumStatus.Active;
+            if (account.Status == EnumStatus.Pending)
+                account.Status = EnumStatus.Active;
+
+            if (museum.Status == EnumStatus.Pending)
+                museum.Status = EnumStatus.Active;
 
             await _unit.GetRepository<Account>().UpdateAsync(account);
             await _unit.GetRepository<Museum>().UpdateAsync(museum);

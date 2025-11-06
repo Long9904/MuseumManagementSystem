@@ -218,20 +218,9 @@ namespace MuseumSystem.Application.Services
                         specificRequest = JsonSerializer.Deserialize<ListAreasInfo>(text);
                         if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
                             areaName = areaEl.GetString();
-                        var areas = await GetAreaInfo(1, 8, museumId);
+                        var areas = await GetAreaInfo(1, 10, museumId);
                         response.language = language;
                         response.data = areas;
-                        return response;
-                    }
-                case "getAreaDetails":
-                    {
-                        string? areaName = null;
-                        specificRequest = JsonSerializer.Deserialize<AreaDetailsInfo>(text);
-                        if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
-                            areaName = areaEl.GetString();
-                        // Implement GetAreaDetails method if needed
-                        response.language = language;
-                        response.data = "Chức năng đang trong quá trình phát triển";
                         return response;
                     }
                 case "getArtifactsInArea":
@@ -240,9 +229,9 @@ namespace MuseumSystem.Application.Services
                         specificRequest = JsonSerializer.Deserialize<ArtifactInfoInArea>(text);
                         if (rawJson.TryGetProperty("areaName", out JsonElement areaEl))
                             areaName = areaEl.GetString();
-                        // Implement GetArtifactsInArea method if needed
+                        var artifactsInArea = await GetArtifactsInArea(1, 10, areaName, museumId);
                         response.language = language;
-                        response.data = "Chức năng đang trong quá trình phát triển";
+                        response.data = artifactsInArea;
                         return response;
                     }
                 case "getExhibitions":
@@ -360,6 +349,29 @@ namespace MuseumSystem.Application.Services
             query = query.OrderBy(a => a.Name);
             BasePaginatedList<Area> paginatedList = await _unitOfWork.AreaRepository.GetPagging(query, pageIndex, pageSize);
             var result = _mapper.Map<BasePaginatedList<Area>, BasePaginatedList<AreaResponse>>(paginatedList);
+            return result;
+        }
+
+
+        private async Task<BasePaginatedList<ArtifactResponse>> GetArtifactsInArea(
+            int pageIndex = 1,
+            int pageSize = 5,
+            string? areaName = null!,
+            string? museumId = null!)
+        {
+            var query = _unitOfWork.ArtifactRepository.Entity
+              .Include(a => a.Museum)
+              .Include(a => a.DisplayPosition).ThenInclude(dp => dp.Area)
+              .Where(a => a.Status == ArtifactStatus.OnDisplay && a.MuseumId == museumId);
+            if (!string.IsNullOrEmpty(areaName))
+            {
+                query = query.Where(a => a.DisplayPosition != null &&
+                                         a.DisplayPosition.Area != null &&
+                                         a.DisplayPosition.Area.Name.ToLower().Contains(areaName.ToLower()));
+            }
+            query = query.OrderBy(a => a.Name);
+            BasePaginatedList<Artifact> paginatedList = await _unitOfWork.ArtifactRepository.GetPagging(query, pageIndex, pageSize);
+            var result = _mapper.Map<BasePaginatedList<Artifact>, BasePaginatedList<ArtifactResponse>>(paginatedList);
             return result;
         }
     }
