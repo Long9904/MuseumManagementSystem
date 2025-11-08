@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MuseumSystem.Application.Dtos.HistoricalContexts
+namespace MuseumSystem.Application.Dtos.HistoricalContextsDtos
 {
     public class HistoricalContextRequest
     {

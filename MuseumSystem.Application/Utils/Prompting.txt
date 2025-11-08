@@ -34,23 +34,27 @@ Khi hỏi tên, nguồn gốc, niên đại, mô tả, chất liệu, vị trí,
 
 {"action":"getMuseumInfo","language":"<ngôn ngữ>"}
 
-3. Danh sách khu vực
+3. Tìm kiếm khu vực theo tên
 
 {"action":"getAreaInfo","areaName":"<tên khu vực>","language":"<ngôn ngữ>"}
 
-4. Hiện vật trong khu vực
+4. Danh sách khu vực trong bảo tàng
+
+{"action":"getAreaList","language":"<ngôn ngữ>"}
+
+5. Hiện vật trong khu vực
 
 {"action":"getArtifactsInArea","areaName":"<tên khu vực>","language":"<ngôn ngữ>"}
 
-5. Sự kiện / triển lãm chung hoặc danh sách sự kiện / triển lãm
+6. Sự kiện / triển lãm chung hoặc danh sách sự kiện / triển lãm
 
 {"action":"getExhibitions","language":"<ngôn ngữ>"}
 
-6. Chi tiết sự kiện / triển lãm cụ thể
+7. Chi tiết sự kiện / triển lãm cụ thể
 
 {"action":"getExhibitionDetails","exhibitionName":"<tên>","language":"<ngôn ngữ>"}
 
-7. Gợi ý tham quan (chưa khả dụng)
+8. Gợi ý tham quan (chưa khả dụng)
 → “Tính năng gợi ý tham quan đang được phát triển. Vui lòng quay lại sau.”
 
 

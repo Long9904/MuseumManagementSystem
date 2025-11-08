@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
+using MuseumSystem.Application.Dtos.ExhibitionDtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
@@ -154,5 +155,36 @@ namespace MuseumSystem.Api.Controllers
             var result = await _visitorService.GetArtifactByIdAsync(artifactId);
             return Ok(ApiResponse<ArtifactDetailsResponse>.OkResponse(result, "Take artifact successfully", "200"));
         }
+
+
+
+        //------------- Exhibition Endpoints for Visitor---------------------
+        [HttpGet("exhibitions")]
+        [SwaggerOperation(
+            Summary = "Get all exhibitions",
+            Description = "Retrieve a paginated list of exhibitions with optional filtering by exhibition name and museum ID.")]
+        [Authorize(Roles = "Visitor")]
+        public async Task<IActionResult> GetAllExhibitions(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? exhibitionName = null,
+            [FromQuery] string museumId = null!)
+        {
+            var result = await _visitorService.GetAllExhibitions(pageIndex, pageSize, exhibitionName, museumId);
+            return Ok(ApiResponse<BasePaginatedList<ExhibitionResponseV2>>.OkResponse(result, "Take exhibitions successfully", "200"));
+        }
+
+
+        [HttpGet("exhibitions/{exhibitionId}")]
+        [SwaggerOperation(
+            Summary = "Get exhibition details by ID",
+            Description = "Retrieve detailed information about a specific exhibition using its ID.")]
+        [Authorize(Roles = "Visitor")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] string exhibitionId)
+        {
+            var result = await _visitorService.GetByIdAsync(exhibitionId);
+            return Ok(ApiResponse<ExhibitionResponseV2>.OkResponse(result, "Take exhibition successfully", "200"));
+        }
+
     }
 }
