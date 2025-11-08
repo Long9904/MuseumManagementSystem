@@ -22,6 +22,10 @@ namespace MuseumSystem.Application.Dtos.AIChatDtos
 
     }
 
+    public class GetListAreasInfo : BaseResponse
+    {
+    }
+
     public class ListAreasInfo : BaseResponse
     {
         public string areaName { get; set; } = string.Empty;

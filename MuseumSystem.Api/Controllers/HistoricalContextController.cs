@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Dtos.HistoricalContexts;
+using MuseumSystem.Application.Dtos.HistoricalContextsDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;

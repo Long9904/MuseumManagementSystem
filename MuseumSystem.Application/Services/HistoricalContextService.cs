@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Dtos.HistoricalContexts;
+using MuseumSystem.Application.Dtos.HistoricalContextsDtos;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
@@ -15,10 +15,12 @@ namespace MuseumSystem.Application.Services
     public class HistoricalContextService : IHistoricalContextService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
 
-        public HistoricalContextService(IUnitOfWork unitOfWork)
+        public HistoricalContextService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ApiResponse<BasePaginatedList<HistoricalContextResponse>>> GetAllAsync(
@@ -29,6 +31,7 @@ namespace MuseumSystem.Application.Services
 )
         {
             var repo = _unitOfWork.GetRepository<HistoricalContext>();
+            var museumId = _currentUserService.MuseumId;
 
             var query = repo.Entity
                 .Include(x => x.ArtifactHistoricalContexts)
@@ -36,6 +39,8 @@ namespace MuseumSystem.Application.Services
                 .Include(x => x.ExhibitionHistoricalContexts)
                     .ThenInclude(x => x.Exhibition)
                 .AsQueryable();
+
+            query = query.Where(x => x.ArtifactHistoricalContexts.Any(ahc => ahc.Artifact.MuseumId == museumId));
 
             // 🔍 Lọc theo trạng thái
             if (statusFilter.HasValue)

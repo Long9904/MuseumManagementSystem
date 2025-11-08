@@ -1,7 +1,7 @@
 ﻿using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Domain.Entities;
 
-namespace MuseumSystem.Application.Dtos.HistoricalContexts
+namespace MuseumSystem.Application.Dtos.HistoricalContextsDtos
 {
     public class HistoricalContextResponse
     {

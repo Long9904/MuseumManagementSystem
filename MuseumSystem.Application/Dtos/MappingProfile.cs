@@ -3,7 +3,8 @@ using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.AreaDtos;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
 using MuseumSystem.Application.Dtos.DisplayPositionDtos;
-using MuseumSystem.Application.Dtos.HistoricalContexts;
+using MuseumSystem.Application.Dtos.ExhibitionDtos;
+using MuseumSystem.Application.Dtos.HistoricalContextsDtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Domain.Abstractions;
@@ -88,6 +89,7 @@ namespace MuseumSystem.Application.Dtos
 
             // Specail Mappings
             CreateMap<Museum, MuseumResponseV1>();
+            CreateMap<Exhibition, ExhibitionResponseV2>();
         }
 
 
