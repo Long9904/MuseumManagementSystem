@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.ExhibitionDtos;
 using MuseumSystem.Application.Interfaces;
+using MuseumSystem.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading.Tasks;
 
@@ -26,11 +27,16 @@ namespace MuseumSystem.API.Controllers
             Summary = "Get all exhibitions",
             Description = "Retrieves a list of all exhibitions available in the museum. "
         )]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? name = null,
+    [FromQuery] ExhibitionStatus? statusFilter = null)
         {
-            var response = await _exhibitionService.GetAllAsync();
+            var response = await _exhibitionService.GetAllAsync(pageIndex, pageSize, name, statusFilter);
             return StatusCode((int)response.Code, response);
         }
+
 
         [HttpGet("{id}")]
         [SwaggerOperation(

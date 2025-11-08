@@ -13,7 +13,12 @@ namespace MuseumSystem.Application.Interfaces
     public interface IHistoricalContextService
     {
         Task<ApiResponse<BasePaginatedList<HistoricalContextResponse>>> GetAllAsync(
-            int pageNumber = 1, int pageSize = 10, HistoricalStatus? statusFilter = null);
+    int pageIndex,
+    int pageSize,
+    string? title,
+    HistoricalStatus? statusFilter
+);
+
 
         Task<ApiResponse<HistoricalContextResponse>> GetByIdAsync(string id);
         Task<ApiResponse<HistoricalContextResponse>> CreateAsync(HistoricalContextRequest request);
