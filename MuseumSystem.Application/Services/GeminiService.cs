@@ -223,6 +223,16 @@ namespace MuseumSystem.Application.Services
                         response.data = areas;
                         return response;
                     }
+
+                case "getAreaList":
+                    {
+                        specificRequest = JsonSerializer.Deserialize<GetListAreasInfo>(text);
+                        var areas = await GetAreaList(museumId);
+                        response.language = language;
+                        response.data = areas;
+                        return response;
+                    }
+
                 case "getArtifactsInArea":
                     {
                         string? areaName = null;
@@ -337,14 +347,27 @@ namespace MuseumSystem.Application.Services
             return result;
         }
 
-        private async Task<BasePaginatedList<AreaResponse>> GetAreaInfo(
-            int pageIndex = 1,
-            int pageSize = 5,
-            string? museumId = null!)
+        private async Task<BasePaginatedList<AreaResponse>> GetAreaList(string museumId)
         {
             var query = _unitOfWork.AreaRepository.Entity
               .Include(a => a.Museum)
               .Where(a => a.MuseumId == museumId);
+            query = query.OrderBy(a => a.Name);
+            BasePaginatedList<Area> paginatedList = await _unitOfWork.AreaRepository.GetPagging(query, 1, 10);
+            var result = _mapper.Map<BasePaginatedList<Area>, BasePaginatedList<AreaResponse>>(paginatedList);
+            return result;
+        }
+
+        private async Task<BasePaginatedList<AreaResponse>> GetAreaInfo(
+            int pageIndex = 1,
+            int pageSize = 5,
+            string? museumId = null!,
+            string? areaName = null!)
+        {
+            var query = _unitOfWork.AreaRepository.Entity
+              .Include(a => a.Museum)
+              .Where(a => a.MuseumId == museumId 
+              && (string.IsNullOrEmpty(areaName) || a.Name.ToLower().Contains(areaName.ToLower())));
 
             query = query.OrderBy(a => a.Name);
             BasePaginatedList<Area> paginatedList = await _unitOfWork.AreaRepository.GetPagging(query, pageIndex, pageSize);

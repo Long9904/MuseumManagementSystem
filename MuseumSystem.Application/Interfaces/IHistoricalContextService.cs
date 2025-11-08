@@ -1,5 +1,5 @@
 ﻿using MuseumSystem.Application.Dtos;
-using MuseumSystem.Application.Dtos.HistoricalContexts;
+using MuseumSystem.Application.Dtos.HistoricalContextsDtos;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Enums;
 using System;

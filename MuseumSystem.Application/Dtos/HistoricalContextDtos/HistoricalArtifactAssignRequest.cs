@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MuseumSystem.Application.Dtos.HistoricalContexts
+namespace MuseumSystem.Application.Dtos.HistoricalContextsDtos
 {
     public class HistoricalArtifactAssignRequest
     {

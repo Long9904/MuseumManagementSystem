@@ -31,8 +31,10 @@ namespace MuseumSystem.Application.Services
     ExhibitionStatus? statusFilter = null)
         {
             var repo = _unitOfWork.GetRepository<Exhibition>();
+            var museumId = _currentUserService.MuseumId;
 
             var query = repo.Entity
+                .Where(e => e.MuseumId == museumId)
                 .Include(e => e.ExhibitionHistoricalContexts)
                     .ThenInclude(eh => eh.HistoricalContext)
                 .AsQueryable();
@@ -200,8 +202,8 @@ namespace MuseumSystem.Application.Services
 
             if (request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                if (request.StartDate <= now)
-                    return ApiResponse<ExhibitionResponse>.BadRequestResponse("StartDate must be in the future.");
+                //if (request.StartDate <= now)
+                //    return ApiResponse<ExhibitionResponse>.BadRequestResponse("StartDate must be in the future.");
                 if (request.EndDate <= request.StartDate)
                     return ApiResponse<ExhibitionResponse>.BadRequestResponse("EndDate must be greater than StartDate.");
             }

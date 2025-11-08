@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MuseumSystem.Application.Dtos.ArtifactDtos;
+using MuseumSystem.Application.Dtos.ExhibitionDtos;
+using MuseumSystem.Application.Dtos.HistoricalContextsDtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
@@ -282,7 +284,7 @@ namespace MuseumSystem.Application.Services
         public async Task<ArtifactDetailsResponse> GetArtifactByIdAsync(string artifactId)
         {
             Artifact artifact = await _unitOfWork.ArtifactRepository.FindAsync(
-                a => a.Id == artifactId 
+                a => a.Id == artifactId
                 && (a.Status == ArtifactStatus.OnDisplay || a.Status == ArtifactStatus.InStorage),
                 include: source => source
                     .Include(a => a.Museum)
@@ -314,6 +316,77 @@ namespace MuseumSystem.Application.Services
             var artifactDetailsResponse = _mapper.Map<ArtifactDetailsResponse>(artifact);
             artifactDetailsResponse.MediaItems = mediaResponses;
             return artifactDetailsResponse;
+        }
+
+        public async Task<BasePaginatedList<ExhibitionResponseV2>> GetAllExhibitions
+            (int pageIndex, int pageSize, string? exhibitionName = null, string museumId = null!)
+        {
+            var query = _unitOfWork.GetRepository<Exhibition>().Entity
+                .Include(e => e.Museum)
+                .Where(e =>
+                e.Status == ExhibitionStatus.Upcoming || e.Status == ExhibitionStatus.Active);
+
+            if (!string.IsNullOrEmpty(exhibitionName))
+            {
+                query = query.Where(e => e.Name.ToLower().Contains(exhibitionName));
+            }
+            query = query.Where(e => e.MuseumId == museumId);
+
+            query = query.OrderBy(e => e.StartDate);
+
+            BasePaginatedList<Exhibition> basePaginatedList =
+            await _unitOfWork.GetRepository<Exhibition>().GetPagging(query, pageIndex, pageSize);
+            var result = _mapper.Map<BasePaginatedList<Exhibition>, BasePaginatedList<ExhibitionResponseV2>>(basePaginatedList);
+            return result;
+        }
+
+        public async Task<ExhibitionResponseV2> GetByIdAsync(string exhibitionId)
+        {
+            var exhibition = await _unitOfWork.GetRepository<Exhibition>()
+                .FindAsync(e => e.Id == exhibitionId
+                && (e.Status == ExhibitionStatus.Upcoming || e.Status == ExhibitionStatus.Active),
+                include: source => source
+                    .Include(e => e.ExhibitionHistoricalContexts)
+                        .ThenInclude(eh => eh.HistoricalContext)
+                            .ThenInclude(hc => hc.ArtifactHistoricalContexts).ThenInclude(a => a.Artifact));
+
+            if (exhibition == null)
+            {
+                throw new NotFoundException("Exhibition not found.");
+            }
+
+            List<HistoricalContextResponseV2> historicalContexts = new List<HistoricalContextResponseV2>();
+
+            if (exhibition.ExhibitionHistoricalContexts != null)
+            {
+                // Take each HistoricalContext from ExhibitionHistoricalContexts
+                foreach (var ehc in exhibition.ExhibitionHistoricalContexts)
+                {
+                    var hc = ehc.HistoricalContext;
+                    if (hc != null)
+                    {
+                        var hcResponse = new HistoricalContextResponseV2 // List HistoricalContextResponse
+                        {
+                            Id = hc.HistoricalContextId,
+                            Title = hc.Title,
+                            Period = hc.Period,
+                            Description = hc.Description,
+
+                            // Map Artifacts in HistoricalContext
+                            Artifacts = hc.ArtifactHistoricalContexts?.Select(ahc => new ListArtifactInHistoricalContext
+                            {  // Map each ArtifactHistoricalContext to ListArtifactInHistoricalContext
+                                ArtifactId = ahc.ArtifactId,
+                                ArtifactName = ahc.Artifact.Name
+                            }).ToList() ?? new List<ListArtifactInHistoricalContext>()
+                        };
+                        historicalContexts.Add(hcResponse);
+                    }
+                }
+            }
+            var result = _mapper.Map<Exhibition, ExhibitionResponseV2>(exhibition);
+            result.HistoricalContexts = historicalContexts;
+            return result;
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MuseumSystem.Application.Dtos.ArtifactDtos;
+using MuseumSystem.Application.Dtos.ExhibitionDtos;
 using MuseumSystem.Application.Dtos.InteractionDtos;
 using MuseumSystem.Application.Dtos.MuseumDtos;
 using MuseumSystem.Application.Dtos.VisitorDtos;
@@ -43,5 +44,10 @@ namespace MuseumSystem.Application.Interfaces
             string artifactId,
             int pageIndex,
             int pageSize);
+
+        Task<BasePaginatedList<ExhibitionResponseV2>> GetAllExhibitions
+           (int pageIndex, int pageSize, string? exhibitionName = null, string museumId = null!);
+
+        Task<ExhibitionResponseV2> GetByIdAsync(string exhibitionId);
     }
 }
