@@ -40,6 +40,8 @@ namespace MuseumSystem.Application.Services
                     .ThenInclude(x => x.Exhibition)
                 .AsQueryable();
 
+            query = query.Where(x => x.ArtifactHistoricalContexts.Any(ahc => ahc.Artifact.MuseumId == museumId));
+
             // 🔍 Lọc theo trạng thái
             if (statusFilter.HasValue)
             {

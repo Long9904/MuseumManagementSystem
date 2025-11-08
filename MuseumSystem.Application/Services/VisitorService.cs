@@ -383,8 +383,18 @@ namespace MuseumSystem.Application.Services
                     }
                 }
             }
-            var result = _mapper.Map<Exhibition, ExhibitionResponseV2>(exhibition);
-            result.HistoricalContexts = historicalContexts;
+            ExhibitionResponseV2 result = new ExhibitionResponseV2()
+            {
+                Id = exhibition.Id,
+                Name = exhibition.Name,
+                Description = exhibition.Description,
+                Priority = exhibition.Priority,
+                StartDate = exhibition.StartDate,
+                EndDate = exhibition.EndDate,
+                Status = exhibition.Status,
+                HistoricalContexts = historicalContexts
+            };
+
             return result;
 
         }
