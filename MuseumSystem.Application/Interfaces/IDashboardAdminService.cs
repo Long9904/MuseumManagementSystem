@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Interfaces
 {
-    public interface IDashboardAdmin
+    public interface IDashboardAdminService
     {
-
+        Task<object> GetArtifactStatsAsync();
+        Task<object> GetStaffStatsAsync();
+        
     }
 }
