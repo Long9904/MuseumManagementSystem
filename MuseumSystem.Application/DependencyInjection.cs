@@ -26,7 +26,7 @@ namespace MuseumSystem.Application
             services.AddScoped<IDashboardSuperService, DashboardService>();
             services.AddScoped<IGeminiService, GeminiService>();
             services.AddScoped<IVisitorService, VisitorService>();
-
+            services.AddScoped<IDashboardAdminService, DashboardAdminService>();
 
             // Redis caching service
             services.AddSingleton<IRedisCacheService, RedisCacheService>();
