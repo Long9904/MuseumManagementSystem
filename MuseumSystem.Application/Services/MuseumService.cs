@@ -156,5 +156,42 @@ namespace MuseumSystem.Application.Services
             }
             return museum;
         }
+
+        public async Task<Museum> ConfirmMuseumRequest(string id, ConfirmRequest confirmRequest)
+        {
+            var museum = await unit.GetRepository<Museum>().FindAsync(x => x.Id == id);
+            if (museum == null)
+            {
+                throw new KeyNotFoundException("Museum not found.");
+            }
+            if (museum.Status != EnumStatus.Pending)
+            {
+                throw new InvalidOperationException("Only museums with Pending status can be confirmed or rejected.");
+            }
+
+            if (confirmRequest != null)
+            {
+                if (confirmRequest.ConfirmStatus == ConfirmEnum.Confirmed)
+                {
+                    museum.Status = EnumStatus.Active;
+                }
+                else if (confirmRequest.ConfirmStatus == ConfirmEnum.Rejected)
+                {
+                    museum.Status = EnumStatus.Rejected;
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid confirm status.", nameof(confirmRequest.ConfirmStatus));
+                }
+                await unit.GetRepository<Museum>().UpdateAsync(museum);
+                await unit.SaveChangeAsync();
+                logger.LogInformation("Museum with ID {MuseumId} has been {Status}.", id, museum.Status);
+                return museum;
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(confirmRequest), "Confirm request cannot be null.");
+            }
+        }
     }
 }

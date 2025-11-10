@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MuseumSystem.Application.Dtos;
+using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.AuthDtos;
 using MuseumSystem.Application.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
@@ -24,6 +25,15 @@ namespace MuseumSystem.Api.Controllers
             _authService = authService;
             _redisCacheService = redisCacheService;
         }
+
+        [HttpPost("register")]
+        [SwaggerOperation(Summary = "Register account with museum, need admin to confirm")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            var result = await _authService.RegisterAccountWithMuseumAsync(request);
+            return Ok(ApiResponse<AccountRespone>.OkResponse(result, "Register successful! Please wait for admin confirmation.", "200"));
+        }
+
 
         [HttpPost("login/google")]
         [SwaggerOperation(Summary = "Login with Google account + credential")]

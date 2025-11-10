@@ -22,18 +22,19 @@ namespace MuseumSystem.Api.Controllers
 
         }
 
-        [HttpPost("{roleId}")]
+        [HttpPost("{roleId}/{museumId}")]
         [SwaggerOperation(
             Summary = "Create a new account",
             Description = "Creates a new account with the provided details.")]
 
-        public async Task<IActionResult> CreateAccount(string roleId, [FromBody] AccountRequest accountRequest)
+        public async Task<IActionResult> CreateAccount(string roleId, string museumId, [FromBody] AccountRequest accountRequest)
         {
 
-            var account = await _accountService.CreateAccountAsync(roleId, accountRequest);
+            var account = await _accountService.CreateAccountAsync(roleId, museumId, accountRequest);
             return Ok(ApiResponse<AccountRespone>.OkResponse(account, "Account created successfully", "200"));
 
         }
+
         [HttpGet("{id}")]
         [SwaggerOperation(
             Summary = "Get an account by ID",

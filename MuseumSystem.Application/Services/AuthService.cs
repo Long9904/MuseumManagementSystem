@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Dtos.AuthDtos;
 using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
@@ -21,9 +22,9 @@ namespace MuseumSystem.Application.Services
         private readonly IRedisCacheService _redisCacheService;
 
         public AuthService(
-            IUnitOfWork unit, 
-            ILogger<AuthService> logger, 
-            IConfiguration configuration, 
+            IUnitOfWork unit,
+            ILogger<AuthService> logger,
+            IConfiguration configuration,
             IGenerateTokenService generateTokenService,
             IRedisCacheService redisCacheService,
             ICurrentUserService currentUserService)
@@ -39,7 +40,7 @@ namespace MuseumSystem.Application.Services
         {
             var currentUserId = _currentUserService.UserId;
             var account = await _unit.GetRepository<Account>()
-                .FindAsync(x => x.Id == currentUserId, 
+                .FindAsync(x => x.Id == currentUserId,
                 include: source => source
                 .Include(x => x.Museum)
                 .Include(x => x.Role))
@@ -68,7 +69,7 @@ namespace MuseumSystem.Application.Services
                 throw new ArgumentNullException("Email or Password cannot be null.");
             }
             var accountExisting = await _unit.GetRepository<Account>().FindAsync(
-                x => x.Email == request.Email, 
+                x => x.Email == request.Email,
                 include: source => source
                 .Include(x => x.Role));
             if (accountExisting == null)
@@ -79,7 +80,7 @@ namespace MuseumSystem.Application.Services
             {
                 throw new UnauthorizedAccessException("Invalid email or password.");
             }
-            if(accountExisting.Status == EnumStatus.Inactive)
+            if (accountExisting.Status == EnumStatus.Inactive)
             {
                 throw new UnauthorizedAccessException("Account is not active.");
             }
@@ -125,11 +126,62 @@ namespace MuseumSystem.Application.Services
         {
             // Take current user id from token
             var currentUserId = _currentUserService.UserId;
-            if (currentUserId == null) {
+            if (currentUserId == null)
+            {
                 throw new UnauthorizedAccessException("User is not logged in.");
             }
             // Remove museumId from redis cache
             return _redisCacheService.RemoveMuseumIdAsync(currentUserId);
+        }
+
+        public async Task<AccountRespone> RegisterAccountWithMuseumAsync(RegisterRequest request)
+        {
+            // Register Museum
+            var museum = new Museum
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = request.MuseumName,
+                Location = request.MuseumLocation,
+                Description = request.MuseumDescription,
+                CreateAt = DateTime.UtcNow,
+                Status = EnumStatus.Pending
+            };
+
+            await _unit.MuseumRepository.InsertAsync(museum);
+            await _unit.SaveChangeAsync();
+
+            var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var role = await _unit.GetRepository<Role>().FindAsync(x => x.Name == "Admin")
+                ?? throw new NotFoundException("Admin role not found, please contact with support.");
+
+            var account = new Account
+            {
+                Email = request.Email,
+                Password = hashPassword,
+                FullName = request.FullName,
+                CreateAt = DateTime.UtcNow,
+                Status = EnumStatus.Active,
+                MuseumId = museum.Id,
+                RoleId = role.Id,
+            };
+
+            await _unit.AccountRepository.InsertAsync(account);
+            await _unit.SaveChangeAsync();
+
+            return new AccountRespone
+            {
+                Id = account.Id,
+                Email = account.Email,
+                FullName = account.FullName,
+                Status = account.Status,
+                CreateAt = account.CreateAt,
+                UpdateAt = account.UpdateAt,
+                MuseumId = account.MuseumId,
+                MuseumName = request.MuseumName,
+                RoleId = account.RoleId,
+                RoleName = role.Name
+            };
         }
     }
 }
