@@ -40,13 +40,14 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
+            var roleNameUpper = roleRequest.Name[0].ToString().ToUpper() + roleRequest.Name.Substring(1).ToLower();
             var role = new Role
             {
-                Name = roleRequest.Name
+                Name = roleNameUpper
             };
             await _unitOfWork.GetRepository<Role>().InsertAsync(role);
             await _unitOfWork.SaveChangeAsync();
-            _logger.LogInformation("Role {RoleName} added successfully.", roleRequest.Name);
+            _logger.LogInformation("Role {RoleName} added successfully.", roleNameUpper);
             return role;
 
         }
@@ -92,11 +93,6 @@ namespace MuseumSystem.Application.Services
             if (roleExisting == null)
             {
                 throw new KeyNotFoundException($"Role with ID {id} not found.");
-            }
-            var roleWithSameName = await _unitOfWork.GetRepository<Role>().FindAsync(x => x.Name == roleRequest.Name && x.Status == EnumStatus.Active);
-            if (roleWithSameName != null)
-            {
-                throw new InvalidOperationException($"Role with name {roleRequest.Name} already exists.");
             }
             var roleCurrentlyUsed = new ArrayList() { "SuperAdmin", "Admin", "Manager", "Staff" };
             if( roleCurrentlyUsed.Contains(roleExisting.Name))
