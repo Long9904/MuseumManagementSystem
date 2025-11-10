@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using MuseumSystem.Domain.Abstractions;
+using MuseumSystem.Domain.Enums;
 
 namespace MuseumSystem.Api.Middleware
 {
@@ -15,15 +16,30 @@ namespace MuseumSystem.Api.Middleware
         public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
             var user = context.User;
+
+            if (context.User.IsInRole("SuperAdmin") || context.User.IsInRole("Visitor"))
+            {
+                await _next(context);
+                return;
+            }
+
             if (user.Identity?.IsAuthenticated == true)
             {
                 var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier)
                                 ?? throw new UnauthorizedAccessException("User is not login");
-                var account = await unitOfWork.AccountRepository.GetByIdAsync(userId);
-                var status = account?.Status.ToString();
+                var account = await unitOfWork.AccountRepository.GetByIdAsync(userId) 
+                              ?? throw new UnauthorizedAccessException("Account not found");
+                if (account.MuseumId == null)
+                {
+                    throw new UnauthorizedAccessException("User is not associated with any museum.");
+                }
+                var museum = await unitOfWork.MuseumRepository.GetByIdAsync(account.MuseumId)
+                                ?? throw new UnauthorizedAccessException("Museum not found for the account.");
+                var status = museum.Status;
+
 
                 var path = context.Request.Path.Value?.ToLower();
-                if (status == "Pending" && !IsPublicPath(context.Request.Path.Value ?? ""))
+                if ((status == EnumStatus.Pending || status == EnumStatus.Rejected ) && !IsPublicPath(context.Request.Path.Value ?? ""))
                 {
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     context.Response.ContentType = "application/json";
@@ -31,7 +47,7 @@ namespace MuseumSystem.Api.Middleware
                     {
                         StatusCode = context.Response.StatusCode,
                         IsSuccess = false,
-                        Message = "Account is not approved"
+                        Message = "Museum is not aproved or has been rejected"
                     };
 
                     await context.Response.WriteAsync(JsonSerializer.Serialize(response));
@@ -47,8 +63,6 @@ namespace MuseumSystem.Api.Middleware
             var publicPaths = new List<string>
             {
                 "/api/v1/auth/",
-                "/api/v1/museums/",
-                "/api/v1/museums",
                 "/swagger",
                 "/swagger/"
             };

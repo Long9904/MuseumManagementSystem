@@ -17,6 +17,8 @@ namespace MuseumSystem.Domain.Enums
         Inactive,
         [Display(Name = "Pending")]
         Pending,
+        [Display(Name = "Rejected")]
+        Rejected,
     }
     public enum ExhibitionStatus
     {
@@ -50,5 +52,13 @@ namespace MuseumSystem.Domain.Enums
         Asc,
         [Display(Name = "Descending")]
         Desc
+    }
+
+    public enum ConfirmEnum
+    {
+        [Display(Name = "Confirmed")]
+        Confirmed,
+        [Display(Name = "Rejected")]
+        Rejected,
     }
 }

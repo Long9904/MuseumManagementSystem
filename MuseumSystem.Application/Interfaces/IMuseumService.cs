@@ -17,5 +17,7 @@ namespace MuseumSystem.Application.Interfaces
         Task DeleteMuseum(string id);
         Task<Museum> GetMuseumById(string id);       
         Task ActiveMuseum(string id);
+
+        Task<Museum> ConfirmMuseumRequest(string id, ConfirmRequest confirmRequest);
     }
 }
