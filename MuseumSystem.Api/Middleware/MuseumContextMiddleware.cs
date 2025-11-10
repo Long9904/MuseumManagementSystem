@@ -14,9 +14,9 @@ namespace MuseumSystem.Api.Middleware
         }
 
         public async Task InvokeAsync(
-            HttpContext context, 
-            IRedisCacheService cacheService, 
-            IAccountRepository _accountRepository, 
+            HttpContext context,
+            IRedisCacheService cacheService,
+            IAccountRepository _accountRepository,
             ILogger<MuseumContextMiddleware> _logger)
         {
             if (context.User.IsInRole("SuperAdmin") || context.User.IsInRole("Visitor"))

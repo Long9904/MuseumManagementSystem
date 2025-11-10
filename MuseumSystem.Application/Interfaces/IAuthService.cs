@@ -1,4 +1,5 @@
-﻿using MuseumSystem.Application.Dtos.AuthDtos;
+﻿using MuseumSystem.Application.Dtos.AccountDtos;
+using MuseumSystem.Application.Dtos.AuthDtos;
 
 
 namespace MuseumSystem.Application.Interfaces
@@ -9,5 +10,7 @@ namespace MuseumSystem.Application.Interfaces
         Task<AuthResponse> LoginGoogleAsync(LoginGGRequest loginGGRequest);
         Task Logout();
         Task<UserProfileResponse> GetCurrentUserProfileAsync();
+
+        Task<AccountRespone> RegisterAccountWithMuseumAsync(RegisterRequest request);
     }
 }

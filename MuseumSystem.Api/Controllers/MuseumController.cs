@@ -8,7 +8,7 @@ using MuseumSystem.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MuseumSystem.Api.Controllers
-{    
+{
     [Route("api/v1/museums")]
     [ApiController]
     [SwaggerTag("Museum Manage ")]
@@ -21,19 +21,29 @@ namespace MuseumSystem.Api.Controllers
             service = serviceM;
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        [SwaggerOperation (Summary = "Register a new museum - Admin")]      
-        public async Task<IActionResult> AddMuseum([FromBody] MuseumRequest museum)
+        //[Authorize(Roles = "Admin")]
+        //[HttpPost]
+        //[SwaggerOperation (Summary = "Register a new museum - Admin")]      
+        //public async Task<IActionResult> AddMuseum([FromBody] MuseumRequest museum)
+        //{
+
+        //    var muse = await service.RegisterMuseum(museum);
+        //    return Ok(ApiResponse<Museum>.OkResponse(muse, "Register museum successful!", "200"));
+
+        //}
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPut("{museumId}/confirm")]
+        [SwaggerOperation(Summary = "Confirm or reject museum - SuperAdmin")]
+        public async Task<IActionResult> ConfirmMuseum(string museumId, [FromQuery] ConfirmRequest confirmRequest)
         {
-
-            var muse = await service.RegisterMuseum(museum);
-            return Ok(ApiResponse<Museum>.OkResponse(muse, "Register museum successful!", "200"));
-
+            var result = await service.ConfirmMuseumRequest(museumId, confirmRequest);
+            return Ok(ApiResponse<Museum>.OkResponse(result, $"Museum is {result.Status}", "200"));
         }
+
+
         [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
-        [SwaggerOperation (Summary = "Get all museums - has paging - SuperAdmin")]       
+        [SwaggerOperation(Summary = "Get all museums - has paging - SuperAdmin")]
         public async Task<IActionResult> GetAllMuseums(int pageIndex = 1, int pageSize = 10, [FromQuery] MuseumFilterDtos? dtos = null)
         {
             var museums = await service.GetAll(pageIndex, pageSize, dtos);
@@ -42,7 +52,7 @@ namespace MuseumSystem.Api.Controllers
         }
         [Authorize(Roles = "SuperAdmin")]
         [HttpDelete("{id}")]
-        [SwaggerOperation (Summary = "Delete museum by ID - soft delete - SuperAdmin")]       
+        [SwaggerOperation(Summary = "Delete museum by ID - soft delete - SuperAdmin")]
         public async Task<IActionResult> DeleteMuseum(string id)
         {
 
@@ -53,7 +63,7 @@ namespace MuseumSystem.Api.Controllers
 
         [Authorize(Roles = "SuperAdmin")]
         [HttpPut("active/{id}")]
-        [SwaggerOperation (Summary = "Activate museum by ID - SuperAdmin")]
+        [SwaggerOperation(Summary = "Activate museum by ID - SuperAdmin")]
         public async Task<IActionResult> ActiveMuseum(string id)
         {
             await service.ActiveMuseum(id);
@@ -62,16 +72,16 @@ namespace MuseumSystem.Api.Controllers
 
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet("{id}")]
-        [SwaggerOperation (Summary = "Get museum by ID - Admin,SuperAdmin")]       
+        [SwaggerOperation(Summary = "Get museum by ID - Admin,SuperAdmin")]
         public async Task<IActionResult> GetMuseumById(string id)
         {
             var museum = await service.GetMuseumById(id);
             return Ok(ApiResponse<Museum>.OkResponse(museum, "Get museum by id successful!", "200"));
 
         }
-        [Authorize (Roles = "SuperAdmin")]
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPut("{id}")]
-        [SwaggerOperation (Summary = "Update museum by ID - SuperAdmin")]
+        [SwaggerOperation(Summary = "Update museum by ID - SuperAdmin")]
         public async Task<IActionResult> UpdateMuseum(string id, [FromBody] MuseumRequest museumRequest)
         {
             var updatedMuseum = await service.UpdateMuseum(id, museumRequest);

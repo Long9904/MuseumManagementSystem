@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MuseumSystem.Application.Dtos;
 using MuseumSystem.Application.Dtos.AccountDtos;
 using MuseumSystem.Application.Exceptions;
 using MuseumSystem.Application.Interfaces;
 using MuseumSystem.Domain.Abstractions;
 using MuseumSystem.Domain.Entities;
 using MuseumSystem.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MuseumSystem.Application.Services
 {
@@ -28,7 +22,7 @@ namespace MuseumSystem.Application.Services
             _logger = logger;
             _mapping = mapping;
         }
-        public async Task<AccountRespone> CreateAccountAsync(string roleId, AccountRequest account)
+        public async Task<AccountRespone> CreateAccountAsync(string roleId, string museumId , AccountRequest account)
         {
             if (account == null)
             {
@@ -62,15 +56,28 @@ namespace MuseumSystem.Application.Services
             {
                 throw new InvalidAccessException("You can not create account with SuperAdmin role");
             }
+
+            var museum = await _unit.GetRepository<Museum>().FindAsync(x => x.Id == museumId && x.Status != EnumStatus.Inactive);
+
+            if (museum == null)
+            {
+                throw new NotFoundException($"Museum not found.");
+            }
+
+            if (museum.Status == EnumStatus.Pending) throw new InvalidOperationException("Museum needs to be approved before assigning accounts.");
+
+            if (museum.Status == EnumStatus.Rejected) throw new InvalidOperationException("Can not create account with rejected museum");
+
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(account.Password);
             var newAccount = new Account
             {
                 Email = account.Email,
                 Password = hashedPassword,
                 FullName = account.FullName,
-                Status = EnumStatus.Pending,
+                Status = EnumStatus.Active,
                 CreateAt = DateTime.UtcNow,
                 RoleId = role.Id,
+                MuseumId = museum.Id
             };
             if (role.Name == "SuperAdmin")
             {
