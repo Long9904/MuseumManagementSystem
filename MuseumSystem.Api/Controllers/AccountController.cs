@@ -80,15 +80,15 @@ namespace MuseumSystem.Api.Controllers
             return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account updated successfully", "200"));
 
         }
-        [HttpPut("{accountId}/assign-museum/{museumId}")]
-        [SwaggerOperation(
-            Summary = "Assign account to museum",
-            Description = "Assigns an a museum to account.")]
-        public async Task<IActionResult> AssignAccountToMuseum(string accountId, string museumId)
-        {
-            var updatedAccount = await _accountService.AssignAccountToMuseumAsync(accountId, museumId);
-            return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account assigned to museum successfully", "200"));
-        }
+        //[HttpPut("{accountId}/assign-museum/{museumId}")]
+        //[SwaggerOperation(
+        //    Summary = "Assign account to museum",
+        //    Description = "Assigns an a museum to account.")]
+        //public async Task<IActionResult> AssignAccountToMuseum(string accountId, string museumId)
+        //{
+        //    var updatedAccount = await _accountService.AssignAccountToMuseumAsync(accountId, museumId);
+        //    return Ok(ApiResponse<AccountRespone>.OkResponse(updatedAccount, "Account assigned to museum successfully", "200"));
+        //}
 
     }
 }
