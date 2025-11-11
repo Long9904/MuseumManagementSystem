@@ -244,7 +244,7 @@ namespace MuseumSystem.Application.Services
                 .Include(a => a.ArtifactMedias)
                 .Include(a => a.Museum)
                 .Where(a => a.MuseumId == museumId
-                && (a.Status == ArtifactStatus.OnDisplay || a.Status == ArtifactStatus.InStorage));
+                && (a.Status == ArtifactStatus.OnDisplay));
 
             if (!string.IsNullOrEmpty(artifactName))
             {
