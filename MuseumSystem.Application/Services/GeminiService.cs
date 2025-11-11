@@ -129,7 +129,7 @@ namespace MuseumSystem.Application.Services
 
             //4. Get final response
             string finalResponse = await GenerateTextAsync(fullPromptFinal, true);
-            return finalResponse.Replace("*", "");
+            return finalResponse;
         }
 
         public async Task<ParapahraseResponse> ParapahraseText(string text, string museumId)
